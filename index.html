@@ -293,6 +293,14 @@
     border:2px solid var(--line);border-radius:12px;background:#fff;
   }
   button.chip.odabrana{border-color:var(--sky);background:#e8f0fc}
+  /* ---------- prekidac predmeta ---------- */
+  .predmeti{display:flex;gap:10px;margin:14px 0 0;flex-wrap:wrap}
+  button.predmet{
+    min-height:46px;padding:0 18px;border-radius:999px;
+    font:700 16px/1 "Nunito",sans-serif;
+    background:#f1eee2;border:2px solid transparent;color:var(--ink);
+  }
+  button.predmet.aktivan{background:var(--sky);border-color:var(--sky);color:#fff}
   footer{
     border-top:2px solid var(--ink);padding-top:18px;color:var(--muted);font-size:15px;
   }
@@ -341,6 +349,7 @@
     .izbor{gap:10px}
     button.chip{width:auto}
     button.slovo{width:auto}
+    button.predmet{width:auto}
   }
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -356,6 +365,7 @@
     <span id="pozdravTekst"></span>
     <button type="button" class="link" id="promijeni">promijeni</button>
   </p>
+  <div class="predmeti" id="predmeti" role="group" aria-label="Predmet"></div>
   <div class="ladder" id="ladder" aria-hidden="true"></div>
   <div class="ladder-scale"><span>0</span><span>50</span><span>100</span></div>
 </header>
@@ -559,9 +569,10 @@ let predmet = "matematika";        // kljuc aktivnog predmeta
 /* ---------- profil: nadimak, avatar i zapamćen napredak ----------
    Sve stoji u localStorageu ovog preglednika, na ovom uređaju. Nema servera,
    pa nadimak nije prijava nego samo ime kojega se stranica sjeti.
+   Napredak se pamti odvojeno po predmetu.
 ------------------------------------------------------------------- */
 const KLJUC_PROFILA = "mat3-profil-v1";
-const profil = { ime: "", avatar: "patuljak", odgovori: {} };
+const profil = { v: 2, ime: "", avatar: "patuljak", predmet: "matematika", napredak: {} };
 
 function ucitajProfil() {
   try {
@@ -569,7 +580,16 @@ function ucitajProfil() {
     if (!zapis || typeof zapis !== "object") return false;
     profil.ime = typeof zapis.ime === "string" ? zapis.ime.slice(0, 20) : "";
     profil.avatar = zapis.avatar === "jedi" ? "jedi" : "patuljak";
-    profil.odgovori = (zapis.odgovori && typeof zapis.odgovori === "object") ? zapis.odgovori : {};
+    if (zapis.v === 2) {
+      profil.predmet = PREDMETI[zapis.predmet] ? zapis.predmet : "matematika";
+      profil.napredak = (zapis.napredak && typeof zapis.napredak === "object") ? zapis.napredak : {};
+    } else {
+      // zapis prije uvodenja predmeta: odgovori su bili samo matematicki
+      profil.predmet = "matematika";
+      profil.napredak = {
+        matematika: (zapis.odgovori && typeof zapis.odgovori === "object") ? zapis.odgovori : {}
+      };
+    }
     return true;
   } catch (_) { return false; }        // privatni prozor ili ugašena pohrana
 }
@@ -583,6 +603,7 @@ function spremiProfil() {
 }
 
 const imaProfil = ucitajProfil();
+if (imaProfil) spremiProfil();       // odmah upisi migrirani zapis (v:2)
 
 /* ---------- traka u zaglavlju ----------
    Matematika ima brojevnu ljestvicu, hrvatski abecedu. Ista mehanika
@@ -1366,11 +1387,11 @@ document.getElementById("reveal").addEventListener("click", async e => {
 document.getElementById("clear").addEventListener("click", () => {
   streak = 0;
   finaleShown = false;
-  inputs().forEach(i => { i.value = ""; setState(i, null, { fx: false }); });
+  inputs().forEach(i => { i.value = ""; oznaciTipku(i); setState(i, null, { fx: false }); });
   levels().forEach(s => s.classList.remove("won"));
   document.querySelectorAll("nav a.done").forEach(a => a.classList.remove("done"));
   buddy.reset();
-  profil.odgovori = {};                 // inace bi osvjezavanje vratilo stare odgovore
+  profil.napredak[predmet] = {};        // inace bi osvjezavanje vratilo stare odgovore
   spremiProfil();
   updateProgress();
 });
@@ -1533,18 +1554,20 @@ poljeIme.addEventListener("keydown", e => {
 function zapamtiOdgovore() {
   const zapis = {};
   inputs().forEach(i => { if (i.value.trim() !== "") zapis[i.dataset.key] = i.value; });
-  profil.odgovori = zapis;
+  profil.napredak[predmet] = zapis;
+  profil.predmet = predmet;
   spremiProfil();
 }
 
 function vratiNapredak() {
-  const zapis = profil.odgovori;
+  const zapis = profil.napredak[predmet];
   if (!zapis || !Object.keys(zapis).length) return 0;
   let vraceno = 0;
   inputs().forEach(inp => {
     const v = zapis[inp.dataset.key];
     if (typeof v !== "string" || v.trim() === "") return;
     inp.value = v;
+    oznaciTipku(inp);                  // kod izbora vrati i odabranu tipku
     setState(inp, tocno(v, inp.dataset.answer), { fx: false });
     vraceno++;
   });
@@ -1553,7 +1576,42 @@ function vratiNapredak() {
   return vraceno;
 }
 
+/* ---------- prekidac predmeta ---------- */
+const predmetiTraka = document.getElementById("predmeti");
+predmetiTraka.innerHTML = Object.entries(PREDMETI).map(([k, p]) =>
+  `<button type="button" class="predmet" data-predmet="${k}" aria-pressed="false">${p.naziv}</button>`
+).join("");
+
+function oznaciPredmet() {
+  predmetiTraka.querySelectorAll(".predmet").forEach(b => {
+    const je = b.dataset.predmet === predmet;
+    b.classList.toggle("aktivan", je);
+    b.setAttribute("aria-pressed", je ? "true" : "false");
+  });
+}
+
+function prebaciPredmet(kljuc) {
+  if (kljuc === predmet || !PREDMETI[kljuc]) return;
+  zapamtiOdgovore();                 // zapamti ono sto ostaje za sobom
+  streak = 0;
+  finaleShown = false;
+  buddy.reset();
+  izgradiPredmet(kljuc);
+  profil.predmet = predmet;
+  spremiProfil();
+  oznaciPredmet();
+  vratiNapredak();                   // tiho, bez konfeta za prosle razine
+  updateProgress();
+}
+
+predmetiTraka.addEventListener("click", e => {
+  const b = e.target.closest(".predmet");
+  if (b) prebaciPredmet(b.dataset.predmet);
+});
+
 /* ---------- pokretanje ---------- */
+izgradiPredmet(profil.predmet);      // otvori se na zadnje biranom predmetu
+oznaciPredmet();
 nacrtajPreglede();
 buddy.postaviLik(profil.avatar);
 osvjeziPozdrav();

@@ -289,6 +289,86 @@ provjera("tipka slova ubacuje znak na mjesto kursora", async ucitaj => {
   jednako(inp.value, "kuća", "znak je ubacen na mjesto kursora");
 });
 
+/* ---------- napredak po predmetu ---------- */
+
+provjera("stari zapis se prevodi u v:2 i cuva matematicki napredak", async ucitaj => {
+  localStorage.setItem("mat3-profil-v1", JSON.stringify({
+    ime: "Luka", avatar: "jedi", odgovori: { "c1|63|0": "6D3J" }
+  }));
+  const W = await ucitaj();
+  await cekaj(300);
+  const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(zapis.v, 2, "verzija zapisa");
+  jednako(zapis.ime, "Luka", "ime je ocuvano");
+  jednako(zapis.avatar, "jedi", "avatar je ocuvan");
+  jednako(zapis.napredak.matematika["c1|63|0"], "6D3J", "matematicki odgovor je ocuvan");
+  jednako(W.document.querySelectorAll("#main input.ok").length, 1, "odgovor je vracen na ekran");
+});
+
+provjera("prekidac predmeta ima pilulu za svaki predmet", async ucitaj => {
+  const W = await ucitaj();
+  const pilule = [...W.document.querySelectorAll("#predmeti .predmet")];
+  jednako(pilule.map(p => p.dataset.predmet), ["matematika", "hrvatski"], "pilule");
+  jednako(pilule.filter(p => p.classList.contains("aktivan")).length, 1, "jedna je aktivna");
+});
+
+provjera("prebacivanje predmeta cuva napredak oba predmeta", async ucitaj => {
+  const W = await ucitaj();
+  // matematika: jedan tocan odgovor
+  const m = polja(W)[0];
+  upisi(W, m, m.dataset.answer);
+  await cekaj(300);
+  // na hrvatski, pa jedan tap
+  W.document.querySelector('.predmet[data-predmet="hrvatski"]').click();
+  await cekaj(200);
+  const stavka = W.document.querySelector(".izbor-item");
+  const inp = stavka.querySelector("input[type=text]");
+  [...stavka.querySelectorAll(".chip")].find(t => t.dataset.vrijednost === inp.dataset.answer).click();
+  await cekaj(300);
+  const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(Object.keys(zapis.napredak.matematika).length, 1, "matematicki napredak je ostao");
+  jednako(Object.keys(zapis.napredak.hrvatski).length, 1, "hrvatski napredak je zapisan");
+  jednako(zapis.predmet, "hrvatski", "zadnje biran predmet");
+  // natrag na matematiku: odgovor je tu
+  W.document.querySelector('.predmet[data-predmet="matematika"]').click();
+  await cekaj(200);
+  jednako(W.document.querySelectorAll("#main input.ok").length, 1, "matematicki odgovor je vracen");
+});
+
+provjera("prebacivanje predmeta ne ispaljuje konfete", async ucitaj => {
+  const W = await ucitaj();
+  // svladaj cijelu prvu razinu matematike
+  const prva = W.document.querySelector("section[data-total]");
+  [...prva.querySelectorAll("input")].forEach(i => { i.value = i.dataset.answer; });
+  W.document.getElementById("check").click();
+  await cekaj(2600);                              // pusti da konfeti i poruke nestanu
+  W.document.querySelector('.predmet[data-predmet="hrvatski"]').click();
+  await cekaj(200);
+  W.document.querySelector('.predmet[data-predmet="matematika"]').click();
+  await cekaj(250);
+  jednako(W.document.querySelectorAll("section.won").length, 1, "razina je i dalje svladana");
+  jednako(W.document.querySelectorAll("#fx b").length, 0, "nema novih cestica");
+  jednako([...W.document.querySelectorAll(".toast")].length, 0, "nema novih poruka");
+});
+
+provjera("Pocni ispocetka brise samo trenutni predmet", async ucitaj => {
+  const W = await ucitaj();
+  const m = polja(W)[0];
+  upisi(W, m, m.dataset.answer);
+  await cekaj(300);
+  W.document.querySelector('.predmet[data-predmet="hrvatski"]').click();
+  await cekaj(200);
+  const stavka = W.document.querySelector(".izbor-item");
+  const inp = stavka.querySelector("input[type=text]");
+  [...stavka.querySelectorAll(".chip")].find(t => t.dataset.vrijednost === inp.dataset.answer).click();
+  await cekaj(300);
+  W.document.getElementById("clear").click();
+  await cekaj(300);
+  const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(Object.keys(zapis.napredak.hrvatski).length, 0, "hrvatski je obrisan");
+  jednako(Object.keys(zapis.napredak.matematika).length, 1, "matematika je ostala");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {
