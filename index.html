@@ -194,8 +194,8 @@
   .buddy.on{opacity:1;visibility:visible}
   .buddy svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 
-  .buddy .eyes-happy,.buddy .eyes-shut,.buddy .brows,
-  .buddy .cheeks,.buddy .mouth-angry{display:none}
+  .lik .eyes-happy,.lik .eyes-shut,.lik .brows,
+  .lik .cheeks,.lik .mouth-angry{display:none}
   .buddy[data-mood=happy] .eyes-open,
   .buddy[data-mood=happy] .mouth-happy{display:none}
   .buddy[data-mood=happy] .eyes-happy,
@@ -207,10 +207,12 @@
   .buddy[data-mood=angry] .mouth-angry{display:block}
 
   /* SVG dijelovi se vrte oko vlastitog sredista, ne oko ishodista viewBoxa */
-  #gbob,#gact{transform-box:fill-box;transform-origin:50% 62%}
-  #hat{transform-box:fill-box;transform-origin:50% 100%}
-  #armL{transform-box:fill-box;transform-origin:82% 17%}
-  #armR{transform-box:fill-box;transform-origin:18% 17%}
+  .b-bob,.b-act{transform-box:fill-box;transform-origin:50% 62%}
+  .b-hat{transform-box:fill-box;transform-origin:50% 100%}
+  .b-armL{transform-box:fill-box;transform-origin:82% 17%}
+  .b-armR{transform-box:fill-box;transform-origin:18% 17%}
+  .b-earL{transform-box:fill-box;transform-origin:100% 55%}
+  .b-earR{transform-box:fill-box;transform-origin:0% 55%}
 
   .bubble{
     position:absolute;left:50%;bottom:100%;margin-bottom:6px;
@@ -232,6 +234,50 @@
     .buddy{width:76px;height:94px}
     .bubble{font-size:15px;padding:6px 11px}
   }
+  .lik{display:none}
+  .lik.on{display:block}
+
+  /* ---------- pozdrav u zaglavlju ---------- */
+  .pozdrav{display:flex;align-items:center;gap:10px;margin:16px 0 0;font-weight:700}
+  .pozdrav[hidden]{display:none}
+  .pozdrav .mini{width:38px;height:46px;flex:0 0 auto}
+  .pozdrav button.link{
+    background:none;border:none;min-height:0;padding:0;
+    font:600 15px/1 "Nunito",sans-serif;color:var(--muted);
+    text-decoration:underline;cursor:pointer;
+  }
+  .pozdrav button.link:active{background:none;color:var(--sky)}
+
+  /* ---------- prijava ---------- */
+  .prijava{
+    position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
+    padding:20px;background:rgba(29,43,58,.55);
+  }
+  .prijava[hidden]{display:none}
+  .prijava-box{
+    background:var(--paper);border:3px solid var(--ink);border-radius:20px;
+    padding:26px 24px;max-width:520px;width:100%;max-height:100%;overflow-y:auto;
+    box-shadow:0 10px 0 rgba(29,43,58,.25);
+  }
+  .prijava-box h2{font:800 26px/1.2 "Baloo 2",cursive;margin:0 0 6px}
+  .prijava-box p{margin:0 0 12px;color:var(--muted);font-size:16px}
+  .prijava-box input{
+    width:100%;min-height:56px;font:700 20px/1 "Nunito",sans-serif;text-align:left;
+    padding:0 14px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);
+  }
+  .prijava-box input:focus-visible{outline:3px solid var(--sky);outline-offset:1px;border-color:var(--sky)}
+  .izbor{display:flex;gap:14px;margin:4px 0 20px}
+  button.lik-izbor{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;
+    min-height:0;padding:12px 8px;border:2px solid var(--line);border-radius:16px;background:#fff;
+  }
+  button.lik-izbor svg{width:72px;height:88px}
+  button.lik-izbor .lik-ime{font:700 16px/1 "Nunito",sans-serif}
+  button.lik-izbor.izabran{border-color:var(--grass);background:#eefaf1;box-shadow:0 0 0 3px #c9ecd6}
+  button.lik-izbor:active{background:#f1eee2}
+  button.lik-izbor.izabran:active{background:#eefaf1}
+  .prijava-akcije{display:flex;gap:12px;flex-wrap:wrap}
+  .prijava-akcije button{flex:1}
   footer{
     border-top:2px solid var(--ink);padding-top:18px;color:var(--muted);font-size:15px;
   }
@@ -259,6 +305,13 @@
     .wrap{padding:0 16px 120px}
     nav,.toolbar{margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px}
   }
+  /* prijava i pozdrav ne smiju naslijediti button{width:100%} s tableta */
+  @media (max-width:834px){
+    button.lik-izbor,.prijava-akcije button,.pozdrav button.link{width:auto}
+    .prijava-box{padding:20px 16px}
+    button.lik-izbor svg{width:62px;height:76px}
+    .izbor{gap:10px}
+  }
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
@@ -268,6 +321,11 @@
 <header class="hero">
   <h1>Ponavljamo matematiku<br>prije 3. razreda</h1>
   <p>Gradivo 2. razreda: brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija, mjerenje i podaci. Upiši odgovor i provjeri se sam.</p>
+  <p class="pozdrav" id="pozdrav" hidden>
+    <svg class="mini" id="mini" viewBox="0 0 100 122" aria-hidden="true"></svg>
+    <span id="pozdravTekst"></span>
+    <button type="button" class="link" id="promijeni">promijeni</button>
+  </p>
   <div class="ladder" id="ladder" aria-hidden="true"></div>
   <div class="ladder-scale"><span>0</span><span>50</span><span>100</span></div>
 </header>
@@ -299,63 +357,148 @@
 
 <div class="buddy" id="buddy" data-mood="idle">
   <div class="bubble" id="bubble" aria-hidden="true"></div>
-  <svg viewBox="0 0 100 122" role="img" aria-label="Patuljak koji navija">
-    <g id="gbob">
-     <g id="gact">
-      <!-- noge i cizme -->
-      <path d="M40 100h7v12h-7z" fill="#3a4a5c"/>
-      <path d="M53 100h7v12h-7z" fill="#3a4a5c"/>
-      <path d="M34 110h13a3 3 0 0 1 3 3v4H34z" fill="#2b3746"/>
-      <path d="M53 110h13v7H50v-4a3 3 0 0 1 3-3z" fill="#2b3746"/>
-      <!-- tunika -->
-      <path d="M50 62c14 0 22 12 24 30 1 8-3 14-24 14s-25-6-24-14c2-18 10-30 24-30z" fill="#2f9e5f"/>
-      <path d="M26 92h48c.6 4 .3 9-2 11H28c-2.3-2-2.6-7-2-11z" fill="#25784a"/>
-      <!-- ruke -->
-      <g id="armL"><path d="M28 72c-7 3-11 9-12 16" stroke="#2f9e5f" stroke-width="9"
-          stroke-linecap="round" fill="none"/><circle cx="15" cy="90" r="6" fill="#f2c9a0"/></g>
-      <g id="armR"><path d="M72 72c7 3 11 9 12 16" stroke="#2f9e5f" stroke-width="9"
-          stroke-linecap="round" fill="none"/><circle cx="85" cy="90" r="6" fill="#f2c9a0"/></g>
-      <!-- lice -->
-      <circle cx="50" cy="54" r="22" fill="#f2c9a0"/>
-      <!-- brada -->
-      <path d="M28 58c0 26 8 40 22 40s22-14 22-40c-5 8-13 12-22 12s-17-4-22-12z" fill="#fbfaf4"/>
-      <path d="M35 90c4 5 9 8 15 8s11-3 15-8c-3 8-8 12-15 12s-12-4-15-12z" fill="#edebe1"/>
-      <!-- obrazi kad se ljuti -->
-      <g class="cheeks">
-        <circle cx="31" cy="58" r="5.5" fill="#e0544f" opacity=".45"/>
-        <circle cx="69" cy="58" r="5.5" fill="#e0544f" opacity=".45"/>
-      </g>
-      <!-- oci -->
-      <g class="eyes-open">
-        <circle cx="41" cy="53" r="3.4" fill="#28323f"/>
-        <circle cx="59" cy="53" r="3.4" fill="#28323f"/>
-      </g>
-      <g class="eyes-happy">
-        <path d="M36 55q5-7 10 0M54 55q5-7 10 0" stroke="#28323f" stroke-width="3"
+  <svg viewBox="0 0 100 122" role="img" aria-hidden="true">
+     <g class="lik" data-lik="patuljak">
+      <g class="b-bob">
+       <g class="b-act">
+        <!-- noge i cizme -->
+        <path d="M40 100h7v12h-7z" fill="#3a4a5c"/>
+        <path d="M53 100h7v12h-7z" fill="#3a4a5c"/>
+        <path d="M34 110h13a3 3 0 0 1 3 3v4H34z" fill="#2b3746"/>
+        <path d="M53 110h13v7H50v-4a3 3 0 0 1 3-3z" fill="#2b3746"/>
+        <!-- tunika -->
+        <path d="M50 62c14 0 22 12 24 30 1 8-3 14-24 14s-25-6-24-14c2-18 10-30 24-30z" fill="#2f9e5f"/>
+        <path d="M26 92h48c.6 4 .3 9-2 11H28c-2.3-2-2.6-7-2-11z" fill="#25784a"/>
+        <!-- ruke -->
+        <g class="b-armL"><path d="M28 72c-7 3-11 9-12 16" stroke="#2f9e5f" stroke-width="9"
+            stroke-linecap="round" fill="none"/><circle cx="15" cy="90" r="6" fill="#f2c9a0"/></g>
+        <g class="b-armR"><path d="M72 72c7 3 11 9 12 16" stroke="#2f9e5f" stroke-width="9"
+            stroke-linecap="round" fill="none"/><circle cx="85" cy="90" r="6" fill="#f2c9a0"/></g>
+        <!-- lice -->
+        <circle cx="50" cy="54" r="22" fill="#f2c9a0"/>
+        <!-- brada -->
+        <path d="M28 58c0 26 8 40 22 40s22-14 22-40c-5 8-13 12-22 12s-17-4-22-12z" fill="#fbfaf4"/>
+        <path d="M35 90c4 5 9 8 15 8s11-3 15-8c-3 8-8 12-15 12s-12-4-15-12z" fill="#edebe1"/>
+        <!-- obrazi kad se ljuti -->
+        <g class="cheeks">
+          <circle cx="31" cy="58" r="5.5" fill="#e0544f" opacity=".45"/>
+          <circle cx="69" cy="58" r="5.5" fill="#e0544f" opacity=".45"/>
+        </g>
+        <!-- oci -->
+        <g class="eyes-open">
+          <circle cx="41" cy="53" r="3.4" fill="#28323f"/>
+          <circle cx="59" cy="53" r="3.4" fill="#28323f"/>
+        </g>
+        <g class="eyes-happy">
+          <path d="M36 55q5-7 10 0M54 55q5-7 10 0" stroke="#28323f" stroke-width="3"
+                fill="none" stroke-linecap="round"/>
+        </g>
+        <g class="eyes-shut">
+          <path d="M36 53h10M54 53h10" stroke="#28323f" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <g class="brows">
+          <path d="M34 46l12 7M66 46l-12 7" stroke="#28323f" stroke-width="3.6" stroke-linecap="round"/>
+        </g>
+        <!-- nos -->
+        <circle cx="50" cy="64" r="9.5" fill="#eab08a"/>
+        <!-- usta, preko brade da se izraz vidi -->
+        <path class="mouth-happy" d="M40 80q10 10 20 0" stroke="#28323f" stroke-width="3"
               fill="none" stroke-linecap="round"/>
+        <path class="mouth-angry" d="M41 86q9-9 18 0" stroke="#28323f" stroke-width="3"
+              fill="none" stroke-linecap="round"/>
+        <!-- kapa -->
+        <g class="b-hat">
+          <path d="M22 40C26 12 36 2 50 2s24 10 28 38c-8-6-17-9-28-9s-20 3-28 9z" fill="#e0544f"/>
+          <path d="M20 38c8-6 18-9 30-9s22 3 30 9c1 4-1 7-4 7H24c-3 0-5-3-4-7z" fill="#c4433e"/>
+        </g>
+       </g>
       </g>
-      <g class="eyes-shut">
-        <path d="M36 53h10M54 53h10" stroke="#28323f" stroke-width="3" stroke-linecap="round"/>
-      </g>
-      <g class="brows">
-        <path d="M34 46l12 7M66 46l-12 7" stroke="#28323f" stroke-width="3.6" stroke-linecap="round"/>
-      </g>
-      <!-- nos -->
-      <circle cx="50" cy="64" r="9.5" fill="#eab08a"/>
-      <!-- usta, preko brade da se izraz vidi -->
-      <path class="mouth-happy" d="M40 80q10 10 20 0" stroke="#28323f" stroke-width="3"
-            fill="none" stroke-linecap="round"/>
-      <path class="mouth-angry" d="M41 86q9-9 18 0" stroke="#28323f" stroke-width="3"
-            fill="none" stroke-linecap="round"/>
-      <!-- kapa -->
-      <g id="hat">
-        <path d="M22 40C26 12 36 2 50 2s24 10 28 38c-8-6-17-9-28-9s-20 3-28 9z" fill="#e0544f"/>
-        <path d="M20 38c8-6 18-9 30-9s22 3 30 9c1 4-1 7-4 7H24c-3 0-5-3-4-7z" fill="#c4433e"/>
+  
+     </g>
+     <g class="lik" data-lik="jedi">
+      <g class="b-bob">
+       <g class="b-act">
+        <!-- stopala -->
+        <ellipse cx="42" cy="113" rx="8" ry="5" fill="#7d6a4f"/>
+        <ellipse cx="58" cy="113" rx="8" ry="5" fill="#7d6a4f"/>
+        <!-- halja -->
+        <path d="M50 62c13 0 20 11 23 28 2 10-4 18-23 18s-25-8-23-18c3-17 10-28 23-28z" fill="#cbbb96"/>
+        <path d="M50 62c5 0 9 2 12 5l-12 40-12-40c3-3 7-5 12-5z" fill="#b8a683"/>
+        <path d="M28 96h44c1 4 .6 8-1 10H29c-1.6-2-2-6-1-10z" fill="#8d7f61"/>
+        <!-- rukavi i ruke -->
+        <g class="b-armL"><path d="M31 72c-7 4-11 10-12 17" stroke="#cbbb96" stroke-width="10"
+            stroke-linecap="round" fill="none"/><circle cx="18" cy="91" r="6" fill="#7cb342"/></g>
+        <g class="b-armR"><path d="M69 72c7 4 11 10 12 17" stroke="#cbbb96" stroke-width="10"
+            stroke-linecap="round" fill="none"/><circle cx="82" cy="91" r="6" fill="#7cb342"/></g>
+        <!-- velike usi -->
+        <g class="b-earL">
+          <path d="M32 42C20 36 6 36 2 42c-2 4 4 9 12 12 7 3 14 3 18 1z" fill="#8bc34a"/>
+          <path d="M30 44c-9-4-19-4-23-1 4 4 12 8 19 9 3 .5 5 0 6-1z" fill="#6f9c3a" opacity=".55"/>
+        </g>
+        <g class="b-earR">
+          <path d="M68 42c12-6 26-6 30 0 2 4-4 9-12 12-7 3-14 3-18 1z" fill="#8bc34a"/>
+          <path d="M70 44c9-4 19-4 23-1-4 4-12 8-19 9-3 .5-5 0-6-1z" fill="#6f9c3a" opacity=".55"/>
+        </g>
+        <!-- glava -->
+        <path d="M50 20c15 0 24 11 24 25s-11 24-24 24-24-10-24-24 9-25 24-25z" fill="#8bc34a"/>
+        <path d="M50 20c-9 0-16 4-20 10 5-3 12-5 20-5s15 2 20 5c-4-6-11-10-20-10z" fill="#9ed15c"/>
+        <!-- obrazi kad se ljuti -->
+        <g class="cheeks">
+          <circle cx="33" cy="52" r="5.5" fill="#e0544f" opacity=".4"/>
+          <circle cx="67" cy="52" r="5.5" fill="#e0544f" opacity=".4"/>
+        </g>
+        <!-- velike oci -->
+        <g class="eyes-open">
+          <ellipse cx="39" cy="44" rx="7" ry="8" fill="#2b2b23"/>
+          <ellipse cx="61" cy="44" rx="7" ry="8" fill="#2b2b23"/>
+          <circle cx="41" cy="41" r="2.4" fill="#fff" opacity=".85"/>
+          <circle cx="63" cy="41" r="2.4" fill="#fff" opacity=".85"/>
+        </g>
+        <g class="eyes-happy">
+          <path d="M32 46q7-9 14 0M54 46q7-9 14 0" stroke="#2b2b23" stroke-width="3.4"
+                fill="none" stroke-linecap="round"/>
+        </g>
+        <g class="eyes-shut">
+          <path d="M32 44h14M54 44h14" stroke="#2b2b23" stroke-width="3.4" stroke-linecap="round"/>
+        </g>
+        <g class="brows">
+          <path d="M30 34l14 6M70 34l-14 6" stroke="#2b2b23" stroke-width="3.6" stroke-linecap="round"/>
+        </g>
+        <!-- nosic -->
+        <path d="M47 54h6l-3 4z" fill="#6f9c3a"/>
+        <!-- usta -->
+        <path class="mouth-happy" d="M42 60q8 7 16 0" stroke="#2b2b23" stroke-width="3"
+              fill="none" stroke-linecap="round"/>
+        <path class="mouth-angry" d="M42 64q8-7 16 0" stroke="#2b2b23" stroke-width="3"
+              fill="none" stroke-linecap="round"/>
+       </g>
       </g>
      </g>
-    </g>
-  </svg>
+</svg>
 </div>
+<div class="prijava" id="prijava" hidden>
+  <div class="prijava-box" role="dialog" aria-modal="true" aria-labelledby="prijava-naslov">
+    <h2 id="prijava-naslov">Kako se zoveš?</h2>
+    <p>Upiši nadimak pa će stranica zapamtiti gdje si stao.</p>
+    <input id="nick" type="text" maxlength="20" placeholder="npr. Luka"
+           autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false"
+           enterkeyhint="done" aria-label="Nadimak">
+    <p style="margin-top:16px">Koga želiš da te prati kroz zadatke?</p>
+    <div class="izbor">
+      <button type="button" class="lik-izbor" data-avatar="patuljak" aria-pressed="false">
+        <svg viewBox="0 0 100 122" aria-hidden="true"></svg><span class="lik-ime"></span>
+      </button>
+      <button type="button" class="lik-izbor" data-avatar="jedi" aria-pressed="false">
+        <svg viewBox="0 0 100 122" aria-hidden="true"></svg><span class="lik-ime"></span>
+      </button>
+    </div>
+    <div class="prijava-akcije">
+      <button type="button" class="primary" id="kreni">Kreni!</button>
+      <button type="button" id="preskoci">Bez imena</button>
+    </div>
+  </div>
+</div>
+
 <div id="fx" aria-hidden="true"></div>
 <div id="toasts" role="status" aria-live="polite"></div>
 
@@ -443,6 +586,34 @@ const DATA = [
 ]}
 ];
 
+/* ---------- profil: nadimak, avatar i zapamćen napredak ----------
+   Sve stoji u localStorageu ovog preglednika, na ovom uređaju. Nema servera,
+   pa nadimak nije prijava nego samo ime kojega se stranica sjeti.
+------------------------------------------------------------------- */
+const KLJUC_PROFILA = "mat3-profil-v1";
+const profil = { ime: "", avatar: "patuljak", odgovori: {} };
+
+function ucitajProfil() {
+  try {
+    const zapis = JSON.parse(localStorage.getItem(KLJUC_PROFILA) || "null");
+    if (!zapis || typeof zapis !== "object") return false;
+    profil.ime = typeof zapis.ime === "string" ? zapis.ime.slice(0, 20) : "";
+    profil.avatar = zapis.avatar === "jedi" ? "jedi" : "patuljak";
+    profil.odgovori = (zapis.odgovori && typeof zapis.odgovori === "object") ? zapis.odgovori : {};
+    return true;
+  } catch (_) { return false; }        // privatni prozor ili ugašena pohrana
+}
+
+let spremiTimer = null;
+function spremiProfil() {
+  clearTimeout(spremiTimer);
+  spremiTimer = setTimeout(() => {
+    try { localStorage.setItem(KLJUC_PROFILA, JSON.stringify(profil)); } catch (_) {}
+  }, 200);
+}
+
+const imaProfil = ucitajProfil();
+
 /* ---------- brojevna ljestvica u hero dijelu ---------- */
 const ladder = document.getElementById("ladder");
 for (let i = 1; i <= 20; i++) {
@@ -456,6 +627,7 @@ const main = document.getElementById("main");
 let inputCount = 0;
 
 DATA.forEach((sec, si) => {
+  const brojacKljuca = {};        // koliko se puta isti prikaz ponavlja u ovoj cjelini
   const el = document.createElement("section");
   el.id = sec.id;
   el.innerHTML = `<h2><span class="num">${si + 1}</span>${sec.title}</h2>
@@ -480,13 +652,17 @@ DATA.forEach((sec, si) => {
       html += '<div class="items">';
       task.items.forEach(([shown, answer]) => {
         const id = "i" + (inputCount++);
+        // stabilan kljuc za pamcenje: ne mijenja se ako se zadaci presloze
+        const osnova = sec.id + "|" + shown;
+        brojacKljuca[osnova] = (brojacKljuca[osnova] || 0) + 1;
+        const kljuc = (osnova + "|" + (brojacKljuca[osnova] - 1)).replace(/"/g, "");
         // brojčana tipkovnica samo kad je odgovor broj (dopušteni , . i razmak)
         const numeric = /^[0-9 ,.]+$/.test(answer);
         const mode = numeric ? "decimal" : "text";
         const wide = numeric ? "" : " wide";
         html += `<span class="item">
           <label for="${id}">${shown}</label>
-          <input type="text" class="ans${wide}" id="${id}" data-answer="${answer}"
+          <input type="text" class="ans${wide}" id="${id}" data-answer="${answer}" data-key="${kljuc}"
                  autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
                  enterkeyhint="next" inputmode="${mode}" aria-label="${shown.replace(/"/g, "")}">
           <span class="mark" data-for="${id}"></span></span>`;
@@ -526,7 +702,8 @@ const norm = v => v.toString().toLowerCase()
   .replace(/;/g, ",")
   .replace(/^,|,$/g, "");
 
-const inputs = () => Array.from(document.querySelectorAll("input[type=text]"));
+// samo polja u zadacima; polje za nadimak u prijavi ne smije se racunati
+const inputs = () => Array.from(main.querySelectorAll("input[type=text]"));
 const levels = () => Array.from(document.querySelectorAll("section[data-total]"));
 const scoreEl = document.getElementById("score");
 
@@ -617,27 +794,202 @@ function toast(text, cls = "") {
   }, 1900);
 }
 
-/* ---------- patuljak ----------
-   Iskoči kraj polja koje je dijete upravo riješilo: veseli se ili ljuti,
-   svaki put drukčijim pokretom i drukčijom rečenicom, pa nestane.
-   Kad su animacije isključene ostaje samo izraz lica i oblačić.
+/* ---------- avatar ----------
+   Dva lika: patuljak i mali Jedi. Iskoči kraj polja koje je dijete upravo
+   riješilo, odglumi svoje i nestane. Svaki lik ima svoje pokrete i rečenice.
+
+   Rečenice su predlošci: {ime} je nadimak, a [ … ] je dio koji ispada kad
+   nadimka nema — tako ne dobijemo „Bravo, !".
 --------------------------------------------------------------------- */
 const buddy = (() => {
   const root   = document.getElementById("buddy");
-  const bob    = document.getElementById("gbob");   // mirno disanje, vrti se stalno
-  const act    = document.getElementById("gact");   // reakcije, odvojeno od disanja
-  const hat    = document.getElementById("hat");
-  const armL   = document.getElementById("armL");
-  const armR   = document.getElementById("armR");
   const bubble = document.getElementById("bubble");
 
-  const RIJECI = {
-    happy: ["Bravo!", "To je to!", "Svaka čast!", "Majstore!", "Točnooo!",
-            "Tako se to radi!", "Ju-hu!", "Pravi si as!", "Ha, lako!", "Odlično!"],
-    angry: ["Ajme meni!", "Ne, ne, ne!", "Grrr!", "Promašaj!", "Uh, blizu!",
-            "Ma daj!", "Jooooj!", "Probaj opet!", "Buuu!", "Hmpf!"],
-    party: ["Razina pala!", "Juuuhuuu!", "Ti si šampion!", "Wooohoo!"]
+  const K = (el, frames, dur, easing = "cubic-bezier(.34,1.56,.64,1)") =>
+    el && el.animate(frames, { duration: dur, easing });
+
+  /* ---------- patuljak ---------- */
+  const PATULJAK = {
+    naziv: "Patuljak",
+    veselje: [
+      p => {   // čučne pa skoči uvis
+        K(p.act, [{transform:"translateY(0) scaleY(1)"}, {transform:"translateY(3px) scaleY(.86)"},
+                  {transform:"translateY(-26px) scaleY(1.1)"}, {transform:"translateY(0) scaleY(1)"}], 620);
+        K(p.hat, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-9px) rotate(-14deg)"},
+                  {transform:"translateY(0) rotate(0deg)"}], 620);
+      },
+      p => {   // zavrti se oko sebe
+        K(p.act, [{transform:"rotate(0deg) scale(1)"}, {transform:"rotate(360deg) scale(1.08)"},
+                  {transform:"rotate(360deg) scale(1)"}], 700, "cubic-bezier(.4,0,.2,1)");
+      },
+      p => {   // pleše i maše rukama
+        K(p.act, [{transform:"rotate(0deg)"}, {transform:"rotate(-13deg)"}, {transform:"rotate(11deg)"},
+                  {transform:"rotate(-8deg)"}, {transform:"rotate(0deg)"}], 720, "ease-in-out");
+        K(p.armL, [{transform:"rotate(0deg)"}, {transform:"rotate(-40deg)"}, {transform:"rotate(0deg)"}], 720);
+        K(p.armR, [{transform:"rotate(0deg)"}, {transform:"rotate(40deg)"}, {transform:"rotate(0deg)"}], 720);
+      },
+      p => {   // baci kapu uvis pa je uhvati
+        K(p.hat, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-38px) rotate(180deg)"},
+                  {transform:"translateY(-38px) rotate(300deg)"}, {transform:"translateY(0) rotate(360deg)"}],
+          820, "cubic-bezier(.3,.1,.4,1)");
+        K(p.act, [{transform:"translateY(0)"}, {transform:"translateY(4px)"}, {transform:"translateY(0)"}], 820);
+      },
+      p => {   // naraste od sreće pa se stisne
+        K(p.act, [{transform:"scale(1)"}, {transform:"scale(1.28) translateY(-8px)"},
+                  {transform:"scale(.94)"}, {transform:"scale(1)"}], 640);
+        K(p.armL, [{transform:"rotate(0deg)"}, {transform:"rotate(-70deg)"}, {transform:"rotate(0deg)"}], 640);
+        K(p.armR, [{transform:"rotate(0deg)"}, {transform:"rotate(70deg)"}, {transform:"rotate(0deg)"}], 640);
+      }
+    ],
+    ljutnja: [
+      p => {   // trese se od bijesa
+        K(p.act, [{transform:"translateX(0)"}, {transform:"translateX(-7px)"}, {transform:"translateX(6px)"},
+                  {transform:"translateX(-5px)"}, {transform:"translateX(4px)"}, {transform:"translateX(0)"}],
+          460, "ease-in-out");
+      },
+      p => {   // lupi nogom o pod
+        K(p.act, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-14px) rotate(-7deg)"},
+                  {transform:"translateY(5px) scaleY(.88)"}, {transform:"translateY(0) scaleY(1)"}], 520);
+        K(p.hat, [{transform:"translateY(0)"}, {transform:"translateY(-6px)"}, {transform:"translateY(2px)"},
+                  {transform:"translateY(0)"}], 520);
+      },
+      p => {   // napuše se pa ispuše, kapa poskoči
+        K(p.act, [{transform:"scale(1)"}, {transform:"scale(1.22)"}, {transform:"scale(1.22)"},
+                  {transform:"scale(.97)"}, {transform:"scale(1)"}], 700, "ease-in-out");
+        K(p.hat, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-14px) rotate(18deg)"},
+                  {transform:"translateY(0) rotate(0deg)"}], 700);
+      },
+      p => {   // okrene se od ljutnje pa se vrati
+        K(p.act, [{transform:"rotateY(0deg)"}, {transform:"rotateY(180deg)"},
+                  {transform:"rotateY(180deg)"}, {transform:"rotateY(0deg)"}], 800, "ease-in-out");
+      },
+      p => {   // vrti glavom i maše rukama
+        K(p.act, [{transform:"rotate(0deg)"}, {transform:"rotate(9deg)"}, {transform:"rotate(-9deg)"},
+                  {transform:"rotate(6deg)"}, {transform:"rotate(0deg)"}], 500, "ease-in-out");
+        K(p.armL, [{transform:"rotate(0deg)"}, {transform:"rotate(-55deg)"}, {transform:"rotate(-10deg)"},
+                   {transform:"rotate(0deg)"}], 500);
+        K(p.armR, [{transform:"rotate(0deg)"}, {transform:"rotate(55deg)"}, {transform:"rotate(10deg)"},
+                   {transform:"rotate(0deg)"}], 500);
+      }
+    ],
+    slavlje: p => {
+      K(p.act, [{transform:"translateY(0) rotate(0deg) scale(1)"},
+                {transform:"translateY(-34px) rotate(180deg) scale(1.14)"},
+                {transform:"translateY(-10px) rotate(360deg) scale(1.05)"},
+                {transform:"translateY(0) rotate(360deg) scale(1)"}], 1000);
+      K(p.hat, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-30px) rotate(-200deg)"},
+                {transform:"translateY(0) rotate(0deg)"}], 1000);
+    },
+    rijeci: {
+      happy: ["Bravo[, {ime}]!", "To je to[, {ime}]!", "Svaka čast[, {ime}]!",
+              "[{ime}, ]pravi si majstor!", "Točnooo!", "Tako se to radi[, {ime}]!",
+              "Ju-hu!", "[{ime}, ]pravi si as!", "Ha, lako!", "Odlično[, {ime}]!"],
+      angry: ["Ajme meni!", "Ne, ne, ne[, {ime}]!", "Grrr!", "Promašaj!",
+              "Uh, blizu[, {ime}]!", "Ma daj!", "Jooooj!", "Probaj opet[, {ime}]!",
+              "Buuu!", "Hmpf!"],
+      party: ["Razina pala[, {ime}]!", "Juuuhuuu!", "[{ime}, ]ti si šampion!", "Wooohoo!"]
+    }
   };
+
+  /* ---------- mali Jedi ---------- */
+  const JEDI = {
+    naziv: "Mali Jedi",
+    veselje: [
+      p => {   // lebdi, uši se dignu
+        K(p.act, [{transform:"translateY(0)"}, {transform:"translateY(-30px)"},
+                  {transform:"translateY(-30px)"}, {transform:"translateY(0)"}], 900, "ease-in-out");
+        K(p.earL, [{transform:"rotate(0deg)"}, {transform:"rotate(-22deg)"}, {transform:"rotate(0deg)"}], 900);
+        K(p.earR, [{transform:"rotate(0deg)"}, {transform:"rotate(22deg)"}, {transform:"rotate(0deg)"}], 900);
+      },
+      p => {   // zavrti se
+        K(p.act, [{transform:"rotate(0deg) scale(1)"}, {transform:"rotate(360deg) scale(1.08)"},
+                  {transform:"rotate(360deg) scale(1)"}], 720, "cubic-bezier(.4,0,.2,1)");
+      },
+      p => {   // maše ušima i poskakuje
+        K(p.act, [{transform:"translateY(0)"}, {transform:"translateY(-12px)"}, {transform:"translateY(0)"},
+                  {transform:"translateY(-8px)"}, {transform:"translateY(0)"}], 760, "ease-out");
+        K(p.earL, [{transform:"rotate(0deg)"}, {transform:"rotate(-26deg)"}, {transform:"rotate(6deg)"},
+                   {transform:"rotate(-14deg)"}, {transform:"rotate(0deg)"}], 760, "ease-in-out");
+        K(p.earR, [{transform:"rotate(0deg)"}, {transform:"rotate(26deg)"}, {transform:"rotate(-6deg)"},
+                   {transform:"rotate(14deg)"}, {transform:"rotate(0deg)"}], 760, "ease-in-out");
+      },
+      p => {   // digne ruku, Sila ga malo podigne
+        K(p.armR, [{transform:"rotate(0deg)"}, {transform:"rotate(72deg)"},
+                   {transform:"rotate(64deg)"}, {transform:"rotate(0deg)"}], 860);
+        K(p.act, [{transform:"translateY(0) scale(1)"}, {transform:"translateY(-16px) scale(1.06)"},
+                  {transform:"translateY(-16px) scale(1.06)"}, {transform:"translateY(0) scale(1)"}], 860, "ease-in-out");
+      },
+      p => {   // naraste od ponosa, uši u stranu
+        K(p.act, [{transform:"scale(1)"}, {transform:"scale(1.24) translateY(-6px)"},
+                  {transform:"scale(.96)"}, {transform:"scale(1)"}], 660);
+        K(p.earL, [{transform:"rotate(0deg)"}, {transform:"rotate(-16deg)"}, {transform:"rotate(0deg)"}], 660);
+        K(p.earR, [{transform:"rotate(0deg)"}, {transform:"rotate(16deg)"}, {transform:"rotate(0deg)"}], 660);
+      }
+    ],
+    ljutnja: [
+      p => {   // uši se objese, cijeli se spusti
+        K(p.earL, [{transform:"rotate(0deg)"}, {transform:"rotate(34deg)"},
+                   {transform:"rotate(30deg)"}, {transform:"rotate(0deg)"}], 780, "ease-in-out");
+        K(p.earR, [{transform:"rotate(0deg)"}, {transform:"rotate(-34deg)"},
+                   {transform:"rotate(-30deg)"}, {transform:"rotate(0deg)"}], 780, "ease-in-out");
+        K(p.act, [{transform:"translateY(0) scaleY(1)"}, {transform:"translateY(6px) scaleY(.92)"},
+                  {transform:"translateY(6px) scaleY(.92)"}, {transform:"translateY(0) scaleY(1)"}], 780, "ease-in-out");
+      },
+      p => {   // trese se
+        K(p.act, [{transform:"translateX(0)"}, {transform:"translateX(-7px)"}, {transform:"translateX(6px)"},
+                  {transform:"translateX(-5px)"}, {transform:"translateX(4px)"}, {transform:"translateX(0)"}],
+          460, "ease-in-out");
+        K(p.earL, [{transform:"rotate(0deg)"}, {transform:"rotate(10deg)"}, {transform:"rotate(0deg)"}], 460);
+        K(p.earR, [{transform:"rotate(0deg)"}, {transform:"rotate(-10deg)"}, {transform:"rotate(0deg)"}], 460);
+      },
+      p => {   // ispruži ruku prema odgovoru, pa se predomisli
+        K(p.armR, [{transform:"rotate(0deg)"}, {transform:"rotate(88deg)"}, {transform:"rotate(84deg)"},
+                   {transform:"rotate(0deg)"}], 720, "ease-in-out");
+        K(p.act, [{transform:"rotate(0deg)"}, {transform:"rotate(-7deg)"},
+                  {transform:"rotate(-7deg)"}, {transform:"rotate(0deg)"}], 720, "ease-in-out");
+      },
+      p => {   // okrene se
+        K(p.act, [{transform:"rotateY(0deg)"}, {transform:"rotateY(180deg)"},
+                  {transform:"rotateY(180deg)"}, {transform:"rotateY(0deg)"}], 800, "ease-in-out");
+      },
+      p => {   // napuše se pa ispuše
+        K(p.act, [{transform:"scale(1)"}, {transform:"scale(1.2)"}, {transform:"scale(1.2)"},
+                  {transform:"scale(.97)"}, {transform:"scale(1)"}], 700, "ease-in-out");
+        K(p.earL, [{transform:"rotate(0deg)"}, {transform:"rotate(-18deg)"}, {transform:"rotate(0deg)"}], 700);
+        K(p.earR, [{transform:"rotate(0deg)"}, {transform:"rotate(18deg)"}, {transform:"rotate(0deg)"}], 700);
+      }
+    ],
+    slavlje: p => {
+      K(p.act, [{transform:"translateY(0) rotate(0deg) scale(1)"},
+                {transform:"translateY(-36px) rotate(0deg) scale(1.12)"},
+                {transform:"translateY(-36px) rotate(360deg) scale(1.12)"},
+                {transform:"translateY(0) rotate(360deg) scale(1)"}], 1100, "ease-in-out");
+      K(p.earL, [{transform:"rotate(0deg)"}, {transform:"rotate(-30deg)"}, {transform:"rotate(0deg)"}], 1100);
+      K(p.earR, [{transform:"rotate(0deg)"}, {transform:"rotate(30deg)"}, {transform:"rotate(0deg)"}], 1100);
+    },
+    rijeci: {
+      happy: ["Sila je s tobom[, {ime}]!", "Snažan si u Sili!", "Dobro. Dobro riješio si[, {ime}].",
+              "Mudar učenik, ti si.", "Točno, to je!", "Jedi majstor postat ćeš[, {ime}].",
+              "Osjećam Silu u ovom broju.", "Uspio si[, {ime}]. Ponosan sam.",
+              "Znanje raste u tebi.", "Sjajno, mladi padawane!"],
+      angry: ["Ne! Pokušaj ponovno[, {ime}].", "Mračnoj strani pripada ovaj odgovor.",
+              "Učini ili ne učini. Pokušaja nema.", "Zamućena je Sila oko ovog broja.",
+              "Griješiš, mladi padawane.", "Strah vodi u pogrešan odgovor.",
+              "Hmmm. Netočno, to je.", "Još učiti moraš[, {ime}].",
+              "Ne osjećam Silu ovdje.", "Opet. Strpljenje imaj."],
+      party: ["Jedi si sada[, {ime}]!", "Sila je snažna u tebi!", "Razinu svladao si!",
+              "Ponosan sam na tebe, padawane."]
+    }
+  };
+
+  const LIKOVI = { patuljak: PATULJAK, jedi: JEDI };
+
+  /* --- nadimak u rečenicu: [ … ] ispada kad nadimka nema --- */
+  function recenica(predlozak) {
+    return (profil.ime
+      ? predlozak.replace(/\[([^\]]*)\]/g, "$1").replace(/\{ime\}/g, profil.ime)
+      : predlozak.replace(/\[[^\]]*\]/g, "")).trim();
+  }
 
   // biraj nasumice, ali nikad isto dvaput zaredom
   const zadnje = {};
@@ -649,84 +1001,28 @@ const buddy = (() => {
     return popis[i];
   }
 
-  const K = (el, frames, dur, easing = "cubic-bezier(.34,1.56,.64,1)") =>
-    el.animate(frames, { duration: dur, easing });
+  /* --- koji lik je na sceni --- */
+  let lik = null, dijelovi = null, disanje = null;
 
-  /* --- veselje: pet izvedbi --- */
-  const VESELJE = [
-    () => {   // čučne pa skoči uvis
-      K(act, [{transform:"translateY(0) scaleY(1)"}, {transform:"translateY(3px) scaleY(.86)"},
-              {transform:"translateY(-26px) scaleY(1.1)"}, {transform:"translateY(0) scaleY(1)"}], 620);
-      K(hat, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-9px) rotate(-14deg)"},
-              {transform:"translateY(0) rotate(0deg)"}], 620);
-    },
-    () => {   // zavrti se oko sebe
-      K(act, [{transform:"rotate(0deg) scale(1)"}, {transform:"rotate(360deg) scale(1.08)"},
-              {transform:"rotate(360deg) scale(1)"}], 700, "cubic-bezier(.4,0,.2,1)");
-    },
-    () => {   // ples, njiše se i maše rukama
-      K(act, [{transform:"rotate(0deg)"}, {transform:"rotate(-13deg)"}, {transform:"rotate(11deg)"},
-              {transform:"rotate(-8deg)"}, {transform:"rotate(0deg)"}], 720, "ease-in-out");
-      K(armL, [{transform:"rotate(0deg)"}, {transform:"rotate(-40deg)"}, {transform:"rotate(0deg)"}], 720);
-      K(armR, [{transform:"rotate(0deg)"}, {transform:"rotate(40deg)"}, {transform:"rotate(0deg)"}], 720);
-    },
-    () => {   // baci kapu uvis pa je uhvati
-      K(hat, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-38px) rotate(180deg)"},
-              {transform:"translateY(-38px) rotate(300deg)"}, {transform:"translateY(0) rotate(360deg)"}],
-        820, "cubic-bezier(.3,.1,.4,1)");
-      K(act, [{transform:"translateY(0)"}, {transform:"translateY(4px)"}, {transform:"translateY(0)"}], 820);
-    },
-    () => {   // naraste od sreće pa se stisne
-      K(act, [{transform:"scale(1)"}, {transform:"scale(1.28) translateY(-8px)"},
-              {transform:"scale(.94)"}, {transform:"scale(1)"}], 640);
-      K(armL, [{transform:"rotate(0deg)"}, {transform:"rotate(-70deg)"}, {transform:"rotate(0deg)"}], 640);
-      K(armR, [{transform:"rotate(0deg)"}, {transform:"rotate(70deg)"}, {transform:"rotate(0deg)"}], 640);
-    }
-  ];
+  function postaviLik(kljuc) {
+    lik = LIKOVI[kljuc] || PATULJAK;
+    root.querySelectorAll(".lik").forEach(g => g.classList.remove("on"));
+    const g = root.querySelector(`.lik[data-lik="${LIKOVI[kljuc] ? kljuc : "patuljak"}"]`);
+    g.classList.add("on");
+    dijelovi = {
+      bob:  g.querySelector(".b-bob"),  act:  g.querySelector(".b-act"),
+      hat:  g.querySelector(".b-hat"),  armL: g.querySelector(".b-armL"),
+      armR: g.querySelector(".b-armR"), earL: g.querySelector(".b-earL"),
+      earR: g.querySelector(".b-earR")
+    };
+    if (disanje) { disanje.cancel(); disanje = null; }
+    if (!calm() && dijelovi.bob)
+      disanje = dijelovi.bob.animate(
+        [{transform:"translateY(0)"}, {transform:"translateY(-2.5px)"}, {transform:"translateY(0)"}],
+        {duration:2600, iterations:Infinity, easing:"ease-in-out"});
+  }
 
-  /* --- ljutnja: pet izvedbi --- */
-  const LJUTNJA = [
-    () => {   // trese se od bijesa
-      K(act, [{transform:"translateX(0)"}, {transform:"translateX(-7px)"}, {transform:"translateX(6px)"},
-              {transform:"translateX(-5px)"}, {transform:"translateX(4px)"}, {transform:"translateX(0)"}],
-        460, "ease-in-out");
-    },
-    () => {   // lupi nogom o pod
-      K(act, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-14px) rotate(-7deg)"},
-              {transform:"translateY(5px) scaleY(.88)"}, {transform:"translateY(0) scaleY(1)"}], 520);
-      K(hat, [{transform:"translateY(0)"}, {transform:"translateY(-6px)"}, {transform:"translateY(2px)"},
-              {transform:"translateY(0)"}], 520);
-    },
-    () => {   // napuše se pa ispuše, kapa poskoči
-      K(act, [{transform:"scale(1)"}, {transform:"scale(1.22)"}, {transform:"scale(1.22)"},
-              {transform:"scale(.97)"}, {transform:"scale(1)"}], 700, "ease-in-out");
-      K(hat, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-14px) rotate(18deg)"},
-              {transform:"translateY(0) rotate(0deg)"}], 700);
-    },
-    () => {   // okrene se od ljutnje pa se vrati
-      K(act, [{transform:"rotateY(0deg)"}, {transform:"rotateY(180deg)"},
-              {transform:"rotateY(180deg)"}, {transform:"rotateY(0deg)"}], 800, "ease-in-out");
-    },
-    () => {   // vrti glavom i maše rukama
-      K(act, [{transform:"rotate(0deg)"}, {transform:"rotate(9deg)"}, {transform:"rotate(-9deg)"},
-              {transform:"rotate(6deg)"}, {transform:"rotate(0deg)"}], 500, "ease-in-out");
-      K(armL, [{transform:"rotate(0deg)"}, {transform:"rotate(-55deg)"}, {transform:"rotate(-10deg)"},
-               {transform:"rotate(0deg)"}], 500);
-      K(armR, [{transform:"rotate(0deg)"}, {transform:"rotate(55deg)"}, {transform:"rotate(10deg)"},
-               {transform:"rotate(0deg)"}], 500);
-    }
-  ];
-
-  const SLAVLJE = () => {   // svladana razina: skok, vrtnja i kapa uvis odjednom
-    K(act, [{transform:"translateY(0) rotate(0deg) scale(1)"},
-            {transform:"translateY(-34px) rotate(180deg) scale(1.14)"},
-            {transform:"translateY(-10px) rotate(360deg) scale(1.05)"},
-            {transform:"translateY(0) rotate(360deg) scale(1)"}], 1000);
-    K(hat, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-30px) rotate(-200deg)"},
-            {transform:"translateY(0) rotate(0deg)"}], 1000);
-  };
-
-  /* --- gdje stane: desno od polja, a ako ondje nema mjesta, lijevo --- */
+  /* --- gdje stane --- */
   function postavi(sidro) {
     const w = root.offsetWidth || 88, h = root.offsetHeight || 108;
     let x, y;
@@ -751,7 +1047,7 @@ const buddy = (() => {
     root.style.top  = Math.round(y) + "px";
   }
 
-  /* --- oblačić, s repićem koji ostaje uperen u patuljka --- */
+  /* --- oblačić, s repićem koji ostaje uperen u lik --- */
   function reci(tekst, ljut) {
     bubble.textContent = tekst;
     bubble.classList.toggle("angry", !!ljut);
@@ -770,37 +1066,46 @@ const buddy = (() => {
                  {transform:bubble.style.transform, opacity:1}], 260);
   }
 
-  /* --- pojavljivanje i nestajanje --- */
-  let skrij = null;
+  /* --- pojavljivanje i nestajanje ---
+     Ako novi odgovor stigne dok staro nestajanje jos traje, staru animaciju
+     prekidamo i pamtimo generaciju: inace bi njezin .finished naknadno skinuo
+     klasu "on" i lik bi nestao usred nove reakcije.
+  --------------------------------------------------------------------------- */
+  let skrij = null, skrivanje = null, generacija = 0;
   function pokazi(trajanje) {
     clearTimeout(skrij);
+    if (skrivanje) { skrivanje.cancel(); skrivanje = null; }
+    const moja = ++generacija;
     root.classList.add("on");
     if (!calm())
       K(root, [{transform:"scale(.4) translateY(16px)", opacity:0}, {transform:"none", opacity:1}], 300);
     skrij = setTimeout(() => {
       if (calm()) { root.classList.remove("on"); return; }
-      root.animate([{opacity:1, transform:"none"}, {opacity:0, transform:"scale(.7) translateY(10px)"}],
-        {duration:240}).finished.then(() => root.classList.remove("on"),
-                                      () => root.classList.remove("on"));
+      skrivanje = root.animate(
+        [{opacity:1, transform:"none"}, {opacity:0, transform:"scale(.7) translateY(10px)"}],
+        {duration:240});
+      const sakrij = () => { if (moja === generacija) root.classList.remove("on"); };
+      skrivanje.finished.then(sakrij, () => {});   // cancel() odbija obecanje, to je u redu
     }, trajanje);
   }
 
-  if (!calm())
-    bob.animate([{transform:"translateY(0)"}, {transform:"translateY(-2.5px)"},
-                 {transform:"translateY(0)"}],
-      {duration:2600, iterations:Infinity, easing:"ease-in-out"});
-
   return {
+    postaviLik,
+    naziv: kljuc => (LIKOVI[kljuc] || PATULJAK).naziv,
     react(mood, sidro) {
+      if (!lik) postaviLik(profil.avatar);
       const party = mood === "party";
       postavi(sidro);
       root.dataset.mood = (party || mood === "happy") ? "happy" : "angry";
-      if (!calm()) (party ? SLAVLJE : odaberi(mood, mood === "happy" ? VESELJE : LJUTNJA))();
-      reci(odaberi(mood + "r", RIJECI[party ? "party" : mood]), mood === "angry");
+      if (!calm())
+        (party ? lik.slavlje : odaberi(mood, mood === "happy" ? lik.veselje : lik.ljutnja))(dijelovi);
+      reci(recenica(odaberi(mood + "r", lik.rijeci[party ? "party" : mood])), mood === "angry");
       pokazi(party ? 2100 : 1500);
     },
     reset() {
       clearTimeout(skrij);
+      generacija++;
+      if (skrivanje) { skrivanje.cancel(); skrivanje = null; }
       root.classList.remove("on");
       root.dataset.mood = "idle";
     }
@@ -884,7 +1189,7 @@ function finale() {
   buddy.react("party");
 }
 
-function updateProgress() {
+function updateProgress(opt = {}) {
   const all = inputs();
   const okAll = all.filter(i => i.classList.contains("ok")).length;
   const secs = levels();
@@ -902,7 +1207,10 @@ function updateProgress() {
     if (won) done++;
     const pill = document.querySelector(`nav a[href="#${sec.id}"]`);
     if (pill) pill.classList.toggle("done", won);
-    if (won && !sec.classList.contains("won")) { sec.classList.add("won"); celebrate(sec); }
+    if (won && !sec.classList.contains("won")) {
+      sec.classList.add("won");
+      if (!opt.silent) celebrate(sec);      // pri vracanju napretka bez konfeta
+    }
     if (!won) sec.classList.remove("won");
   });
 
@@ -913,7 +1221,10 @@ function updateProgress() {
   scoreEl.textContent = `Razine: ${done}/${secs.length} · točno ${okAll}/${all.length}`
                       + (streak > 1 ? ` · niz ${streak} \u{1F525}` : "");
 
-  if (done === secs.length && secs.length && !finaleShown) { finaleShown = true; finale(); }
+  if (done === secs.length && secs.length && !finaleShown) {
+    finaleShown = true;
+    if (!opt.silent) finale();
+  }
   if (done < secs.length) finaleShown = false;
 }
 
@@ -941,6 +1252,7 @@ function check() {
     buddy.react("party", document.getElementById("check"));
   }
   updateProgress();
+  zapamtiOdgovore();
 }
 
 document.getElementById("check").addEventListener("click", check);
@@ -987,6 +1299,8 @@ document.getElementById("clear").addEventListener("click", () => {
   levels().forEach(s => s.classList.remove("won"));
   document.querySelectorAll("nav a.done").forEach(a => a.classList.remove("done"));
   buddy.reset();
+  profil.odgovori = {};                 // inace bi osvjezavanje vratilo stare odgovore
+  spremiProfil();
   updateProgress();
 });
 
@@ -1005,7 +1319,120 @@ main.addEventListener("focusout", e => {
   if (inp.tagName !== "INPUT" || inp.value.trim() === "") return;
   setState(inp, norm(inp.value) === norm(inp.dataset.answer));
   updateProgress();
+  zapamtiOdgovore();
 });
+
+/* ---------- prijava: nadimak i odabir avatara ---------- */
+const prijava    = document.getElementById("prijava");
+const poljeIme   = document.getElementById("nick");
+const pozdrav    = document.getElementById("pozdrav");
+const mini       = document.getElementById("mini");
+const karticeLika = () => Array.from(document.querySelectorAll(".lik-izbor"));
+let izabrani = profil.avatar;
+
+// lik iz velikog avatara kloniramo u kartice za odabir i u pozdrav
+function klonLika(kljuc) {
+  const izvor = document.querySelector(`#buddy .lik[data-lik="${kljuc}"]`);
+  if (!izvor) return null;
+  const klon = izvor.cloneNode(true);
+  klon.classList.add("on");
+  return klon;
+}
+
+function nacrtajPreglede() {
+  karticeLika().forEach(btn => {
+    const svg = btn.querySelector("svg");
+    svg.innerHTML = "";
+    const klon = klonLika(btn.dataset.avatar);
+    if (klon) svg.appendChild(klon);
+    btn.querySelector(".lik-ime").textContent = buddy.naziv(btn.dataset.avatar);
+  });
+}
+
+function oznaciIzbor() {
+  karticeLika().forEach(b => {
+    const je = b.dataset.avatar === izabrani;
+    b.classList.toggle("izabran", je);
+    b.setAttribute("aria-pressed", je ? "true" : "false");
+  });
+}
+
+function osvjeziPozdrav() {
+  mini.innerHTML = "";
+  const klon = klonLika(profil.avatar);
+  if (klon) mini.appendChild(klon);
+  document.getElementById("pozdravTekst").textContent =
+    profil.ime ? `Zdravo, ${profil.ime}!` : "Zdravo!";
+  pozdrav.hidden = false;
+}
+
+function otvoriPrijavu() {
+  izabrani = profil.avatar;
+  poljeIme.value = profil.ime;
+  oznaciIzbor();
+  prijava.hidden = false;
+  setTimeout(() => poljeIme.focus(), 60);
+}
+
+function zatvoriPrijavu() {
+  profil.ime = poljeIme.value.trim().slice(0, 20);
+  profil.avatar = izabrani;
+  spremiProfil();
+  buddy.postaviLik(profil.avatar);
+  osvjeziPozdrav();
+  prijava.hidden = true;
+}
+
+karticeLika().forEach(b => b.addEventListener("click", () => {
+  izabrani = b.dataset.avatar;
+  oznaciIzbor();
+}));
+document.getElementById("kreni").addEventListener("click", zatvoriPrijavu);
+document.getElementById("preskoci").addEventListener("click", zatvoriPrijavu);
+document.getElementById("promijeni").addEventListener("click", otvoriPrijavu);
+poljeIme.addEventListener("keydown", e => {
+  if (e.key === "Enter") { e.preventDefault(); zatvoriPrijavu(); }
+});
+
+/* ---------- pamćenje napretka ----------
+   Polja se pamte po data-key ("cjelina|prikaz|redni broj istog prikaza"), ne po
+   redu na stranici, pa preslagivanje ili dodavanje zadataka ne pomakne odgovore
+   u tuđa polja.
+--------------------------------------------------------------------------- */
+function zapamtiOdgovore() {
+  const zapis = {};
+  inputs().forEach(i => { if (i.value.trim() !== "") zapis[i.dataset.key] = i.value; });
+  profil.odgovori = zapis;
+  spremiProfil();
+}
+
+function vratiNapredak() {
+  const zapis = profil.odgovori;
+  if (!zapis || !Object.keys(zapis).length) return 0;
+  let vraceno = 0;
+  inputs().forEach(inp => {
+    const v = zapis[inp.dataset.key];
+    if (typeof v !== "string" || v.trim() === "") return;
+    inp.value = v;
+    setState(inp, norm(v) === norm(inp.dataset.answer), { fx: false });
+    vraceno++;
+  });
+  streak = 0;                          // niz se ne prenosi kroz posjete
+  updateProgress({ silent: true });    // bez konfeta za razine svladane prošli put
+  return vraceno;
+}
+
+/* ---------- pokretanje ---------- */
+nacrtajPreglede();
+buddy.postaviLik(profil.avatar);
+osvjeziPozdrav();
+const vraceno = vratiNapredak();
+
+if (!imaProfil) {
+  otvoriPrijavu();
+} else if (vraceno) {
+  toast(`Nastavljamo gdje smo stali${profil.ime ? ", " + profil.ime : ""}!`, "good");
+}
 
 updateProgress();
 </script>

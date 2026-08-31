@@ -59,7 +59,7 @@ Svaka cjelina je jedna **razina** s vlastitom trakom napretka (`x / y` točnih o
 - Ljestvica u zaglavlju više nije samo ukras: puni se kako raste broj točnih odgovora.
 - Gumb 🔊 u traci isključuje zvuk.
 
-**Patuljak.** Uz svaki odgovor iskоči kraj samog polja — desno od njega, a ako ondje nema
+**Avatar.** Uz svaki odgovor iskoči kraj samog polja — desno od njega, a ako ondje nema
 mjesta, lijevo — odglumi svoje i nestane nakon sekunde i pol. Ne stoji nigdje stalno, pa ne
 troši mjesto na ekranu i ne može pokriti zadatak.
 
@@ -70,6 +70,44 @@ troši mjesto na ekranu i ne može pokriti zadatak.
   obrazi pocrvene, usta se nadure.
 - Ni pokret ni rečenica se ne ponavljaju dva puta zaredom.
 - Kod svladane razine ima posebnu izvedbu i svoje rečenice.
+
+Bira se između dva lika:
+
+| | Pokreti | Govor |
+|---|---|---|
+| **Patuljak** | skok, vrtnja, ples, bacanje kape, naraste od sreće / trese se, lupi nogom, napuše se, okrene se, vrti glavom | obične hrvatske uzrečice |
+| **Mali Jedi** | lebdi, vrtnja, maše ušima, diže ruku (Sila), naraste / uši se objese, trese se, ispruži ruku, okrene se, napuše se | obrnuti red riječi i Sila |
+
+Mali Jedi je **izvorni lik** u tom duhu, ne prikaz Baby Yode, i rečenice su napisane za ovu
+stranicu, a ne prepisane iz filmova — stranica je javna na GitHub Pagesu, pa se prepoznatljiv
+lik i doslovni citati ne koriste.
+
+## Nadimak i pamćenje napretka
+
+Pri prvom otvaranju stranica pita za nadimak i lik. Nadimak **nije prijava** — nema servera,
+sve stoji u `localStorage`u tog preglednika na tom uređaju. Tko otvori stranicu na drugom
+uređaju ili u drugom pregledniku, počinje ispočetka.
+
+- Nadimak se pojavljuje u zaglavlju („Zdravo, Luka!") i u rečenicama lika.
+- Napredak se sprema uz svaki odgovor, pa gasenje preglednika ništa ne gubi. Pri sljedećem
+  otvaranju odgovori se vrate, trake razina i trofeji su gdje su bili, i pojavi se poruka
+  „Nastavljamo gdje smo stali".
+- **„Počni ispočetka" briše i zapamćeno**, ali čuva nadimak i lik. Lik se mijenja preko
+  „promijeni" uz pozdrav.
+- Ako nadimka nema („Bez imena"), rečenice se koriste u varijanti bez imena.
+
+Detalji izvedbe:
+
+- Polja se pamte po `data-key` u obliku `cjelina|prikaz|redni broj istog prikaza`, ne po redu
+  na stranici. Zato preslagivanje ili dodavanje zadataka ne pomakne odgovore u tuđa polja.
+  Oznaka se u istoj cjelini smije ponoviti (npr. `broj` dva puta u `c7`) — redni broj ih razdvaja.
+- Vraćanje napretka ide kroz `updateProgress({silent:true})`: razine koje su bile svladane
+  dobiju trofej bez konfeta, poruka i zvuka, a bravica za veliko finale se odmah postavi da se
+  ne okine na prvi sljedeći odgovor. Niz („niz 5 🔥") se ne prenosi kroz posjete, počinje od nule.
+- Rečenice su predlošci: `{ime}` je nadimak, a `[ … ]` je dio koji ispada kad nadimka nema —
+  zato nikad ne piše „Bravo, !".
+- Polje za nadimak je izvan `#main`, a `inputs()` gleda samo unutar `#main`, da se ne bi
+  računalo kao 86. polje sa zadatkom.
 
 Detalji izvedbe, ako se bude mijenjalo:
 
