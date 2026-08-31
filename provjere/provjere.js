@@ -135,14 +135,14 @@ provjera("hrvatski je registriran i gradi svih 7 cjelina", async ucitaj => {
   jednako(W.document.querySelectorAll("#main section").length, 7, "cjelina");
   jednako(W.document.querySelector("#main section").id, "h1", "oznaka prve cjeline");
   jednako(polja(W).length, 85, "polja ukupno");
-  jednako(vidljivaPolja(W).length, 21, "polja izbora su skrivena, calc polja nisu");
+  jednako(vidljivaPolja(W).length, 19, "polja izbora su skrivena, calc polja nisu");
 });
 
 provjera("izbor: tipke su tap, svaka stavka ima svoje tipke", async ucitaj => {
   const W = await ucitaj();
   W.izgradiPredmet("hrvatski");
   const stavke = [...W.document.querySelectorAll(".izbor-item")];
-  jednako(stavke.length, 64, "stavki izbora");
+  jednako(stavke.length, 66, "stavki izbora");
   stavke.forEach((s, i) => {
     const tipke = s.querySelectorAll(".chip");
     istina(tipke.length >= 2, `stavka ${i} ima najmanje dvije tipke`);
@@ -183,7 +183,7 @@ provjera("izbor: tipke se premjesaju, nisu svaki put isto", async ucitaj => {
   // Podaci nisu dostupni kao W.ZADACI_HRVATSKI: top-level const u klasicnoj
   // skripti ne postaje svojstvo windowa. Zato ne usporedujemo s podacima nego
   // tri iscrtavanja medusobno: bez premjesavanja su uvijek identicna, a s njim
-  // je poklapanje sva tri puta na svih 64 stavke prakticki nemoguce.
+  // je poklapanje sva tri puta na svih 66 stavki prakticki nemoguce.
   const snimke = [];
   for (let k = 0; k < 3; k++) {
     const W = await ucitaj();
@@ -434,9 +434,9 @@ provjera("hrvatski: 85 polja u 7 cjelina", async ucitaj => {
   jednako([...W.document.querySelectorAll("#main section")].map(s => s.id),
           ["h1", "h2", "h3", "h4", "h5", "h6", "h7"], "oznake cjelina");
   jednako(W.document.querySelectorAll("nav a").length, 7, "linkova u navigaciji");
-  // recenicni odgovori moraju dobiti siroko polje; u podacima ih je tocno pet
+  // recenicni odgovori moraju dobiti siroko polje; u podacima ih je tocno cetiri
   const duga = polja(W).filter(i => i.classList.contains("duga"));
-  jednako(duga.length, 5, "polja s razredom duga");
+  jednako(duga.length, 4, "polja s razredom duga");
   duga.forEach(i => istina(i.dataset.answer.length > 14,
     `polje s razredom duga ima kratak odgovor: "${i.dataset.answer}"`));
 });
