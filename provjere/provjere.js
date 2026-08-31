@@ -369,6 +369,27 @@ provjera("Pocni ispocetka brise samo trenutni predmet", async ucitaj => {
   jednako(Object.keys(zapis.napredak.matematika).length, 1, "matematika je ostala");
 });
 
+provjera("ustajala kartica ne brise napredak drugog predmeta", async ucitaj => {
+  const W = await ucitaj();
+  // dijete je u prvoj kartici na matematici
+  const m = polja(W)[0];
+  upisi(W, m, m.dataset.answer);
+  await cekaj(300);
+  // druga kartica u meduvremenu upisuje napredak hrvatskoga
+  const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  zapis.napredak.hrvatski = { "h2|ku_a (dom)|0": "ć" };
+  localStorage.setItem("mat3-profil-v1", JSON.stringify(zapis));
+  // prva kartica sada spremi jos jedan matematicki odgovor
+  const m2 = polja(W)[1];
+  upisi(W, m2, m2.dataset.answer);
+  await cekaj(300);
+  const nakon = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(nakon.napredak.hrvatski, { "h2|ku_a (dom)|0": "ć" },
+          "napredak hrvatskoga je ocuvan");
+  jednako(Object.keys(nakon.napredak.matematika).length, 2,
+          "oba matematicka odgovora su zapisana");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {
