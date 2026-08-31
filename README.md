@@ -92,8 +92,8 @@ ispod ruba ekrana; kad ga skrolaš prođeš, element se **ne gura prema dolje** 
 s ostatkom stranice. Kako je traka u dokumentu odmah ispod navigacije, vidljiva je samo prvih
 ~800 px stranice.
 
-Provjereno mjerenjem na više položaja skrola, i u verziji prije uvođenja razina — dakle
-postoji od početka. Za stvarno stalnu traku treba `position:fixed` i rezerviran prostor na dnu
+Provjereno mjerenjem na više položaja skrola, i u commitu `8bed7cf` — dakle postoji otprije,
+nije uneseno s razinama. (Prvi commit `96bd9ac` nije provjeren.) Za stvarno stalnu traku treba `position:fixed` i rezerviran prostor na dnu
 (`padding-bottom` jednak visini trake), ali na tabletu u portretu traka s tipkama pune širine
 tada trajno zauzima trećinu ekrana, pa to nije bezbolna promjena. Nije dirano.
 

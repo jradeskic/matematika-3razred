@@ -732,9 +732,14 @@ const buddy = (() => {
     let x, y;
     if (sidro) {
       const r = sidro.getBoundingClientRect();
-      x = r.right + 34;                                     // zaobidi kvacicu/kriz kraj polja
-      if (x + w > innerWidth - 8) x = r.left - w - 14;      // nema mjesta desno
-      y = r.top + r.height / 2 - h * .55;
+      if (r.width > innerWidth * .5) {                      // siroko sidro (tipka pune sirine):
+        x = r.right - w - 8;                                // stani mu na vrh, uz desni kraj
+        y = r.top - h + 6;
+      } else {
+        x = r.right + 34;                                   // inace desno, zaobilazeci kvacicu
+        if (x + w > innerWidth - 8) x = r.left - w - 14;    // ako ondje nema mjesta, lijevo
+        y = r.top + r.height / 2 - h * .55;
+      }
     } else {
       x = innerWidth / 2 - w / 2;                            // bez sidra: sredina ekrana
       y = innerHeight * .5 - h / 2;
@@ -933,7 +938,7 @@ function check() {
     toast(`+${gained} točnih! ⭐`, "good");
     burstAt(document.getElementById("check"), 18, { spread: true, dist: 120, dur: 900, gravity: 120 });
     tone([784, 988, 1319], .09);
-    buddy.react("party");
+    buddy.react("party", document.getElementById("check"));
   }
   updateProgress();
 }
