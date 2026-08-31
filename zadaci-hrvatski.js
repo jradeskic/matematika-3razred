@@ -87,7 +87,7 @@ const ZADACI_HRVATSKI = [
  lead:"Točka, upitnik i uskličnik; jesne i niječne rečenice.", tasks:[
   {t:"izbor", q:"Koji znak ide na kraj rečenice?", items:[
     ["Gdje si bio__",        ["?","."], "?"],
-    ["Kako je lijepo__",     ["!","?"], "!"],
+    ["Ura, pobijedili smo__", ["!","."], "!"],
     ["Marko čita knjigu__",  [".","?"], "."]]},
   {t:"izbor", q:"Jesna ili niječna rečenica?", items:[
     ["Ne volim kišu.", ["niječna","jesna"], "niječna"],

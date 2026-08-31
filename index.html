@@ -589,6 +589,11 @@ let predmet = "matematika";        // kljuc aktivnog predmeta
 const KLJUC_PROFILA = "mat3-profil-v1";
 const profil = { v: 2, ime: "", avatar: "patuljak", predmet: "matematika", napredak: {} };
 
+// Predmeti koje je ova sesija mijenjala. Za njih je stanje u memoriji
+// mjerodavno i disk ga ne smije prepisati -- ni kad se predmet prebaci prije
+// nego odgodeni upis stigne okinuti.
+const promijenjeni = new Set();
+
 function ucitajProfil() {
   try {
     const zapis = JSON.parse(localStorage.getItem(KLJUC_PROFILA) || "null");
@@ -620,7 +625,7 @@ function spremiProfil() {
       if (naDisku && naDisku.v === 2 && naDisku.napredak &&
           typeof naDisku.napredak === "object" && !Array.isArray(naDisku.napredak))
         for (const p of Object.keys(naDisku.napredak))
-          if (p !== predmet) profil.napredak[p] = naDisku.napredak[p];
+          if (!promijenjeni.has(p)) profil.napredak[p] = naDisku.napredak[p];
     } catch (_) {}
     try { localStorage.setItem(KLJUC_PROFILA, JSON.stringify(profil)); } catch (_) {}
   }, 200);
@@ -1416,6 +1421,7 @@ document.getElementById("clear").addEventListener("click", () => {
   document.querySelectorAll("nav a.done").forEach(a => a.classList.remove("done"));
   buddy.reset();
   profil.napredak[predmet] = {};        // inace bi osvjezavanje vratilo stare odgovore
+  promijenjeni.add(predmet);
   spremiProfil();
   updateProgress();
 });
@@ -1477,6 +1483,12 @@ main.addEventListener("focusin", e => {
   if (e.target.tagName !== "INPUT" || e.target.hidden) return;
   poljeUFokusu = e.target;
   slovaTraka.hidden = PREDMETI[predmet].provjera !== "rijec";
+  // ako bi traka slova pokrila polje, pomakni polje iznad nje
+  if (!slovaTraka.hidden) {
+    const r = e.target.getBoundingClientRect();
+    if (r.bottom > innerHeight - slovaTraka.offsetHeight - 12)
+      e.target.scrollIntoView({ block: "center", behavior: calm() ? "auto" : "smooth" });
+  }
 });
 
 main.addEventListener("focusout", () => setTimeout(() => {
@@ -1600,6 +1612,7 @@ function zapamtiOdgovore() {
   const zapis = {};
   inputs().forEach(i => { if (i.value.trim() !== "") zapis[i.dataset.key] = i.value; });
   profil.napredak[predmet] = zapis;
+  promijenjeni.add(predmet);
   profil.predmet = predmet;
   spremiProfil();
 }

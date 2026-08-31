@@ -335,6 +335,36 @@ provjera("prebacivanje predmeta cuva napredak oba predmeta", async ucitaj => {
   jednako(W.document.querySelectorAll("#main input.ok").length, 1, "matematicki odgovor je vracen");
 });
 
+provjera("prebacivanje predmeta ne gubi jos nezapisane odgovore", async ucitaj => {
+  localStorage.setItem("mat3-profil-v1", JSON.stringify({ v: 2, ime: "Luka", avatar: "jedi",
+    predmet: "hrvatski", napredak: { matematika: {}, hrvatski: {} } }));
+  const W = await ucitaj();
+  // dijete tapka brze nego sto odgodeni upis stigne okinuti
+  const stavke = [...W.document.querySelectorAll(".izbor-item")].slice(0, 5);
+  for (const st of stavke) {
+    const inp = st.querySelector("input[type=text]");
+    [...st.querySelectorAll(".chip")].find(t => t.dataset.vrijednost === inp.dataset.answer).click();
+    await cekaj(60);
+  }
+  jednako(W.document.querySelectorAll("#main input.ok").length, 5, "pet tocnih na ekranu");
+  W.document.querySelector('.predmet[data-predmet="matematika"]').click();
+  await cekaj(600);
+  const disk = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(Object.keys(disk.napredak.hrvatski).length, 5, "svih pet je zapisano");
+});
+
+provjera("Pocni ispocetka nije ponisten brzim prebacivanjem", async ucitaj => {
+  const W = await ucitaj();
+  const m = polja(W)[0];
+  upisi(W, m, m.dataset.answer);
+  await cekaj(300);
+  W.document.getElementById("clear").click();
+  W.document.querySelector('.predmet[data-predmet="hrvatski"]').click();   // odmah, bez pauze
+  await cekaj(600);
+  const disk = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(Object.keys(disk.napredak.matematika).length, 0, "matematika je ostala obrisana");
+});
+
 provjera("prebacivanje predmeta ne ispaljuje konfete", async ucitaj => {
   const W = await ucitaj();
   // svladaj cijelu prvu razinu matematike

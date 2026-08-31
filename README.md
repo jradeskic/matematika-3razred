@@ -168,7 +168,6 @@ Detalji izvedbe, ako se bude mijenjalo:
 - `prefers-reduced-motion: reduce` gasi animacije **i** stvaranje čestica (ostaju samo boje).
 - Čestice se brišu i preko `setTimeout` fallbacka — ako korisnik prebaci karticu, animacija
   stane i `Animation.finished` nikad ne stigne.
-- Napredak se **ne pamti** između posjeta; osvježavanje stranice počinje ispočetka.
 
 ## Poznat problem: traka s tipkama nije stalno na ekranu
 
