@@ -182,6 +182,56 @@
 
   #sound{padding:0 16px;font-size:22px}
 
+  /* ---------- patuljak ----------
+     Ne stoji nigdje stalno: iskoci kraj polja koje je dijete upravo rijesilo,
+     odglumi svoje i nestane. Tako ne trosi mjesto na ekranu i ne sudara se
+     s trakom s tipkama ni sa zadacima.
+  ------------------------------------------------------------------------ */
+  .buddy{
+    position:fixed;z-index:55;width:88px;height:108px;
+    pointer-events:none;opacity:0;visibility:hidden;
+  }
+  .buddy.on{opacity:1;visibility:visible}
+  .buddy svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+
+  .buddy .eyes-happy,.buddy .eyes-shut,.buddy .brows,
+  .buddy .cheeks,.buddy .mouth-angry{display:none}
+  .buddy[data-mood=happy] .eyes-open,
+  .buddy[data-mood=happy] .mouth-happy{display:none}
+  .buddy[data-mood=happy] .eyes-happy,
+  .buddy[data-mood=happy] .mouth-happy{display:block}
+  .buddy[data-mood=angry] .eyes-happy,
+  .buddy[data-mood=angry] .mouth-happy{display:none}
+  .buddy[data-mood=angry] .brows,
+  .buddy[data-mood=angry] .cheeks,
+  .buddy[data-mood=angry] .mouth-angry{display:block}
+
+  /* SVG dijelovi se vrte oko vlastitog sredista, ne oko ishodista viewBoxa */
+  #gbob,#gact{transform-box:fill-box;transform-origin:50% 62%}
+  #hat{transform-box:fill-box;transform-origin:50% 100%}
+  #armL{transform-box:fill-box;transform-origin:82% 17%}
+  #armR{transform-box:fill-box;transform-origin:18% 17%}
+
+  .bubble{
+    position:absolute;left:50%;bottom:100%;margin-bottom:6px;
+    font:800 16px/1.15 "Baloo 2",cursive;white-space:nowrap;
+    background:#fff;color:var(--ink);border:2px solid var(--ink);
+    border-radius:14px;padding:7px 13px;
+    box-shadow:0 3px 0 rgba(29,43,58,.15);
+  }
+  .bubble::after{
+    content:"";position:absolute;left:var(--tail,50%);margin-left:-6px;bottom:-8px;
+    width:12px;height:12px;background:#fff;
+    border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);
+    transform:rotate(45deg);
+  }
+  .bubble.angry{background:#fdeeed;border-color:var(--berry);color:#a8332f}
+  .bubble.angry::after{background:#fdeeed;border-color:var(--berry)}
+
+  @media (max-width:834px){
+    .buddy{width:76px;height:94px}
+    .bubble{font-size:15px;padding:6px 11px}
+  }
   footer{
     border-top:2px solid var(--ink);padding-top:18px;color:var(--muted);font-size:15px;
   }
@@ -247,6 +297,65 @@
 </footer>
 </div>
 
+<div class="buddy" id="buddy" data-mood="idle">
+  <div class="bubble" id="bubble" aria-hidden="true"></div>
+  <svg viewBox="0 0 100 122" role="img" aria-label="Patuljak koji navija">
+    <g id="gbob">
+     <g id="gact">
+      <!-- noge i cizme -->
+      <path d="M40 100h7v12h-7z" fill="#3a4a5c"/>
+      <path d="M53 100h7v12h-7z" fill="#3a4a5c"/>
+      <path d="M34 110h13a3 3 0 0 1 3 3v4H34z" fill="#2b3746"/>
+      <path d="M53 110h13v7H50v-4a3 3 0 0 1 3-3z" fill="#2b3746"/>
+      <!-- tunika -->
+      <path d="M50 62c14 0 22 12 24 30 1 8-3 14-24 14s-25-6-24-14c2-18 10-30 24-30z" fill="#2f9e5f"/>
+      <path d="M26 92h48c.6 4 .3 9-2 11H28c-2.3-2-2.6-7-2-11z" fill="#25784a"/>
+      <!-- ruke -->
+      <g id="armL"><path d="M28 72c-7 3-11 9-12 16" stroke="#2f9e5f" stroke-width="9"
+          stroke-linecap="round" fill="none"/><circle cx="15" cy="90" r="6" fill="#f2c9a0"/></g>
+      <g id="armR"><path d="M72 72c7 3 11 9 12 16" stroke="#2f9e5f" stroke-width="9"
+          stroke-linecap="round" fill="none"/><circle cx="85" cy="90" r="6" fill="#f2c9a0"/></g>
+      <!-- lice -->
+      <circle cx="50" cy="54" r="22" fill="#f2c9a0"/>
+      <!-- brada -->
+      <path d="M28 58c0 26 8 40 22 40s22-14 22-40c-5 8-13 12-22 12s-17-4-22-12z" fill="#fbfaf4"/>
+      <path d="M35 90c4 5 9 8 15 8s11-3 15-8c-3 8-8 12-15 12s-12-4-15-12z" fill="#edebe1"/>
+      <!-- obrazi kad se ljuti -->
+      <g class="cheeks">
+        <circle cx="31" cy="58" r="5.5" fill="#e0544f" opacity=".45"/>
+        <circle cx="69" cy="58" r="5.5" fill="#e0544f" opacity=".45"/>
+      </g>
+      <!-- oci -->
+      <g class="eyes-open">
+        <circle cx="41" cy="53" r="3.4" fill="#28323f"/>
+        <circle cx="59" cy="53" r="3.4" fill="#28323f"/>
+      </g>
+      <g class="eyes-happy">
+        <path d="M36 55q5-7 10 0M54 55q5-7 10 0" stroke="#28323f" stroke-width="3"
+              fill="none" stroke-linecap="round"/>
+      </g>
+      <g class="eyes-shut">
+        <path d="M36 53h10M54 53h10" stroke="#28323f" stroke-width="3" stroke-linecap="round"/>
+      </g>
+      <g class="brows">
+        <path d="M34 46l12 7M66 46l-12 7" stroke="#28323f" stroke-width="3.6" stroke-linecap="round"/>
+      </g>
+      <!-- nos -->
+      <circle cx="50" cy="64" r="9.5" fill="#eab08a"/>
+      <!-- usta, preko brade da se izraz vidi -->
+      <path class="mouth-happy" d="M40 80q10 10 20 0" stroke="#28323f" stroke-width="3"
+            fill="none" stroke-linecap="round"/>
+      <path class="mouth-angry" d="M41 86q9-9 18 0" stroke="#28323f" stroke-width="3"
+            fill="none" stroke-linecap="round"/>
+      <!-- kapa -->
+      <g id="hat">
+        <path d="M22 40C26 12 36 2 50 2s24 10 28 38c-8-6-17-9-28-9s-20 3-28 9z" fill="#e0544f"/>
+        <path d="M20 38c8-6 18-9 30-9s22 3 30 9c1 4-1 7-4 7H24c-3 0-5-3-4-7z" fill="#c4433e"/>
+      </g>
+     </g>
+    </g>
+  </svg>
+</div>
 <div id="fx" aria-hidden="true"></div>
 <div id="toasts" role="status" aria-live="polite"></div>
 
@@ -508,6 +617,191 @@ function toast(text, cls = "") {
   }, 1900);
 }
 
+/* ---------- patuljak ----------
+   Iskoči kraj polja koje je dijete upravo riješilo: veseli se ili ljuti,
+   svaki put drukčijim pokretom i drukčijom rečenicom, pa nestane.
+   Kad su animacije isključene ostaje samo izraz lica i oblačić.
+--------------------------------------------------------------------- */
+const buddy = (() => {
+  const root   = document.getElementById("buddy");
+  const bob    = document.getElementById("gbob");   // mirno disanje, vrti se stalno
+  const act    = document.getElementById("gact");   // reakcije, odvojeno od disanja
+  const hat    = document.getElementById("hat");
+  const armL   = document.getElementById("armL");
+  const armR   = document.getElementById("armR");
+  const bubble = document.getElementById("bubble");
+
+  const RIJECI = {
+    happy: ["Bravo!", "To je to!", "Svaka čast!", "Majstore!", "Točnooo!",
+            "Tako se to radi!", "Ju-hu!", "Pravi si as!", "Ha, lako!", "Odlično!"],
+    angry: ["Ajme meni!", "Ne, ne, ne!", "Grrr!", "Promašaj!", "Uh, blizu!",
+            "Ma daj!", "Jooooj!", "Probaj opet!", "Buuu!", "Hmpf!"],
+    party: ["Razina pala!", "Juuuhuuu!", "Ti si šampion!", "Wooohoo!"]
+  };
+
+  // biraj nasumice, ali nikad isto dvaput zaredom
+  const zadnje = {};
+  function odaberi(kljuc, popis) {
+    if (popis.length < 2) return popis[0];
+    let i;
+    do { i = Math.random() * popis.length | 0; } while (i === zadnje[kljuc]);
+    zadnje[kljuc] = i;
+    return popis[i];
+  }
+
+  const K = (el, frames, dur, easing = "cubic-bezier(.34,1.56,.64,1)") =>
+    el.animate(frames, { duration: dur, easing });
+
+  /* --- veselje: pet izvedbi --- */
+  const VESELJE = [
+    () => {   // čučne pa skoči uvis
+      K(act, [{transform:"translateY(0) scaleY(1)"}, {transform:"translateY(3px) scaleY(.86)"},
+              {transform:"translateY(-26px) scaleY(1.1)"}, {transform:"translateY(0) scaleY(1)"}], 620);
+      K(hat, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-9px) rotate(-14deg)"},
+              {transform:"translateY(0) rotate(0deg)"}], 620);
+    },
+    () => {   // zavrti se oko sebe
+      K(act, [{transform:"rotate(0deg) scale(1)"}, {transform:"rotate(360deg) scale(1.08)"},
+              {transform:"rotate(360deg) scale(1)"}], 700, "cubic-bezier(.4,0,.2,1)");
+    },
+    () => {   // ples, njiše se i maše rukama
+      K(act, [{transform:"rotate(0deg)"}, {transform:"rotate(-13deg)"}, {transform:"rotate(11deg)"},
+              {transform:"rotate(-8deg)"}, {transform:"rotate(0deg)"}], 720, "ease-in-out");
+      K(armL, [{transform:"rotate(0deg)"}, {transform:"rotate(-40deg)"}, {transform:"rotate(0deg)"}], 720);
+      K(armR, [{transform:"rotate(0deg)"}, {transform:"rotate(40deg)"}, {transform:"rotate(0deg)"}], 720);
+    },
+    () => {   // baci kapu uvis pa je uhvati
+      K(hat, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-38px) rotate(180deg)"},
+              {transform:"translateY(-38px) rotate(300deg)"}, {transform:"translateY(0) rotate(360deg)"}],
+        820, "cubic-bezier(.3,.1,.4,1)");
+      K(act, [{transform:"translateY(0)"}, {transform:"translateY(4px)"}, {transform:"translateY(0)"}], 820);
+    },
+    () => {   // naraste od sreće pa se stisne
+      K(act, [{transform:"scale(1)"}, {transform:"scale(1.28) translateY(-8px)"},
+              {transform:"scale(.94)"}, {transform:"scale(1)"}], 640);
+      K(armL, [{transform:"rotate(0deg)"}, {transform:"rotate(-70deg)"}, {transform:"rotate(0deg)"}], 640);
+      K(armR, [{transform:"rotate(0deg)"}, {transform:"rotate(70deg)"}, {transform:"rotate(0deg)"}], 640);
+    }
+  ];
+
+  /* --- ljutnja: pet izvedbi --- */
+  const LJUTNJA = [
+    () => {   // trese se od bijesa
+      K(act, [{transform:"translateX(0)"}, {transform:"translateX(-7px)"}, {transform:"translateX(6px)"},
+              {transform:"translateX(-5px)"}, {transform:"translateX(4px)"}, {transform:"translateX(0)"}],
+        460, "ease-in-out");
+    },
+    () => {   // lupi nogom o pod
+      K(act, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-14px) rotate(-7deg)"},
+              {transform:"translateY(5px) scaleY(.88)"}, {transform:"translateY(0) scaleY(1)"}], 520);
+      K(hat, [{transform:"translateY(0)"}, {transform:"translateY(-6px)"}, {transform:"translateY(2px)"},
+              {transform:"translateY(0)"}], 520);
+    },
+    () => {   // napuše se pa ispuše, kapa poskoči
+      K(act, [{transform:"scale(1)"}, {transform:"scale(1.22)"}, {transform:"scale(1.22)"},
+              {transform:"scale(.97)"}, {transform:"scale(1)"}], 700, "ease-in-out");
+      K(hat, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-14px) rotate(18deg)"},
+              {transform:"translateY(0) rotate(0deg)"}], 700);
+    },
+    () => {   // okrene se od ljutnje pa se vrati
+      K(act, [{transform:"rotateY(0deg)"}, {transform:"rotateY(180deg)"},
+              {transform:"rotateY(180deg)"}, {transform:"rotateY(0deg)"}], 800, "ease-in-out");
+    },
+    () => {   // vrti glavom i maše rukama
+      K(act, [{transform:"rotate(0deg)"}, {transform:"rotate(9deg)"}, {transform:"rotate(-9deg)"},
+              {transform:"rotate(6deg)"}, {transform:"rotate(0deg)"}], 500, "ease-in-out");
+      K(armL, [{transform:"rotate(0deg)"}, {transform:"rotate(-55deg)"}, {transform:"rotate(-10deg)"},
+               {transform:"rotate(0deg)"}], 500);
+      K(armR, [{transform:"rotate(0deg)"}, {transform:"rotate(55deg)"}, {transform:"rotate(10deg)"},
+               {transform:"rotate(0deg)"}], 500);
+    }
+  ];
+
+  const SLAVLJE = () => {   // svladana razina: skok, vrtnja i kapa uvis odjednom
+    K(act, [{transform:"translateY(0) rotate(0deg) scale(1)"},
+            {transform:"translateY(-34px) rotate(180deg) scale(1.14)"},
+            {transform:"translateY(-10px) rotate(360deg) scale(1.05)"},
+            {transform:"translateY(0) rotate(360deg) scale(1)"}], 1000);
+    K(hat, [{transform:"translateY(0) rotate(0deg)"}, {transform:"translateY(-30px) rotate(-200deg)"},
+            {transform:"translateY(0) rotate(0deg)"}], 1000);
+  };
+
+  /* --- gdje stane: desno od polja, a ako ondje nema mjesta, lijevo --- */
+  function postavi(sidro) {
+    const w = root.offsetWidth || 88, h = root.offsetHeight || 108;
+    let x, y;
+    if (sidro) {
+      const r = sidro.getBoundingClientRect();
+      x = r.right + 34;                                     // zaobidi kvacicu/kriz kraj polja
+      if (x + w > innerWidth - 8) x = r.left - w - 14;      // nema mjesta desno
+      y = r.top + r.height / 2 - h * .55;
+    } else {
+      x = innerWidth / 2 - w / 2;                            // bez sidra: sredina ekrana
+      y = innerHeight * .5 - h / 2;
+    }
+    // ostani u ekranu; gore ostavi mjesta za oblačić
+    x = Math.max(8, Math.min(x, innerWidth - w - 8));
+    y = Math.max(62, Math.min(y, innerHeight - h - 8));
+    root.style.left = Math.round(x) + "px";
+    root.style.top  = Math.round(y) + "px";
+  }
+
+  /* --- oblačić, s repićem koji ostaje uperen u patuljka --- */
+  function reci(tekst, ljut) {
+    bubble.textContent = tekst;
+    bubble.classList.toggle("angry", !!ljut);
+    bubble.style.transform = "translateX(-50%)";
+    bubble.style.setProperty("--tail", "50%");
+    const r = bubble.getBoundingClientRect();
+    let pomak = 0;
+    if (r.left < 8) pomak = 8 - r.left;
+    else if (r.right > innerWidth - 8) pomak = innerWidth - 8 - r.right;
+    if (pomak) {
+      bubble.style.transform = `translateX(calc(-50% + ${Math.round(pomak)}px))`;
+      bubble.style.setProperty("--tail", `calc(50% - ${Math.round(pomak)}px)`);
+    }
+    if (!calm())
+      K(bubble, [{transform:bubble.style.transform + " translateY(8px) scale(.7)", opacity:0},
+                 {transform:bubble.style.transform, opacity:1}], 260);
+  }
+
+  /* --- pojavljivanje i nestajanje --- */
+  let skrij = null;
+  function pokazi(trajanje) {
+    clearTimeout(skrij);
+    root.classList.add("on");
+    if (!calm())
+      K(root, [{transform:"scale(.4) translateY(16px)", opacity:0}, {transform:"none", opacity:1}], 300);
+    skrij = setTimeout(() => {
+      if (calm()) { root.classList.remove("on"); return; }
+      root.animate([{opacity:1, transform:"none"}, {opacity:0, transform:"scale(.7) translateY(10px)"}],
+        {duration:240}).finished.then(() => root.classList.remove("on"),
+                                      () => root.classList.remove("on"));
+    }, trajanje);
+  }
+
+  if (!calm())
+    bob.animate([{transform:"translateY(0)"}, {transform:"translateY(-2.5px)"},
+                 {transform:"translateY(0)"}],
+      {duration:2600, iterations:Infinity, easing:"ease-in-out"});
+
+  return {
+    react(mood, sidro) {
+      const party = mood === "party";
+      postavi(sidro);
+      root.dataset.mood = (party || mood === "happy") ? "happy" : "angry";
+      if (!calm()) (party ? SLAVLJE : odaberi(mood, mood === "happy" ? VESELJE : LJUTNJA))();
+      reci(odaberi(mood + "r", RIJECI[party ? "party" : mood]), mood === "angry");
+      pokazi(party ? 2100 : 1500);
+    },
+    reset() {
+      clearTimeout(skrij);
+      root.classList.remove("on");
+      root.dataset.mood = "idle";
+    }
+  };
+})();
+
 /* ---------- stanje jednog polja ----------
    Jedino mjesto koje piše ok/no. Animira i broji niz samo kad se stanje stvarno promijeni,
    pa drugi klik na „Provjeri odgovore" ne ispaljuje efekte ponovno.
@@ -540,6 +834,7 @@ function setState(inp, good, opt = {}) {
       }
       burstAt(mark, 7, { dot: true, dist: 44, dur: 560, gravity: 18 });
       tone([880, 1320], .07);
+      buddy.react("happy", inp);
       if (streak % 5 === 0) { toast(`Niz od ${streak}! \u{1F525}`, "fire"); tone([784, 988, 1319], .08); }
     }
   } else if (now === "no") {
@@ -553,6 +848,7 @@ function setState(inp, good, opt = {}) {
         mark.animate([{ transform: "scale(1.6)" }, { transform: "scale(1)" }], { duration: 280 });
       }
       tone([320, 190], .12, "sawtooth");
+      buddy.react("angry", inp);
     }
   }
   return true;
@@ -571,6 +867,7 @@ function celebrate(sec) {
   const name = h.textContent.replace(/^\s*\d+\s*/, "").trim();
   toast(`Razina svladana: ${name}! \u{1F3C6}`, "good");
   tone([659, 880, 1109, 1319], .1);
+  buddy.react("party", h);
 }
 
 function finale() {
@@ -579,6 +876,7 @@ function finale() {
               { spread: true, dist: 200, dur: 1500, gravity: 320 });
   toast("Sve razine svladane! \u{1F389}", "good");
   tone([523, 659, 784, 1047, 1319], .13);
+  buddy.react("party");
 }
 
 function updateProgress() {
@@ -635,6 +933,7 @@ function check() {
     toast(`+${gained} točnih! ⭐`, "good");
     burstAt(document.getElementById("check"), 18, { spread: true, dist: 120, dur: 900, gravity: 120 });
     tone([784, 988, 1319], .09);
+    buddy.react("party");
   }
   updateProgress();
 }
@@ -682,6 +981,7 @@ document.getElementById("clear").addEventListener("click", () => {
   inputs().forEach(i => { i.value = ""; setState(i, null, { fx: false }); });
   levels().forEach(s => s.classList.remove("won"));
   document.querySelectorAll("nav a.done").forEach(a => a.classList.remove("done"));
+  buddy.reset();
   updateProgress();
 });
 

@@ -59,6 +59,18 @@ Svaka cjelina je jedna **razina** s vlastitom trakom napretka (`x / y` točnih o
 - Ljestvica u zaglavlju više nije samo ukras: puni se kako raste broj točnih odgovora.
 - Gumb 🔊 u traci isključuje zvuk.
 
+**Patuljak.** Uz svaki odgovor iskоči kraj samog polja — desno od njega, a ako ondje nema
+mjesta, lijevo — odglumi svoje i nestane nakon sekunde i pol. Ne stoji nigdje stalno, pa ne
+troši mjesto na ekranu i ne može pokriti zadatak.
+
+- Točan odgovor: pet različitih izvedbi (skok, vrtnja, ples, bacanje kape, naraste od sreće)
+  i deset rečenica („Bravo!", „Majstore!", „Tako se to radi!"…).
+- Netočan: pet izvedbi (trese se, lupi nogom, napuše se, okrene se, vrti glavom) i deset
+  rečenica („Ajme meni!", „Grrr!", „Probaj opet!"…). Izraz lica se mijenja: obrve se skupe,
+  obrazi pocrvene, usta se nadure.
+- Ni pokret ni rečenica se ne ponavljaju dva puta zaredom.
+- Kod svladane razine ima posebnu izvedbu i svoje rečenice.
+
 Detalji izvedbe, ako se bude mijenjalo:
 
 - Sve animacije idu preko `element.animate()` (Web Animations API), ne preko CSS klasa —
@@ -71,6 +83,19 @@ Detalji izvedbe, ako se bude mijenjalo:
 - Čestice se brišu i preko `setTimeout` fallbacka — ako korisnik prebaci karticu, animacija
   stane i `Animation.finished` nikad ne stigne.
 - Napredak se **ne pamti** između posjeta; osvježavanje stranice počinje ispočetka.
+
+## Poznat problem: traka s tipkama nije stalno na ekranu
+
+`.toolbar` ima `position:sticky; bottom:0`, ali to ne radi ono što gornji opis prilagodbe za
+tablet tvrdi. Sticky s `bottom` podiže element **odozdo** u vidokrug dok mu je prirodno mjesto
+ispod ruba ekrana; kad ga skrolaš prođeš, element se **ne gura prema dolje** nego odlazi gore
+s ostatkom stranice. Kako je traka u dokumentu odmah ispod navigacije, vidljiva je samo prvih
+~800 px stranice.
+
+Provjereno mjerenjem na više položaja skrola, i u verziji prije uvođenja razina — dakle
+postoji od početka. Za stvarno stalnu traku treba `position:fixed` i rezerviran prostor na dnu
+(`padding-bottom` jednak visini trake), ali na tabletu u portretu traka s tipkama pune širine
+tada trajno zauzima trećinu ekrana, pa to nije bezbolna promjena. Nije dirano.
 
 ## PIN za rješenja
 
