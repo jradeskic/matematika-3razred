@@ -60,8 +60,14 @@ Svaka cjelina je jedna **razina** s vlastitom trakom napretka (`x / y` točnih o
 - Gumb 🔊 u traci isključuje zvuk.
 
 **Avatar.** Uz svaki odgovor iskoči kraj samog polja — desno od njega, a ako ondje nema
-mjesta, lijevo — odglumi svoje i nestane nakon sekunde i pol. Ne stoji nigdje stalno, pa ne
-troši mjesto na ekranu i ne može pokriti zadatak.
+mjesta, lijevo — odglumi svoje i nestane. Ne stoji nigdje stalno, pa ne troši mjesto na
+ekranu i ne može pokriti zadatak.
+
+Koliko ostaje na ekranu ovisi o dužini rečenice (`2600 ms + 110 ms po znaku`, najviše 7 s,
+slavlje +900 ms) — „Buuu!" stoji oko 3 s, a „Učini ili ne učini. Pokušaja nema." oko 6 s.
+Fiksnih 1,5 s bilo je prekratko da se dulji tekst pročita. Da dulje zadržavanje ne bi stajalo
+preko sljedećeg polja, lik se odmah makne kad dijete započne tipkati (`input` u `#main`) —
+dugi tekst tako ostaje čitljiv ako se stane, a ne smeta ako se nastavi.
 
 - Točan odgovor: pet različitih izvedbi (skok, vrtnja, ples, bacanje kape, naraste od sreće)
   i deset rečenica („Bravo!", „Majstore!", „Tako se to radi!"…).

@@ -1099,8 +1099,25 @@ const buddy = (() => {
       root.dataset.mood = (party || mood === "happy") ? "happy" : "angry";
       if (!calm())
         (party ? lik.slavlje : odaberi(mood, mood === "happy" ? lik.veselje : lik.ljutnja))(dijelovi);
-      reci(recenica(odaberi(mood + "r", lik.rijeci[party ? "party" : mood])), mood === "angry");
-      pokazi(party ? 2100 : 1500);
+      const tekst = recenica(odaberi(mood + "r", lik.rijeci[party ? "party" : mood]));
+      reci(tekst, mood === "angry");
+      // duze recenice ostaju dulje na ekranu: dijete od 8 godina cita polako,
+      // a Jedi govori duze recenice od patuljka
+      const citanje = 2600 + tekst.length * 110;
+      pokazi(Math.min(party ? citanje + 900 : citanje, 7000));
+    },
+    // dijete je krenulo dalje: makni se s puta, ne cekaj do kraja
+    sakrij() {
+      clearTimeout(skrij);
+      if (!root.classList.contains("on")) return;
+      generacija++;
+      if (skrivanje) { skrivanje.cancel(); skrivanje = null; }
+      if (calm()) { root.classList.remove("on"); return; }
+      const moja = generacija;
+      skrivanje = root.animate([{opacity:1, transform:"none"},
+                                {opacity:0, transform:"scale(.8) translateY(6px)"}], {duration:180});
+      skrivanje.finished.then(() => { if (moja === generacija) root.classList.remove("on"); },
+                              () => {});
     },
     reset() {
       clearTimeout(skrij);
@@ -1305,6 +1322,9 @@ document.getElementById("clear").addEventListener("click", () => {
 });
 
 // Enter/„next" na tipkovnici tableta skače na sljedeće polje
+// dok dijete tipka u sljedećem polju, lik ne smije stajati preko njega
+main.addEventListener("input", () => buddy.sakrij());
+
 main.addEventListener("keydown", e => {
   if (e.key !== "Enter" || e.target.tagName !== "INPUT") return;
   e.preventDefault();
