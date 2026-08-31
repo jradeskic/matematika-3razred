@@ -301,6 +301,11 @@
     background:#f1eee2;border:2px solid transparent;color:var(--ink);
   }
   button.predmet.aktivan{background:var(--sky);border-color:var(--sky);color:#fff}
+  button.predmet-izbor{
+    flex:1;min-height:64px;padding:12px 10px;
+    border:2px solid var(--line);border-radius:16px;background:#fff;
+  }
+  button.predmet-izbor.izabran{border-color:var(--grass);background:#eefaf1;box-shadow:0 0 0 3px #c9ecd6}
   footer{
     border-top:2px solid var(--ink);padding-top:18px;color:var(--muted);font-size:15px;
   }
@@ -350,6 +355,7 @@
     button.chip{width:auto}
     button.slovo{width:auto}
     button.predmet{width:auto}
+    button.predmet-izbor{width:auto}
   }
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -515,6 +521,15 @@
     <input id="nick" type="text" maxlength="20" placeholder="npr. Luka"
            autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false"
            enterkeyhint="done" aria-label="Nadimak">
+    <p style="margin-top:16px">Što danas vježbamo?</p>
+    <div class="izbor" id="izborPredmeta">
+      <button type="button" class="predmet-izbor" data-predmet="matematika" aria-pressed="false">
+        <span class="lik-ime">Matematika</span>
+      </button>
+      <button type="button" class="predmet-izbor" data-predmet="hrvatski" aria-pressed="false">
+        <span class="lik-ime">Hrvatski jezik</span>
+      </button>
+    </div>
     <p style="margin-top:16px">Koga želiš da te prati kroz zadatke?</p>
     <div class="izbor">
       <button type="button" class="lik-izbor" data-avatar="patuljak" aria-pressed="false">
@@ -1491,6 +1506,23 @@ const mini       = document.getElementById("mini");
 const karticeLika = () => Array.from(document.querySelectorAll(".lik-izbor"));
 let izabrani = profil.avatar;
 
+let izabraniPredmet = profil.predmet;
+
+const karticePredmeta = () => Array.from(document.querySelectorAll(".predmet-izbor"));
+
+function oznaciIzborPredmeta() {
+  karticePredmeta().forEach(b => {
+    const je = b.dataset.predmet === izabraniPredmet;
+    b.classList.toggle("izabran", je);
+    b.setAttribute("aria-pressed", je ? "true" : "false");
+  });
+}
+
+karticePredmeta().forEach(b => b.addEventListener("click", () => {
+  izabraniPredmet = b.dataset.predmet;
+  oznaciIzborPredmeta();
+}));
+
 // lik iz velikog avatara kloniramo u kartice za odabir i u pozdrav
 function klonLika(kljuc) {
   const izvor = document.querySelector(`#buddy .lik[data-lik="${kljuc}"]`);
@@ -1531,17 +1563,21 @@ function otvoriPrijavu() {
   izabrani = profil.avatar;
   poljeIme.value = profil.ime;
   oznaciIzbor();
+  izabraniPredmet = predmet;
+  oznaciIzborPredmeta();
   prijava.hidden = false;
   setTimeout(() => poljeIme.focus(), 60);
 }
 
 function zatvoriPrijavu() {
   profil.ime = poljeIme.value.trim().slice(0, 20);
+  const drugiPredmet = izabraniPredmet !== predmet;
   profil.avatar = izabrani;
   spremiProfil();
   buddy.postaviLik(profil.avatar);
   osvjeziPozdrav();
   prijava.hidden = true;
+  if (drugiPredmet) prebaciPredmet(izabraniPredmet);
 }
 
 karticeLika().forEach(b => b.addEventListener("click", () => {

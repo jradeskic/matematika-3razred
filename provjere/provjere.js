@@ -401,6 +401,29 @@ provjera("pokvaren zapis na disku ne zaustavlja spremanje", async ucitaj => {
   jednako(Object.keys(nakon.napredak.matematika).length, 1, "odgovor je zapamcen");
 });
 
+/* ---------- odabir predmeta u prijavi ---------- */
+
+provjera("prijava nudi odabir predmeta", async ucitaj => {
+  const W = await ucitaj();
+  await cekaj(150);
+  istina(!W.document.getElementById("prijava").hidden, "prijava je otvorena");
+  jednako([...W.document.querySelectorAll(".predmet-izbor")].map(b => b.dataset.predmet),
+          ["matematika", "hrvatski"], "kartice predmeta");
+});
+
+provjera("odabir hrvatskoga u prijavi otvara hrvatski", async ucitaj => {
+  const W = await ucitaj();
+  await cekaj(150);
+  W.document.getElementById("nick").value = "Ana";
+  W.document.querySelector('.predmet-izbor[data-predmet="hrvatski"]').click();
+  W.document.getElementById("kreni").click();
+  await cekaj(350);
+  jednako(W.document.querySelector("#main section").id, "h2", "otvorena cjelina");
+  const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(zapis.predmet, "hrvatski", "predmet je zapamcen");
+  jednako(zapis.ime, "Ana", "ime je zapamceno");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {
