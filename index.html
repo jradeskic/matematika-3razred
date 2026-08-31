@@ -1101,10 +1101,7 @@ const buddy = (() => {
         (party ? lik.slavlje : odaberi(mood, mood === "happy" ? lik.veselje : lik.ljutnja))(dijelovi);
       const tekst = recenica(odaberi(mood + "r", lik.rijeci[party ? "party" : mood]));
       reci(tekst, mood === "angry");
-      // duze recenice ostaju dulje na ekranu: dijete od 8 godina cita polako,
-      // a Jedi govori duze recenice od patuljka
-      const citanje = 2600 + tekst.length * 110;
-      pokazi(Math.min(party ? citanje + 900 : citanje, 7000));
+      pokazi(3000);   // lik se ionako makne ranije ako dijete zapocne tipkati
     },
     // dijete je krenulo dalje: makni se s puta, ne cekaj do kraja
     sakrij() {
