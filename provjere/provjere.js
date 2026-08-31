@@ -390,6 +390,17 @@ provjera("ustajala kartica ne brise napredak drugog predmeta", async ucitaj => {
           "oba matematicka odgovora su zapisana");
 });
 
+provjera("pokvaren zapis na disku ne zaustavlja spremanje", async ucitaj => {
+  const W = await ucitaj();
+  localStorage.setItem("mat3-profil-v1", "{ovo nije JSON");
+  const m = polja(W)[0];
+  upisi(W, m, m.dataset.answer);
+  await cekaj(300);
+  const nakon = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(nakon.v, 2, "zapis je prepisan ispravnim oblikom");
+  jednako(Object.keys(nakon.napredak.matematika).length, 1, "odgovor je zapamcen");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {
