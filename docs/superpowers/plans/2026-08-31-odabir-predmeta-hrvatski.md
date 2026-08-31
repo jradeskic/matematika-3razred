@@ -636,21 +636,20 @@ provjera("izbor: klik na krivu tipku daje kriz", async ucitaj => {
   istina(inp.classList.contains("no"), "polje je oznaceno kao netocno");
 });
 
-provjera("izbor: tipke nisu u istom poretku kao u podacima", async ucitaj => {
-  // Fisher-Yates s dva elementa daje isti poredak u pola slucajeva, pa gledamo
-  // 14 stavki kroz tri ucitavanja: da je premjesavanje izostalo, poredak bi
-  // svih 42 puta bio identican podacima.
-  let razlika = 0;
+provjera("izbor: tipke se premjesaju, nisu svaki put isto", async ucitaj => {
+  // Podaci nisu dostupni kao W.ZADACI_HRVATSKI: top-level const u klasicnoj
+  // skripti ne postaje svojstvo windowa. Zato ne usporedujemo s podacima nego
+  // tri iscrtavanja medusobno: bez premjesavanja su uvijek identicna, a s njim
+  // je poklapanje sva tri puta na svih 14 stavki 2^-28.
+  const snimke = [];
   for (let k = 0; k < 3; k++) {
     const W = await ucitaj();
     W.izgradiPredmet("hrvatski");
-    const podaci = W.ZADACI_HRVATSKI.find(c => c.id === "h2").tasks[0].items;
-    [...W.document.querySelectorAll(".izbor-item")].forEach((s, i) => {
-      const naEkranu = [...s.querySelectorAll(".chip")].map(t => t.dataset.vrijednost);
-      if (JSON.stringify(naEkranu) !== JSON.stringify(podaci[i][1])) razlika++;
-    });
+    snimke.push(JSON.stringify([...W.document.querySelectorAll(".izbor-item")]
+      .map(s => [...s.querySelectorAll(".chip")].map(t => t.dataset.vrijednost))));
   }
-  istina(razlika > 0, "ni jedna od 42 stavke nije premjesana — premjesavanje ne radi");
+  istina(new Set(snimke).size > 1,
+         "tri iscrtavanja dala su identican poredak tipki — premjesavanje ne radi");
 });
 
 provjera("Enter ne uskace u skriveno polje izbora", async ucitaj => {
