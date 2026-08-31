@@ -214,6 +214,45 @@ provjera("izbor: promjena misljenja ostavlja tocno jednu odabranu tipku", async 
           [inp.dataset.answer], "ostala je tocno jedna odabrana tipka, i to prava");
 });
 
+/* ---------- provjera odgovora po predmetu ---------- */
+
+provjera("hrvatski: veliko slovo je bitno", async ucitaj => {
+  const W = await ucitaj();
+  istina(typeof W.tocno === "function", "tocno() postoji");
+  W.izgradiPredmet("hrvatski");
+  istina(W.tocno("Ana", "Ana"), '"Ana" je tocno za "Ana"');
+  istina(!W.tocno("ana", "Ana"), '"ana" NIJE tocno za "Ana"');
+});
+
+provjera("hrvatski: dijakritika je bitna", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("hrvatski");
+  istina(W.tocno("kuća", "kuća"), '"kuća" je tocno');
+  istina(!W.tocno("kuca", "kuća"), '"kuca" NIJE tocno za "kuća"');
+  istina(!W.tocno("kuča", "kuća"), '"kuča" NIJE tocno za "kuća"');
+});
+
+provjera("hrvatski: zavrsna tocka je bitna, visak razmaka nije", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("hrvatski");
+  istina(!W.tocno("Ivan ne čita", "Ivan ne čita."), "bez tocke NIJE tocno");
+  istina(W.tocno("  Ivan   ne  čita.  ", "Ivan ne čita."), "visak razmaka se tolerira");
+});
+
+provjera("hrvatski: tocka i zarez nisu isto", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("hrvatski");
+  istina(!W.tocno("ku,ća", "ku.ća"), "zarez nije zamjena za tocku");
+});
+
+provjera("matematika: tocno() se ponasa kao stari norm()", async ucitaj => {
+  const W = await ucitaj();
+  istina(W.tocno("3.70", "3,70"), "3.70 = 3,70");
+  istina(W.tocno("iva", "Iva"), "veliko i malo slovo nevazni");
+  istina(W.tocno(" 4 2 ", "42"), "razmaci nevazni");
+  istina(!W.tocno("43", "42"), "razliciti brojevi nisu isto");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {

@@ -731,6 +731,17 @@ const norm = v => v.toString().toLowerCase()
   .replace(/;/g, ",")
   .replace(/^,|,$/g, "");
 
+/* Hrvatski: sabij samo visak razmaka. Veliko i malo slovo, dijakritika i
+   zavrsni recenicni znak su bitni, jer se upravo to uvjezbava.            */
+const ocisti = v => v.toString().trim().replace(/\s+/g, " ");
+
+// koje pravilo vrijedi odlucuje predmet, ne tip zadatka
+function tocno(upis, odgovor) {
+  return PREDMETI[predmet].provjera === "rijec"
+    ? ocisti(upis) === ocisti(odgovor)
+    : norm(upis) === norm(odgovor);
+}
+
 // samo polja u zadacima; polje za nadimak u prijavi ne smije se racunati
 const inputs = () => Array.from(main.querySelectorAll("input[type=text]"));
 const levels = () => Array.from(document.querySelectorAll("section[data-total]"));
@@ -1284,7 +1295,7 @@ function check() {
 
   list.forEach(inp => {
     if (inp.value.trim() === "") { setState(inp, null, { fx: false }); return; }
-    const good = norm(inp.value) === norm(inp.dataset.answer);
+    const good = tocno(inp.value, inp.dataset.answer);
     if (setState(inp, good, { fx: !quiet }) && good) gained++;
   });
 
@@ -1363,7 +1374,7 @@ main.addEventListener("keydown", e => {
 main.addEventListener("focusout", e => {
   const inp = e.target;
   if (inp.tagName !== "INPUT" || inp.value.trim() === "") return;
-  setState(inp, norm(inp.value) === norm(inp.dataset.answer));
+  setState(inp, tocno(inp.value, inp.dataset.answer));
   updateProgress();
   zapamtiOdgovore();
 });
@@ -1383,7 +1394,7 @@ main.addEventListener("click", e => {
   const inp = document.getElementById(tipka.dataset.za);
   inp.value = tipka.dataset.vrijednost;
   oznaciTipku(inp);
-  setState(inp, norm(inp.value) === norm(inp.dataset.answer), { sidro: tipka });
+  setState(inp, tocno(inp.value, inp.dataset.answer), { sidro: tipka });
   updateProgress();
   zapamtiOdgovore();
 });
@@ -1480,7 +1491,7 @@ function vratiNapredak() {
     const v = zapis[inp.dataset.key];
     if (typeof v !== "string" || v.trim() === "") return;
     inp.value = v;
-    setState(inp, norm(v) === norm(inp.dataset.answer), { fx: false });
+    setState(inp, tocno(v, inp.dataset.answer), { fx: false });
     vraceno++;
   });
   streak = 0;                          // niz se ne prenosi kroz posjete
