@@ -1581,7 +1581,7 @@ provjera("hrvatski: 85 polja u 7 cjelina", async ucitaj => {
   jednako(W.document.querySelectorAll("nav a").length, 7, "linkova u navigaciji");
   // recenicni odgovori moraju dobiti siroko polje; u podacima ih je tocno pet
   const duga = polja(W).filter(i => i.classList.contains("duga"));
-  jednako(duga.length, 5, "polja s razredom duga");
+  jednako(duga.length, 4, "polja s razredom duga");
   duga.forEach(i => istina(i.dataset.answer.length > 14,
     `polje s razredom duga ima kratak odgovor: "${i.dataset.answer}"`));
 });
@@ -1732,7 +1732,7 @@ const ZADACI_HRVATSKI = [
     ["Petar ne trči.", "Petar trči."]]},
   {t:"calc", q:"Odgovori.", items:[
     ["Koliko rečenica ima: Pada snijeg. Djeca se raduju.", "2"],
-    ["Prepiši ispravno: ana ide u školu",                  "Ana ide u školu."]]}
+    ["Prepiši ispravno: ana ide u školu.",                 "Ana ide u školu."]]}
 ]},
 
 {id:"h6", nav:"Vrste riječi", title:"Vrste riječi",
@@ -1771,9 +1771,9 @@ const ZADACI_HRVATSKI = [
   {t:"calc", q:"Napiši protuznačnicu.", items:[
     ["vruće", "hladno"],
     ["dobro", "loše"]]},
-  {t:"calc", q:"Složi rečenicu od zadanih riječi.", items:[
-    ["škole / iz / Marko / dolazi", "Marko dolazi iz škole."],
-    ["lijepa / je / Ana",           "Ana je lijepa."]]},
+  {t:"izbor", q:"Koja je rečenica složena ispravno?", items:[
+    ["", ["Marko dolazi iz škole.", "Iz Marko škole dolazi."], "Marko dolazi iz škole."],
+    ["", ["Ana je lijepa.", "Lijepa Ana je."],                 "Ana je lijepa."]]},
   {t:"note", q:"U vježbenicu napiši tri riječi koje počinju slovom Č.",
    solution:"npr. čaša, čokolada, čizma"}
 ]}

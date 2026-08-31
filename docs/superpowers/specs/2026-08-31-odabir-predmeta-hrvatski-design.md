@@ -247,7 +247,7 @@ Rečenični znakovi, jesne i niječne rečenice, „ne" uz glagol.
 | upis | Pretvori u niječnu: „Ana pjeva." | Ana ne pjeva. |
 | upis | Pretvori u jesnu: „Petar ne trči." | Petar trči. |
 | upis | Koliko rečenica ima: „Pada snijeg. Djeca se raduju."? | 2 |
-| upis | Popravi: „ana ide u školu" | Ana ide u školu. |
+| upis | Prepiši ispravno: „ana ide u školu." | Ana ide u školu. |
 
 ### h6 · Vrste riječi (12)
 
@@ -283,8 +283,8 @@ Protuznačnice, istoznačnice, redoslijed riječi u rečenici.
 | izbor | Istoznačnica od „auto" | automobil *(kamion)* |
 | upis | Protuznačnica od „vruće" | hladno |
 | upis | Protuznačnica od „dobro" | loše |
-| upis | Složi rečenicu: škole / iz / Marko / dolazi | Marko dolazi iz škole. |
-| upis | Složi rečenicu: lijepa / je / Ana | Ana je lijepa. |
+| izbor | Koja je rečenica složena ispravno? | Marko dolazi iz škole. *(Iz Marko škole dolazi.)* |
+| izbor | Koja je rečenica složena ispravno? | Ana je lijepa. *(Lijepa Ana je.)* |
 | note | U vježbenicu napiši tri riječi koje počinju slovom Č. | *npr. čaša, čokolada, čizma* |
 
 Zbroj polja za provjeru: 12 + 14 + 12 + 12 + 12 + 12 + 11 = **85**.
