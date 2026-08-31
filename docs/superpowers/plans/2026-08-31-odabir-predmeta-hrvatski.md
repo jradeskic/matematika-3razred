@@ -1270,16 +1270,16 @@ let spremiTimer = null;
 function spremiProfil() {
   clearTimeout(spremiTimer);
   spremiTimer = setTimeout(() => {
+    // Citanje ide u svoj try: pokvaren zapis na disku ne smije zaustaviti
+    // upisivanje, inace bi dijete tiho prestalo pamtiti napredak.
     try {
-      // Druga kartica je u meduvremenu mogla upisati napredak drugog predmeta.
-      // Ova sesija mijenja samo aktivni predmet, pa za ostale uzimamo ono sto
-      // je na disku -- inace bi ustajala kartica pobrisala tudi rad.
       const naDisku = JSON.parse(localStorage.getItem(KLJUC_PROFILA) || "null");
-      if (naDisku && naDisku.v === 2 && naDisku.napredak && typeof naDisku.napredak === "object")
+      if (naDisku && naDisku.v === 2 && naDisku.napredak &&
+          typeof naDisku.napredak === "object" && !Array.isArray(naDisku.napredak))
         for (const p of Object.keys(naDisku.napredak))
           if (p !== predmet) profil.napredak[p] = naDisku.napredak[p];
-      localStorage.setItem(KLJUC_PROFILA, JSON.stringify(profil));
     } catch (_) {}
+    try { localStorage.setItem(KLJUC_PROFILA, JSON.stringify(profil)); } catch (_) {}
   }, 200);
 }
 
