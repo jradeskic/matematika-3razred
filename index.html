@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Matematika — ponavljanje prije 3. razreda</title>
+<meta name="description" content="Zadaci za ponavljanje gradiva matematike 2. razreda osnovne škole prije ulaska u 3. razred.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1d2b3a;
+    --paper:#fffdf7;
+    --sky:#2f6fd0;
+    --grass:#2f9e5f;
+    --sun:#f6c445;
+    --berry:#e0544f;
+    --line:#dcd6c6;
+    --muted:#6b7686;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font:400 17px/1.6 "Nunito",system-ui,sans-serif;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px 80px}
+
+  /* ---------- hero: brojevna ljestvica ---------- */
+  header.hero{
+    padding:56px 0 28px;
+  }
+  .hero h1{
+    font:800 clamp(34px,7vw,60px)/1.05 "Baloo 2",cursive;
+    margin:0 0 12px;letter-spacing:-.5px;
+  }
+  .hero p{margin:0;max-width:56ch;color:var(--muted);font-size:18px}
+  .ladder{
+    display:flex;gap:4px;align-items:flex-end;height:70px;margin:26px 0 6px;
+  }
+  .ladder span{
+    flex:1;border-radius:4px 4px 0 0;background:var(--sky);opacity:.9;
+  }
+  .ladder span:nth-child(5n){background:var(--sun)}
+  .ladder span:nth-child(10n){background:var(--berry)}
+  .ladder-scale{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+
+  /* ---------- navigacija ---------- */
+  nav{
+    display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 10px;
+    padding:14px;border:2px solid var(--ink);border-radius:14px;background:#fff;
+  }
+  nav a{
+    text-decoration:none;color:var(--ink);font-weight:700;font-size:15px;
+    padding:6px 12px;border-radius:999px;background:#f1eee2;
+  }
+  nav a:hover,nav a:focus-visible{background:var(--sun)}
+
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 34px}
+  button{
+    font:700 15px/1 "Nunito",sans-serif;cursor:pointer;
+    padding:11px 16px;border-radius:10px;border:2px solid var(--ink);
+    background:#fff;color:var(--ink);
+  }
+  button:hover{background:var(--sun)}
+  button.primary{background:var(--sky);color:#fff;border-color:var(--sky)}
+  button.primary:hover{background:#25599f}
+  .score{font-weight:700;color:var(--muted)}
+
+  /* ---------- cjeline ---------- */
+  section{margin:0 0 46px;scroll-margin-top:16px}
+  section > h2{
+    font:800 26px/1.2 "Baloo 2",cursive;margin:0 0 4px;
+    display:flex;align-items:baseline;gap:12px;
+  }
+  section > h2 .num{
+    font-size:15px;color:#fff;background:var(--ink);border-radius:8px;
+    padding:3px 9px;font-family:"Nunito",sans-serif;
+  }
+  section > p.lead{margin:0 0 18px;color:var(--muted)}
+
+  .task{
+    padding:14px 0;border-top:1px dashed var(--line);
+  }
+  .task:first-of-type{border-top:2px solid var(--ink)}
+  .task .q{font-weight:600;margin:0 0 10px}
+  .task .q small{display:block;font-weight:400;color:var(--muted)}
+
+  .items{display:flex;flex-wrap:wrap;gap:10px 18px}
+  .item{display:flex;align-items:center;gap:8px}
+  .item label{font-variant-numeric:tabular-nums;font-weight:700}
+  input[type=text]{
+    width:5.2em;font:700 17px/1 "Nunito",sans-serif;text-align:center;
+    padding:9px 6px;border:2px solid var(--line);border-radius:9px;background:#fff;
+    color:var(--ink);
+  }
+  input[type=text]:focus-visible{outline:3px solid var(--sky);outline-offset:1px;border-color:var(--sky)}
+  input.ok{border-color:var(--grass);background:#eefaf1}
+  input.no{border-color:var(--berry);background:#fdeeed}
+  .mark{width:1.2em;font-weight:800}
+  .mark.ok{color:var(--grass)}
+  .mark.no{color:var(--berry)}
+
+  .paper-task{
+    background:#f4f1e6;border-left:6px solid var(--sun);
+    padding:12px 16px;border-radius:0 10px 10px 0;
+  }
+  .paper-task p{margin:0}
+  .paper-task ul{margin:8px 0 0;padding-left:20px}
+
+  table{border-collapse:collapse;margin:6px 0 12px}
+  th,td{border:1px solid var(--line);padding:6px 14px;text-align:left}
+  th{background:#f1eee2}
+
+  .solution{
+    margin-top:10px;font-size:15px;color:var(--grass);font-weight:700;
+    display:none;
+  }
+  .solution.show{display:block}
+
+  footer{
+    border-top:2px solid var(--ink);padding-top:18px;color:var(--muted);font-size:15px;
+  }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>Ponavljamo matematiku<br>prije 3. razreda</h1>
+  <p>Gradivo 2. razreda: brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija, mjerenje i podaci. Upiši odgovor i provjeri se sam.</p>
+  <div class="ladder" id="ladder" aria-hidden="true"></div>
+  <div class="ladder-scale"><span>0</span><span>50</span><span>100</span></div>
+</header>
+
+<nav aria-label="Cjeline">
+  <a href="#c1">Brojevi do 100</a>
+  <a href="#c2">Zbrajanje i oduzimanje</a>
+  <a href="#c3">Množenje i dijeljenje</a>
+  <a href="#c4">Zadaci riječima</a>
+  <a href="#c5">Geometrija</a>
+  <a href="#c6">Mjerenje</a>
+  <a href="#c7">Podaci i logika</a>
+</nav>
+
+<div class="toolbar">
+  <button class="primary" id="check">Provjeri odgovore</button>
+  <button id="reveal">Pokaži rješenja</button>
+  <button id="clear">Počni ispočetka</button>
+  <span class="score" id="score">Riješeno: 0 od 0</span>
+</div>
+
+<main id="main"></main>
+
+<footer>
+  <p>Za tiskanje: <kbd>Ctrl</kbd>+<kbd>P</kbd>. Zadaci s crtanjem rade se u vježbenici.</p>
+</footer>
+</div>
+
+<script>
+/* --------- podaci: svaka cjelina je popis zadataka ---------
+   tip "calc": items = [[prikaz, odgovor], ...]  (odgovor kao string, provjera bez razlike u razmacima/zarezu)
+   tip "note": zadatak koji se rješava na papiru; solution je opcionalna napomena
+------------------------------------------------------------ */
+const DATA = [
+{id:"c1", title:"Brojevi do 100", lead:"Desetice i jedinice, usporedivanje, nizovi, parni i neparni brojevi.", tasks:[
+  {t:"calc", q:"Rastavi na desetice i jedinice — upiši koliko je desetica, a koliko jedinica (npr. 4D3J).",
+   items:[["63","6D3J"],["90","9D0J"],["58","5D8J"],["47","4D7J"]]},
+  {t:"calc", q:"Upiši znak <span aria-hidden=\"true\">&lt;</span>, <span aria-hidden=\"true\">&gt;</span> ili =",
+   items:[["47 __ 74","<"],["39 __ 39","="],["80 __ 79",">"],["5 + 6 __ 12","<"]]},
+  {t:"calc", q:"Nastavi niz — upiši sljedeća tri broja odvojena zarezom.",
+   items:[["10, 20, 30, …","40,50,60"],["55, 60, 65, …","70,75,80"],["100, 90, 80, …","70,60,50"]]},
+  {t:"calc", q:"Prethodnik i sljedbenik",
+   items:[["prethodnik broja 70","69"],["sljedbenik broja 89","90"],["prethodnik broja 100","99"]]},
+  {t:"calc", q:"Poredaj od najmanjeg do najvećeg (odvoji zarezom): 38, 83, 8, 80, 33",
+   items:[["poredak","8,33,38,80,83"]]},
+  {t:"calc", q:"Koji su od ovih brojeva parni? Upiši ih odvojene zarezom: 12, 15, 20, 27, 34, 41, 50",
+   items:[["parni","12,20,34,50"]]},
+  {t:"note", q:"Napiši riječima brojeve 47, 60, 89 i 100.",
+   solution:"četrdeset sedam, šezdeset, osamdeset devet, sto"}
+]},
+
+{id:"c2", title:"Zbrajanje i oduzimanje do 100", lead:"Prvo bez prelaska desetice, zatim s prelaskom. Pazi na zagrade.", tasks:[
+  {t:"calc", q:"Bez prelaska desetice", items:[["34 + 25","59"],["71 + 18","89"],["56 − 23","33"],["98 − 47","51"]]},
+  {t:"calc", q:"S prelaskom desetice", items:[["47 + 28","75"],["39 + 26","65"],["65 − 27","38"],["82 − 49","33"]]},
+  {t:"calc", q:"Prvo izračunaj u zagradi", items:[["25 + (30 − 12)","43"],["(44 + 16) − 25","35"],["100 − (35 + 45)","20"]]},
+  {t:"calc", q:"Koji broj nedostaje?", items:[["36 + ? = 50","14"],["? − 18 = 22","40"],["70 − ? = 45","25"]]},
+  {t:"calc", q:"Izračunaj, a onda provjeri zbrajanjem: 63 − 29",
+   items:[["63 − 29","34"],["provjera: 34 + ? = 63","29"]]}
+]},
+
+{id:"c3", title:"Tablica množenja i dijeljenja do 100", lead:"Najvažnija cjelina — na njoj se u 3. razredu gradi računanje do 1000.", tasks:[
+  {t:"calc", q:"Množenje", items:[["3 · 7","21"],["6 · 8","48"],["9 · 4","36"],["7 · 7","49"],["5 · 9","45"],["8 · 8","64"]]},
+  {t:"calc", q:"Dijeljenje", items:[["24 : 6","4"],["42 : 7","6"],["56 : 8","7"],["81 : 9","9"],["35 : 5","7"],["100 : 10","10"]]},
+  {t:"calc", q:"Zapiši zbrajanje kao množenje: 6 + 6 + 6 + 6", items:[["koliko je","24"],["množitelj (? · 6)","4"]]},
+  {t:"calc", q:"Koji broj nedostaje?", items:[["4 · ? = 32","8"],["? · 7 = 63","9"],["48 : ? = 6","8"],["? : 9 = 5","45"]]},
+  {t:"calc", q:"Dvostruko, trostruko, polovina", items:[["dvostruko od 24","48"],["polovina od 36","18"],["trostruko od 9","27"]]},
+  {t:"calc", q:"Množenje ima prednost pred zbrajanjem i oduzimanjem.",
+   items:[["3 · 5 + 12","27"],["40 − 4 · 6","16"],["2 · 8 + 3 · 4","28"]]},
+  {t:"note", q:"Iz 7 · 8 = 56 napiši dva zadatka s dijeljenjem.", solution:"56 : 8 = 7 i 56 : 7 = 8"}
+]},
+
+{id:"c4", title:"Zadaci riječima", lead:"Pročitaj dva puta, pa zapiši račun. Upiši samo broj.", tasks:[
+  {t:"calc", q:"U razredu je 14 djevojčica i 12 dječaka. Koliko je učenika u razredu?", items:[["učenika","26"]]},
+  {t:"calc", q:"Mama je kupila 50 jaja, a potrošila 18. Koliko je jaja ostalo?", items:[["jaja","32"]]},
+  {t:"calc", q:"U jednoj kutiji je 8 bombona. Koliko je bombona u 7 kutija?", items:[["bombona","56"]]},
+  {t:"calc", q:"45 kolača dijelimo jednako na 9 tanjura. Koliko kolača ide na jedan tanjur?", items:[["kolača","5"]]},
+  {t:"calc", q:"Ivan je imao 20 €. Kupio je knjigu za 8 € i olovku za 3 €. Koliko mu je ostalo?", items:[["eura","9"]]},
+  {t:"calc", q:"Luka ima 7 godina, a sestra je 3 puta starija. Koliko godina ima sestra?", items:[["godina","21"]]},
+  {t:"calc", q:"Autobus je krenuo u 8 sati i putovao 3 sata. U koliko je sati stigao?", items:[["sati","11"]]},
+  {t:"calc", q:"Marko je pročitao 24 stranice, a Ana dvostruko manje. Koliko je stranica pročitala Ana?", items:[["stranica","12"]]}
+]},
+
+{id:"c5", title:"Geometrija", lead:"Ovi se zadaci rješavaju u vježbenici, ravnalom i olovkom.", tasks:[
+  {t:"calc", q:"Koliko vrhova ima lik?", items:[["trokut","3"],["kvadrat","4"],["pravokutnik","4"]]},
+  {t:"note", q:"Objasni i nacrtaj po jedan primjer: točka, dužina, pravac, polupravac.",
+   solution:"Pravac je bez početka i kraja, polupravac ima početnu točku, dužina ima obje krajnje točke."},
+  {t:"note", q:"Nacrtaj dužinu duljine 6 cm i označi je s AB. Zatim kvadrat stranice 4 cm i pravokutnik stranica 5 cm i 3 cm."},
+  {t:"note", q:"Koja su od ovih geometrijska tijela, a koji likovi: kocka, krug, kvadar, trokut, kugla, valjak?",
+   solution:"Tijela: kocka, kvadar, kugla, valjak. Likovi: krug, trokut."},
+  {t:"note", q:"Nacrtaj dva pravca koja se sijeku pod pravim kutom i dva pravca koja se nikad ne sijeku."}
+]},
+
+{id:"c6", title:"Mjerenje", lead:"Duljina, masa, tekućina, vrijeme i novac.", tasks:[
+  {t:"calc", q:"Pretvori (upiši samo broj)", items:[["1 m = ? cm","100"],["3 dm = ? cm","30"],["200 cm = ? m","2"],["1 kg = ? g","1000"]]},
+  {t:"calc", q:"Izračunaj (upiši samo broj)", items:[["45 cm + 25 cm = ? cm","70"],["2 m − 60 cm = ? cm","140"],["5 kg + 12 kg = ? kg","17"],["10 l − 4 l = ? l","6"]]},
+  {t:"calc", q:"Vrijeme", items:[["1 sat = ? minuta","60"],["pola sata = ? minuta","30"],["tri četvrt sata = ? minuta","45"]]},
+  {t:"calc", q:"Imaš kovanice 2 €, 1 €, 50 centi i 20 centi. Koliko ukupno imaš? (npr. 1,50)", items:[["ukupno €","3,70"]]},
+  {t:"note", q:"Pročitaj vrijeme na dva načina: 07:30, 12:15, 18:45.",
+   solution:"pola osam ujutro; dvanaest i petnaest; petnaest do sedam poslijepodne"},
+  {t:"note", q:"Danas je srijeda. Koji je dan bio prekjučer, a koji će biti za 4 dana?",
+   solution:"prekjučer ponedjeljak, za 4 dana nedjelja"}
+]},
+
+{id:"c7", title:"Podaci i logika", lead:"Čitanje tablice i zadaci „mislim broj“.", tasks:[
+  {t:"calc", q:"Pročitane knjige:", table:[["Ime","Knjige"],["Ana","8"],["Marko","5"],["Iva","11"],["Luka","5"]],
+   items:[["ukupno knjiga","29"],["Iva ima više od Marka za","6"],["najviše je pročitala (ime)","Iva"]]},
+  {t:"calc", q:"Mislim broj. Kad mu dodam 15, dobijem 42. Koji je broj?", items:[["broj","27"]]},
+  {t:"calc", q:"Mislim broj. Kad ga pomnožim sa 6, dobijem 54. Koji je broj?", items:[["broj","9"]]},
+  {t:"calc", q:"Nastavi uzorak: 2, 4, 8, 16, …", items:[["sljedeći broj","32"]]}
+]}
+];
+
+/* ---------- brojevna ljestvica u hero dijelu ---------- */
+const ladder = document.getElementById("ladder");
+for (let i = 1; i <= 20; i++) {
+  const s = document.createElement("span");
+  s.style.height = (18 + i * 2.6) + "%";
+  ladder.appendChild(s);
+}
+
+/* ---------- izgradnja stranice ---------- */
+const main = document.getElementById("main");
+let inputCount = 0;
+
+DATA.forEach((sec, si) => {
+  const el = document.createElement("section");
+  el.id = sec.id;
+  el.innerHTML = `<h2><span class="num">${si + 1}</span>${sec.title}</h2>
+                  <p class="lead">${sec.lead}</p>`;
+
+  sec.tasks.forEach((task, ti) => {
+    const box = document.createElement("div");
+    box.className = "task";
+    const label = `${si + 1}.${ti + 1}`;
+    let html = `<p class="q">${label} &nbsp;${task.q}</p>`;
+
+    if (task.table) {
+      html += "<table>";
+      task.table.forEach((row, r) => {
+        const cell = r === 0 ? "th" : "td";
+        html += "<tr>" + row.map(c => `<${cell}>${c}</${cell}>`).join("") + "</tr>";
+      });
+      html += "</table>";
+    }
+
+    if (task.t === "calc") {
+      html += '<div class="items">';
+      task.items.forEach(([shown, answer]) => {
+        const id = "i" + (inputCount++);
+        html += `<span class="item">
+          <label for="${id}">${shown}</label>
+          <input type="text" id="${id}" data-answer="${answer}" autocomplete="off"
+                 inputmode="text" aria-label="${shown.replace(/"/g, "")}">
+          <span class="mark" data-for="${id}"></span></span>`;
+      });
+      html += "</div>";
+      const sol = task.items.map(([s, a]) => `${s} = ${a}`).join(" · ");
+      html += `<p class="solution">Rješenje: ${sol}</p>`;
+    } else {
+      html += `<div class="paper-task"><p>Riješi u vježbenici.</p></div>`;
+      if (task.solution) html += `<p class="solution">Rješenje: ${task.solution}</p>`;
+    }
+
+    box.innerHTML = html;
+    el.appendChild(box);
+  });
+
+  main.appendChild(el);
+});
+
+/* ---------- provjera ---------- */
+const norm = v => v.toString().toLowerCase()
+  .replace(/\s+/g, "")
+  .replace(/\./g, ",")      // 3.70 = 3,70
+  .replace(/;/g, ",")
+  .replace(/^,|,$/g, "");
+
+const inputs = () => Array.from(document.querySelectorAll("input[type=text]"));
+const scoreEl = document.getElementById("score");
+
+function updateScore() {
+  const all = inputs();
+  const ok = all.filter(i => i.classList.contains("ok")).length;
+  const filled = all.filter(i => i.value.trim() !== "").length;
+  scoreEl.textContent = `Točno: ${ok} od ${all.length} · upisano: ${filled}`;
+}
+
+function check() {
+  inputs().forEach(inp => {
+    const mark = document.querySelector(`.mark[data-for="${inp.id}"]`);
+    inp.classList.remove("ok", "no");
+    mark.classList.remove("ok", "no");
+    mark.textContent = "";
+    if (inp.value.trim() === "") return;
+    if (norm(inp.value) === norm(inp.dataset.answer)) {
+      inp.classList.add("ok"); mark.classList.add("ok"); mark.textContent = "✓";
+    } else {
+      inp.classList.add("no"); mark.classList.add("no"); mark.textContent = "✗";
+    }
+  });
+  updateScore();
+}
+
+document.getElementById("check").addEventListener("click", check);
+
+document.getElementById("reveal").addEventListener("click", e => {
+  const on = document.querySelectorAll(".solution.show").length === 0;
+  document.querySelectorAll(".solution").forEach(s => s.classList.toggle("show", on));
+  e.target.textContent = on ? "Sakrij rješenja" : "Pokaži rješenja";
+});
+
+document.getElementById("clear").addEventListener("click", () => {
+  inputs().forEach(i => { i.value = ""; i.classList.remove("ok", "no"); });
+  document.querySelectorAll(".mark").forEach(m => { m.textContent = ""; m.className = "mark"; });
+  updateScore();
+});
+
+main.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.tagName === "INPUT") check();
+});
+
+updateScore();
+</script>
+</body>
+</html>
