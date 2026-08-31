@@ -46,3 +46,18 @@ Svi zadaci su u JS objektu `DATA` na dnu `index.html`. Struktura:
 Odgovori su u HTML-u (`data-answer`), pa su vidljivi u *View source*. Za dijete od 8 godina
 to je u praksi dovoljno, ali ako to smeta, jedina prava opcija je provjera na serveru —
 statični Pages to ne može.
+
+## Prilagodba za tablet
+
+- Osnovna veličina teksta 19–20 px, polja i tipke minimalno 54 px visine (Appleova i
+  Googleova preporuka za dodirni cilj je 44–48 px).
+- Polja za upis imaju `inputmode="decimal"` kad je odgovor broj → na tabletu se otvara
+  brojčana tipkovnica. Kod tekstualnih odgovora (npr. ime iz tablice) ostaje slovna,
+  uz isključen autocapitalize i autocorrect.
+- Traka s tipkama je `position:sticky` na dnu ekrana, pa je „Provjeri odgovore" dostupna
+  bez skrolanja natrag na vrh.
+- Navigacija po cjelinama je vodoravna traka koja se skrola prstom umjesto da se lomi
+  u više redova.
+- Enter (odnosno „next" na tipkovnici tableta) skače u sljedeće polje. Polje se dodatno
+  provjeri samo kad dijete iz njega izađe.
+- U portretu su tipke pune širine; ispod 400 px širine smanjuje se rub stranice.
