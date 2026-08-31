@@ -1,15 +1,19 @@
-# Matematika — ponavljanje prije 3. razreda
+# Ponavljanje prije 3. razreda
 
-Statična stranica sa zadacima iz gradiva 2. razreda (hrvatski kurikulum): brojevi do 100,
-zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija,
-mjerenje, podaci. Odgovori se upisuju i provjeravaju u pregledniku, bez servera.
+Statična stranica sa zadacima iz gradiva 2. razreda (hrvatski kurikulum), za dva predmeta:
+**matematiku** (brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja
+i dijeljenja, geometrija, mjerenje, podaci) i **hrvatski jezik** (veliko početno slovo, č i ć,
+ije i je, glasovi i slova, rečenica, vrste riječi i značenje). Odgovori se upisuju i
+provjeravaju u pregledniku, bez servera. Vidi [Predmeti](#predmeti) niže.
 
-Sve je u jednoj datoteci: `index.html` (nema buildanja, nema dependencyja osim Google Fonts CDN-a).
+Tri datoteke, sve preko `<script src>`: `index.html`, `zadaci-matematika.js`,
+`zadaci-hrvatski.js` (nema buildanja, nema dependencyja osim Google Fonts CDN-a).
 
 ## Objava na GitHub Pages
 
 1. Napravi novi javni repozitorij na GitHubu, npr. `matematika-3razred`.
-2. Dodaj `index.html` (i ovaj README) u korijen repozitorija i pushaj na branch `main`:
+2. Dodaj `index.html`, `zadaci-matematika.js`, `zadaci-hrvatski.js` (i ovaj README) u korijen
+   repozitorija i pushaj na branch `main`:
    ```bash
    git init
    git add .
@@ -26,26 +30,6 @@ Sve je u jednoj datoteci: `index.html` (nema buildanja, nema dependencyja osim G
 
 Bitno: `index.html` mora biti u korijenu (ili u `/docs` ako u koraku 3. odabereš taj folder),
 inače Pages prikaže 404.
-
-## Izmjene zadataka
-
-Svi zadaci su u JS objektu `DATA` na dnu `index.html`. Struktura:
-
-```js
-{id:"c3", title:"Naslov cjeline", lead:"Podnaslov", tasks:[
-  {t:"calc", q:"Tekst zadatka", items:[["3 · 7","21"], ["6 · 8","48"]]},
-  {t:"note", q:"Zadatak za vježbenicu", solution:"opcionalna napomena"}
-]}
-```
-
-- `t:"calc"` → za svaki `[prikaz, odgovor]` generira se polje za upis i provjera.
-  Provjera ignorira razmake i tretira `.` i `,` kao isto (3.70 = 3,70).
-- `t:"note"` → zadatak koji se rješava na papiru, bez polja za upis.
-- `table:[[...]]` → opcionalna tablica iznad polja za upis.
-
-Odgovori su u HTML-u (`data-answer`), pa su vidljivi u *View source*. Za dijete od 8 godina
-to je u praksi dovoljno, ali ako to smeta, jedina prava opcija je provjera na serveru —
-statični Pages to ne može.
 
 ## Igra: razine, nizovi i animacije
 
@@ -86,6 +70,65 @@ Bira se između dva lika:
 Mali Jedi je **izvorni lik** u tom duhu, ne prikaz Baby Yode, i rečenice su napisane za ovu
 stranicu, a ne prepisane iz filmova — stranica je javna na GitHub Pagesu, pa se prepoznatljiv
 lik i doslovni citati ne koriste.
+
+## Predmeti
+
+Stranica ima dva predmeta: **Matematiku** i **Hrvatski jezik**, oba gradivo 2. razreda.
+Predmet se bira pri prvoj prijavi i mijenja prekidačem u zaglavlju. Nadimak i avatar su
+zajednički, a napredak se pamti odvojeno po predmetu. Stranica se otvori na zadnje
+biranom predmetu.
+
+Zadaci stoje izvan `index.html`:
+
+```
+index.html             mehanika: razine, avatar, prijava, pamćenje, prekidač predmeta
+zadaci-matematika.js   const ZADACI_MATEMATIKA = [...]
+zadaci-hrvatski.js     const ZADACI_HRVATSKI = [...]
+```
+
+Dodavanje predmeta: nova stavka u `PREDMETI` u `index.html` i jedna datoteka sa zadacima.
+
+### Tipovi zadataka
+
+- `calc` → za svaki `[prikaz, odgovor]` polje za upis. Odgovor dulji od 14 znakova
+  dobiva široko polje s oznakom nad njim.
+- `izbor` → za svaki `[prikaz, [ponuđeno, …], odgovor]` red tipki za tap. Točan odgovor
+  mora biti među ponuđenima. Tipke se premješaju pri iscrtavanju. Odabrana vrijednost
+  ide u skriveno polje, pa razine, ključevi, kvačice i avatar rade isto kao kod upisa.
+- `note` → zadatak za vježbenicu, bez polja.
+
+### Provjera odgovora ovisi o predmetu
+
+| | Matematika | Hrvatski |
+|---|---|---|
+| veliko/malo slovo | nevažno | bitno (`Ana` ≠ `ana`) |
+| č ć š ž đ | — | bitno (`kuca` ≠ `kuća`) |
+| `.` i `,` | isto (3.70 = 3,70) | različito |
+| razmaci | ignorirani | višak se sabija u jedan |
+| završni `. ? !` | — | bitno |
+
+U hrvatskom, uz polja za upis stoji red tipki **č ć š ž đ**, jer se ta slova na
+tabletu bez hrvatske tipkovnice ne mogu upisati.
+
+Odgovori su u HTML-u (`data-answer`), pa su vidljivi u *View source*. Za dijete od 8 godina
+to je u praksi dovoljno, ali ako to smeta, jedina prava opcija je provjera na serveru —
+statični Pages to ne može.
+
+## Provjere
+
+```bash
+python -m http.server 8765
+```
+
+Pa otvori `http://localhost:8765/provjere/pokreni.html`. Stranica vrti provjere nad
+`index.html` u iframeu i u naslov kartice stavi `PASS (n)` ili `FAIL (n)`. Nema
+dependencyja ni buildanja.
+
+**Nije pokriveno provjerom:** izuzimanje skrivenih polja iz skoka na Enter (traka slova
+ne smije postati sljedeće polje). `focus()` ne postavlja `activeElement` u iframeu ovoga
+harnessa (`document.hasFocus()` je `false`), a jedini drugi opazivi učinak rukovatelja —
+pokretanje `check()` na pravom kraju liste — jednak je s filterom i bez njega. Provjereno
+je rasuđivanjem čitajući kod, ne automatskom provjerom.
 
 ## Nadimak i pamćenje napretka
 

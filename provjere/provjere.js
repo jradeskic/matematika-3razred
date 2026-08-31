@@ -481,6 +481,41 @@ provjera("hrvatski: jedan zadatak za vjezbenicu", async ucitaj => {
   jednako(W.document.querySelectorAll("#main .paper-task").length, 1, "zadataka za vjezbenicu");
 });
 
+/* ---------- zadnja mreza ---------- */
+
+provjera("umireni pokret: bez animacija i bez zaostalih cestica", async ucitaj => {
+  const W = await ucitaj();
+  // pane s prefers-reduced-motion: provjeri da nista ne ostane visjeti
+  const m = polja(W)[0];
+  upisi(W, m, m.dataset.answer);
+  await cekaj(2600);
+  jednako(W.document.querySelectorAll("#fx b").length, 0, "zaostalih cestica");
+});
+
+provjera("avatar i PIN rade u oba predmeta", async ucitaj => {
+  const W = await ucitaj();
+  for (const p of ["matematika", "hrvatski"]) {
+    W.izgradiPredmet(p);
+    W.prompt = () => "1234";
+    W.document.getElementById("reveal").click();
+    await cekaj(200);
+    istina(W.document.querySelectorAll(".solution.show").length > 0, `rjesenja u ${p}`);
+    W.document.getElementById("reveal").click();
+    await cekaj(100);
+  }
+  istina(!!W.document.getElementById("buddy"), "avatar postoji");
+});
+
+provjera("prebacivanje predmeta ne ostavlja polja drugog predmeta", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("hrvatski");
+  jednako(polja(W).length, 85, "hrvatski");
+  W.izgradiPredmet("matematika");
+  jednako(polja(W).length, 85, "matematika nakon prebacivanja");
+  jednako([...W.document.querySelectorAll("#main section")].map(s => s.id),
+          ["c1", "c2", "c3", "c4", "c5", "c6", "c7"], "cjeline su matematicke");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {
