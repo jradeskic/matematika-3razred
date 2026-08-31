@@ -1275,7 +1275,12 @@ function spremiProfil() {
 }
 
 const imaProfil = ucitajProfil();
+if (imaProfil) spremiProfil();       // odmah upisi migrirani zapis (v:2)
 ```
+
+Bez tog drugog retka `ucitajProfil()` bi napunio `profil` iz starog zapisa, ali
+novi oblik nikad ne bi dosao na disk do prve promjene odgovora — pa bi se
+migracija vrtjela na svako otvaranje.
 
 Napomena o redoslijedu: `ucitajProfil` čita `PREDMETI`, pa blok profila mora stajati **nakon** registra `PREDMETI`. Ako je danas prije njega, premjesti blok `PREDMETI` iznad profila.
 
