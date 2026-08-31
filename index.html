@@ -278,6 +278,11 @@
   button.lik-izbor.izabran:active{background:#eefaf1}
   .prijava-akcije{display:flex;gap:12px;flex-wrap:wrap}
   .prijava-akcije button{flex:1}
+  .ladder.abeceda span{
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;
+    font:700 10px/1 "Nunito",sans-serif;color:#8a8778;border-radius:4px;
+  }
+  .ladder.abeceda span.lit{color:#fff}
   footer{
     border-top:2px solid var(--ink);padding-top:18px;color:var(--muted);font-size:15px;
   }
@@ -319,8 +324,8 @@
 <div class="wrap">
 
 <header class="hero">
-  <h1>Ponavljamo matematiku<br>prije 3. razreda</h1>
-  <p>Gradivo 2. razreda: brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija, mjerenje i podaci. Upiši odgovor i provjeri se sam.</p>
+  <h1 id="naslov">Ponavljamo matematiku<br>prije 3. razreda</h1>
+  <p id="uvod">Gradivo 2. razreda: brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija, mjerenje i podaci. Upiši odgovor i provjeri se sam.</p>
   <p class="pozdrav" id="pozdrav" hidden>
     <svg class="mini" id="mini" viewBox="0 0 100 122" aria-hidden="true"></svg>
     <span id="pozdravTekst"></span>
@@ -330,15 +335,7 @@
   <div class="ladder-scale"><span>0</span><span>50</span><span>100</span></div>
 </header>
 
-<nav aria-label="Cjeline">
-  <a href="#c1">Brojevi do 100</a>
-  <a href="#c2">Zbrajanje i oduzimanje</a>
-  <a href="#c3">Množenje i dijeljenje</a>
-  <a href="#c4">Zadaci riječima</a>
-  <a href="#c5">Geometrija</a>
-  <a href="#c6">Mjerenje</a>
-  <a href="#c7">Podaci i logika</a>
-</nav>
+<nav id="cjeline" aria-label="Cjeline"></nav>
 
 <div class="toolbar">
   <button class="primary" id="check">Provjeri odgovore</button>
@@ -504,9 +501,24 @@
 
 <script src="zadaci-matematika.js"></script>
 <script>
-/* Zadaci stoje u zadaci-matematika.js. Most do Taska 3, kad izgradnja
-   pocne citati PREDMETI. */
-const DATA = ZADACI_MATEMATIKA;
+/* ---------- predmeti ----------
+   Predmet je podatak: naslovi, koja se traka crta u zaglavlju, koje pravilo
+   usporedbe odgovora vrijedi i koji su zadaci. Dodavanje predmeta je nova
+   stavka ovdje plus jedna datoteka sa zadacima.
+------------------------------------------------------------------------- */
+const PREDMETI = {
+  matematika: {
+    naziv:    "Matematika",
+    title:    "Matematika — ponavljanje prije 3. razreda",
+    naslov:   "Ponavljamo matematiku<br>prije 3. razreda",
+    uvod:     "Gradivo 2. razreda: brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija, mjerenje i podaci. Upiši odgovor i provjeri se sam.",
+    traka:    "brojevi",
+    provjera: "broj",
+    zadaci:   ZADACI_MATEMATIKA
+  }
+};
+
+let predmet = "matematika";        // kljuc aktivnog predmeta
 
 /* ---------- profil: nadimak, avatar i zapamćen napredak ----------
    Sve stoji u localStorageu ovog preglednika, na ovom uređaju. Nema servera,
@@ -536,24 +548,63 @@ function spremiProfil() {
 
 const imaProfil = ucitajProfil();
 
-/* ---------- brojevna ljestvica u hero dijelu ---------- */
+/* ---------- traka u zaglavlju ----------
+   Matematika ima brojevnu ljestvicu, hrvatski abecedu. Ista mehanika
+   iskustva: updateProgress() pali kucice po broju tocnih odgovora i broji
+   ih iz ladder.children.length, pa se prilagodava sam.
+------------------------------------------------------------------------- */
 const ladder = document.getElementById("ladder");
-for (let i = 1; i <= 20; i++) {
-  const s = document.createElement("span");
-  s.style.height = (18 + i * 2.6) + "%";
-  ladder.appendChild(s);
+const ljestvicaOznake = document.querySelector(".ladder-scale");
+
+const ABECEDA = ["A","B","C","Č","Ć","D","DŽ","Đ","E","F","G","H","I","J","K","L",
+                 "LJ","M","N","NJ","O","P","R","S","Š","T","U","V","Z","Ž"];
+
+function izgradiTraku(vrsta) {
+  const abeceda = vrsta === "abeceda";
+  ladder.innerHTML = "";
+  ladder.classList.toggle("abeceda", abeceda);
+  const n = abeceda ? ABECEDA.length : 20;
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement("span");
+    if (abeceda) { s.style.height = "100%"; s.textContent = ABECEDA[i]; }
+    else s.style.height = (18 + (i + 1) * 2.6) + "%";
+    ladder.appendChild(s);
+  }
+  ljestvicaOznake.innerHTML = (abeceda ? ["A", "", "Ž"] : ["0", "50", "100"])
+    .map(o => `<span>${o}</span>`).join("");
 }
 
-/* ---------- izgradnja stranice ---------- */
+/* ---------- izgradnja stranice ----------
+   Poziva se i pri prebacivanju predmeta, pa mora ocistiti za sobom.
+------------------------------------------------------------------------- */
 const main = document.getElementById("main");
+const cjelineNav = document.getElementById("cjeline");
 let inputCount = 0;
 
-DATA.forEach((sec, si) => {
+function izgradiPredmet(kljuc) {
+  predmet = PREDMETI[kljuc] ? kljuc : "matematika";
+  const p = PREDMETI[predmet];
+
+  document.title = p.title;
+  document.getElementById("naslov").innerHTML = p.naslov;
+  document.getElementById("uvod").textContent = p.uvod;
+  izgradiTraku(p.traka);
+
+  main.innerHTML = "";
+  cjelineNav.innerHTML = "";
+  inputCount = 0;
+
+  p.zadaci.forEach((sec, si) => {
   const brojacKljuca = {};        // koliko se puta isti prikaz ponavlja u ovoj cjelini
   const el = document.createElement("section");
   el.id = sec.id;
   el.innerHTML = `<h2><span class="num">${si + 1}</span>${sec.title}</h2>
                   <p class="lead">${sec.lead}</p>`;
+
+  const link = document.createElement("a");
+  link.href = "#" + sec.id;
+  link.textContent = sec.nav || sec.title;
+  cjelineNav.appendChild(link);
 
   sec.tasks.forEach((task, ti) => {
     const box = document.createElement("div");
@@ -577,14 +628,14 @@ DATA.forEach((sec, si) => {
         // stabilan kljuc za pamcenje: ne mijenja se ako se zadaci presloze
         const osnova = sec.id + "|" + shown;
         brojacKljuca[osnova] = (brojacKljuca[osnova] || 0) + 1;
-        const kljuc = (osnova + "|" + (brojacKljuca[osnova] - 1)).replace(/"/g, "");
+        const kljuc2 = (osnova + "|" + (brojacKljuca[osnova] - 1)).replace(/"/g, "");
         // brojčana tipkovnica samo kad je odgovor broj (dopušteni , . i razmak)
         const numeric = /^[0-9 ,.]+$/.test(answer);
         const mode = numeric ? "decimal" : "text";
         const wide = numeric ? "" : " wide";
         html += `<span class="item">
           <label for="${id}">${shown}</label>
-          <input type="text" class="ans${wide}" id="${id}" data-answer="${answer}" data-key="${kljuc}"
+          <input type="text" class="ans${wide}" id="${id}" data-answer="${answer}" data-key="${kljuc2}"
                  autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
                  enterkeyhint="next" inputmode="${mode}" aria-label="${shown.replace(/"/g, "")}">
           <span class="mark" data-for="${id}"></span></span>`;
@@ -615,7 +666,10 @@ DATA.forEach((sec, si) => {
   }
 
   main.appendChild(el);
-});
+  });
+}
+
+izgradiPredmet(predmet);
 
 /* ---------- provjera ---------- */
 const norm = v => v.toString().toLowerCase()

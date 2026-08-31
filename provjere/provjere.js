@@ -108,6 +108,24 @@ provjera("PIN 1234 otkriva rjesenja", async ucitaj => {
   istina(W.document.querySelectorAll(".solution.show").length > 0, "rjesenja se prikazuju");
 });
 
+/* ---------- izgradnja se moze pozvati ponovno ---------- */
+
+provjera("izgradiPredmet je dostupan i ne udvostrucuje sadrzaj", async ucitaj => {
+  const W = await ucitaj();
+  istina(typeof W.izgradiPredmet === "function", "izgradiPredmet postoji");
+  W.izgradiPredmet("matematika");
+  jednako(polja(W).length, 85, "polja nakon druge izgradnje");
+  jednako(W.document.querySelectorAll("section[data-total]").length, 7, "cjelina nakon druge izgradnje");
+  jednako(W.document.querySelectorAll("nav a").length, 7, "linkova nakon druge izgradnje");
+});
+
+provjera("traka u zaglavlju ima 20 kucica za matematiku", async ucitaj => {
+  const W = await ucitaj();
+  jednako(W.document.querySelectorAll("#ladder span").length, 20, "kucica");
+  jednako([...W.document.querySelectorAll(".ladder-scale span")].map(s => s.textContent),
+          ["0", "50", "100"], "oznake ljestvice");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {
