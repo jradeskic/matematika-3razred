@@ -1009,13 +1009,17 @@ provjera("red hrvatskih slova postoji i skriven je u matematici", async ucitaj =
 provjera("tipka slova ubacuje znak na mjesto kursora", async ucitaj => {
   const W = await ucitaj();
   W.izgradiPredmet("hrvatski");
-  // privremeno polje za upis: cjelina h2 ima samo izbor, pa uzmi bilo koje i otkrij ga
+  // Cjelina h2 ima samo izbor, pa za ovu provjeru otkrijemo jedno skriveno
+  // polje i ponasamo se kao da je dijete uslo u njega. focus() u iframeu ne
+  // postavlja activeElement, pa focusin saljemo sami.
   const inp = polja(W)[0];
   inp.hidden = false;
   inp.value = "kua";
-  inp.focus();
   inp.setSelectionRange(2, 2);
-  W.document.getElementById("slova").hidden = false;
+  inp.dispatchEvent(new W.FocusEvent("focusin", { bubbles: true }));
+  await cekaj(60);
+  istina(!W.document.getElementById("slova").hidden,
+         "traka slova se pojavila kad je dijete uslo u polje");
   W.document.querySelector('.slovo[data-slovo="ć"]').click();
   await cekaj(60);
   jednako(inp.value, "kuća", "znak je ubacen na mjesto kursora");
