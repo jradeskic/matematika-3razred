@@ -9,7 +9,7 @@
 const ZADACI_HRVATSKI = [
 
 {id:"h2", nav:"Č ili Ć", title:"Č ili Ć",
- lead:"Izgovori riječ u sebi: ć je mekše, č je tvrđe.", tasks:[
+ lead:"Izgovori riječ u sebi: ć je mekše, č je tvrđe. Na kraju i dž i đ.", tasks:[
   {t:"izbor", q:"Odaberi slovo koje pripada u riječ.", items:[
     ["ku_a (dom)",      ["ć","č"],  "ć"],
     ["_ovjek",          ["č","ć"],  "č"],

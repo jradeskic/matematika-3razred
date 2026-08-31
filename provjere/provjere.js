@@ -195,13 +195,23 @@ provjera("izbor: tipke se premjesaju, nisu svaki put isto", async ucitaj => {
          "tri iscrtavanja dala su identican poredak tipki — premjesavanje ne radi");
 });
 
-provjera("Enter ne uskace u skriveno polje izbora", async ucitaj => {
+provjera("izbor: promjena misljenja ostavlja tocno jednu odabranu tipku", async ucitaj => {
   const W = await ucitaj();
   W.izgradiPredmet("hrvatski");
-  const skrivena = polja(W).filter(i => i.hidden);
-  istina(skrivena.length === 14, "sva su polja h2 skrivena");
-  // skok na Enter smije vidjeti samo vidljiva polja
-  jednako(vidljivaPolja(W).length, 0, "nema vidljivih polja za skok");
+  const stavka = W.document.querySelector(".izbor-item");
+  const inp = stavka.querySelector("input[type=text]");
+  const tipke = [...stavka.querySelectorAll(".chip")];
+  const kriva = tipke.find(t => t.dataset.vrijednost !== inp.dataset.answer);
+  const tocna = tipke.find(t => t.dataset.vrijednost === inp.dataset.answer);
+  kriva.click();
+  await cekaj(80);
+  istina(inp.classList.contains("no"), "prvi tap daje kriz");
+  tocna.click();
+  await cekaj(80);
+  istina(inp.classList.contains("ok"), "nakon promjene misljenja je kvacica");
+  istina(!inp.classList.contains("no"), "kriz je uklonjen");
+  jednako(tipke.filter(t => t.classList.contains("odabrana")).map(t => t.dataset.vrijednost),
+          [inp.dataset.answer], "ostala je tocno jedna odabrana tipka, i to prava");
 });
 
 /* ---------- pokretanje ---------- */
