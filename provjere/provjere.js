@@ -9,13 +9,15 @@ const provjera = (ime, fn) => PROVJERE.push({ ime, fn });
 
 const okvir = document.getElementById("okvir");
 const ispis = document.getElementById("ispis");
-let brojUcitavanja = 0;
 
 // ucitaj stranicu iznova i vrati njezin window kad je skripta odradila
 function ucitaj() {
   return new Promise(res => {
     okvir.onload = () => setTimeout(() => res(okvir.contentWindow), 90);
-    okvir.src = "../index.html?p=" + (brojUcitavanja++);
+    // Date.now() umjesto brojaca: brojac pocinje od 0 na svaki reload pokreni.html
+    // pa bi prvi ucitaj() uvijek gadjao isti "?p=0" URL koji preglednik moze
+    // servirati iz HTTP kesa umjesto svjezeg indexa.
+    okvir.src = "../index.html?p=" + Date.now();
   });
 }
 
