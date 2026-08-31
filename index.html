@@ -297,7 +297,20 @@
     border-top:2px solid var(--ink);padding-top:18px;color:var(--muted);font-size:15px;
   }
   input.wide{width:9em}
+  input.duga{width:min(100%,24em);text-align:left;padding:0 12px}
+  .item:has(input.duga){flex-direction:column;align-items:flex-start;gap:6px;width:100%}
+  .item:has(input.duga) label{font-weight:600;font-size:18px}
   input[data-answer*=","]{width:8em}
+
+  /* ---------- hrvatska slova iznad tipkovnice ---------- */
+  .slova{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;
+    display:flex;gap:8px;justify-content:center;
+    padding:10px max(12px, calc(50% - 450px));
+    background:rgba(255,253,247,.97);border-top:2px solid var(--ink);
+  }
+  .slova[hidden]{display:none}
+  button.slovo{min-height:52px;min-width:52px;padding:0;font:700 22px/1 "Nunito",sans-serif}
 
   /* tablet u portretu — jedan stupac, još veći dodirni ciljevi */
   @media (max-width:834px){
@@ -327,6 +340,7 @@
     button.lik-izbor svg{width:62px;height:76px}
     .izbor{gap:10px}
     button.chip{width:auto}
+    button.slovo{width:auto}
   }
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -507,6 +521,7 @@
   </div>
 </div>
 
+<div class="slova" id="slova" hidden></div>
 <div id="fx" aria-hidden="true"></div>
 <div id="toasts" role="status" aria-live="polite"></div>
 
@@ -664,7 +679,9 @@ function izgradiPredmet(kljuc) {
         // brojčana tipkovnica samo kad je odgovor broj (dopušteni , . i razmak)
         const numeric = /^[0-9 ,.]+$/.test(answer);
         const mode = numeric ? "decimal" : "text";
-        const wide = numeric ? "" : " wide";
+        // rečenice u hrvatskom traže puno šire polje; matematika nema odgovor
+        // dulji od 14 znakova, pa ovaj stupanj tamo nikad ne nastupi
+        const wide = numeric ? "" : (answer.length > 14 ? " duga" : " wide");
         html += `<span class="item">
           <label for="${id}">${shown}</label>
           <input type="text" class="ans${wide}" id="${id}" data-answer="${answer}" data-key="${kljuc2}"
@@ -1397,6 +1414,43 @@ main.addEventListener("click", e => {
   setState(inp, tocno(inp.value, inp.dataset.answer), { sidro: tipka });
   updateProgress();
   zapamtiOdgovore();
+});
+
+/* ---------- hrvatska slova ----------
+   Red se pojavi samo u hrvatskom i samo dok je polje za upis u fokusu.
+   mousedown/touchstart se zaustavljaju da polje ne izgubi fokus: inace bi
+   focusout provjerio odgovor usred tipkanja i oznacio ga netocnim.
+------------------------------------------------------------------------- */
+const HRVATSKA_SLOVA = ["č", "ć", "š", "ž", "đ"];
+const slovaTraka = document.getElementById("slova");
+slovaTraka.innerHTML = HRVATSKA_SLOVA.map(z =>
+  `<button type="button" class="slovo" data-slovo="${z}" aria-label="slovo ${z}">${z}</button>`).join("");
+
+let poljeUFokusu = null;
+
+main.addEventListener("focusin", e => {
+  if (e.target.tagName !== "INPUT" || e.target.hidden) return;
+  poljeUFokusu = e.target;
+  slovaTraka.hidden = PREDMETI[predmet].provjera !== "rijec";
+});
+
+main.addEventListener("focusout", () => setTimeout(() => {
+  if (!main.contains(document.activeElement)) slovaTraka.hidden = true;
+}, 120));
+
+["mousedown", "touchstart"].forEach(dogadaj =>
+  slovaTraka.addEventListener(dogadaj, e => e.preventDefault()));
+
+slovaTraka.addEventListener("click", e => {
+  const t = e.target.closest(".slovo");
+  if (!t || !poljeUFokusu) return;
+  const inp = poljeUFokusu;
+  const poc = inp.selectionStart ?? inp.value.length;
+  const kraj = inp.selectionEnd ?? poc;
+  inp.value = inp.value.slice(0, poc) + t.dataset.slovo + inp.value.slice(kraj);
+  inp.focus();
+  inp.setSelectionRange(poc + 1, poc + 1);
+  inp.dispatchEvent(new Event("input", { bubbles: true }));
 });
 
 /* ---------- prijava: nadimak i odabir avatara ---------- */

@@ -253,6 +253,42 @@ provjera("matematika: tocno() se ponasa kao stari norm()", async ucitaj => {
   istina(!W.tocno("43", "42"), "razliciti brojevi nisu isto");
 });
 
+/* ---------- upis u hrvatskom ---------- */
+
+provjera("matematika ne dobiva duga polja", async ucitaj => {
+  const W = await ucitaj();
+  jednako(polja(W).filter(i => i.classList.contains("duga")).length, 0,
+          "matematika nema odgovor dulji od 14 znakova, pa ni duga polja");
+});
+
+provjera("red hrvatskih slova postoji i skriven je u matematici", async ucitaj => {
+  const W = await ucitaj();
+  const slova = W.document.getElementById("slova");
+  istina(!!slova, "#slova postoji");
+  jednako([...slova.querySelectorAll(".slovo")].map(b => b.dataset.slovo),
+          ["č", "ć", "š", "ž", "đ"], "slova u traci");
+  istina(slova.hidden, "u matematici je traka skrivena");
+});
+
+provjera("tipka slova ubacuje znak na mjesto kursora", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("hrvatski");
+  // Cjelina h2 ima samo izbor, pa za ovu provjeru otkrijemo jedno skriveno
+  // polje i ponasamo se kao da je dijete uslo u njega. focus() u iframeu ne
+  // postavlja activeElement, pa focusin saljemo sami.
+  const inp = polja(W)[0];
+  inp.hidden = false;
+  inp.value = "kua";
+  inp.setSelectionRange(2, 2);
+  inp.dispatchEvent(new W.FocusEvent("focusin", { bubbles: true }));
+  await cekaj(60);
+  istina(!W.document.getElementById("slova").hidden,
+         "traka slova se pojavila kad je dijete uslo u polje");
+  W.document.querySelector('.slovo[data-slovo="ć"]').click();
+  await cekaj(60);
+  jednako(inp.value, "kuća", "znak je ubacen na mjesto kursora");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {
