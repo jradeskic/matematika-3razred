@@ -1565,6 +1565,11 @@ provjera("hrvatski: 85 polja u 7 cjelina", async ucitaj => {
   jednako([...W.document.querySelectorAll("#main section")].map(s => s.id),
           ["h1", "h2", "h3", "h4", "h5", "h6", "h7"], "oznake cjelina");
   jednako(W.document.querySelectorAll("nav a").length, 7, "linkova u navigaciji");
+  // recenicni odgovori moraju dobiti siroko polje; u podacima ih je tocno pet
+  const duga = polja(W).filter(i => i.classList.contains("duga"));
+  jednako(duga.length, 5, "polja s razredom duga");
+  duga.forEach(i => istina(i.dataset.answer.length > 14,
+    `polje s razredom duga ima kratak odgovor: "${i.dataset.answer}"`));
 });
 
 provjera("hrvatski: svi kljucevi su jedinstveni", async ucitaj => {
