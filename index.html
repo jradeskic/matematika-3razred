@@ -627,7 +627,13 @@ function spremiProfil() {
         for (const p of Object.keys(naDisku.napredak))
           if (!promijenjeni.has(p)) profil.napredak[p] = naDisku.napredak[p];
     } catch (_) {}
-    try { localStorage.setItem(KLJUC_PROFILA, JSON.stringify(profil)); } catch (_) {}
+    try {
+      localStorage.setItem(KLJUC_PROFILA, JSON.stringify(profil));
+      // Disk sada odgovara memoriji, pa vise nemamo nista sto bi trebalo
+      // braniti od diska. Bez ovoga bi kartica koja je dirala oba predmeta
+      // zauvijek prestala primati ono sto upise druga kartica.
+      promijenjeni.clear();
+    } catch (_) {}
   }, 200);
 }
 

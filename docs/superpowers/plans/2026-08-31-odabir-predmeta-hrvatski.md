@@ -1277,9 +1277,15 @@ function spremiProfil() {
       if (naDisku && naDisku.v === 2 && naDisku.napredak &&
           typeof naDisku.napredak === "object" && !Array.isArray(naDisku.napredak))
         for (const p of Object.keys(naDisku.napredak))
-          if (p !== predmet) profil.napredak[p] = naDisku.napredak[p];
+          if (!promijenjeni.has(p)) profil.napredak[p] = naDisku.napredak[p];
     } catch (_) {}
-    try { localStorage.setItem(KLJUC_PROFILA, JSON.stringify(profil)); } catch (_) {}
+    try {
+      localStorage.setItem(KLJUC_PROFILA, JSON.stringify(profil));
+      // Disk sada odgovara memoriji, pa vise nemamo nista sto bi trebalo
+      // braniti od diska. Bez ovoga bi kartica koja je dirala oba predmeta
+      // zauvijek prestala primati ono sto upise druga kartica.
+      promijenjeni.clear();
+    } catch (_) {}
   }, 200);
 }
 
