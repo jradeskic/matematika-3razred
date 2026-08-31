@@ -652,13 +652,23 @@ provjera("izbor: tipke se premjesaju, nisu svaki put isto", async ucitaj => {
          "tri iscrtavanja dala su identican poredak tipki — premjesavanje ne radi");
 });
 
-provjera("Enter ne uskace u skriveno polje izbora", async ucitaj => {
+provjera("izbor: promjena misljenja ostavlja tocno jednu odabranu tipku", async ucitaj => {
   const W = await ucitaj();
   W.izgradiPredmet("hrvatski");
-  const skrivena = polja(W).filter(i => i.hidden);
-  istina(skrivena.length === 14, "sva su polja h2 skrivena");
-  // skok na Enter smije vidjeti samo vidljiva polja
-  jednako(vidljivaPolja(W).length, 0, "nema vidljivih polja za skok");
+  const stavka = W.document.querySelector(".izbor-item");
+  const inp = stavka.querySelector("input[type=text]");
+  const tipke = [...stavka.querySelectorAll(".chip")];
+  const kriva = tipke.find(t => t.dataset.vrijednost !== inp.dataset.answer);
+  const tocna = tipke.find(t => t.dataset.vrijednost === inp.dataset.answer);
+  kriva.click();
+  await cekaj(80);
+  istina(inp.classList.contains("no"), "prvi tap daje kriz");
+  tocna.click();
+  await cekaj(80);
+  istina(inp.classList.contains("ok"), "nakon promjene misljenja je kvacica");
+  istina(!inp.classList.contains("no"), "kriz je uklonjen");
+  jednako(tipke.filter(t => t.classList.contains("odabrana")).map(t => t.dataset.vrijednost),
+          [inp.dataset.answer], "ostala je tocno jedna odabrana tipka, i to prava");
 });
 ```
 
@@ -682,7 +692,7 @@ Create `zadaci-hrvatski.js`:
 const ZADACI_HRVATSKI = [
 
 {id:"h2", nav:"Č ili Ć", title:"Č ili Ć",
- lead:"Izgovori riječ u sebi: ć je mekše, č je tvrđe.", tasks:[
+ lead:"Izgovori riječ u sebi: ć je mekše, č je tvrđe. Na kraju i dž i đ.", tasks:[
   {t:"izbor", q:"Odaberi slovo koje pripada u riječ.", items:[
     ["ku_a (dom)",      ["ć","č"],  "ć"],
     ["_ovjek",          ["č","ć"],  "č"],
@@ -1625,7 +1635,7 @@ const ZADACI_HRVATSKI = [
 ]},
 
 {id:"h2", nav:"Č ili Ć", title:"Č ili Ć",
- lead:"Izgovori riječ u sebi: ć je mekše, č je tvrđe.", tasks:[
+ lead:"Izgovori riječ u sebi: ć je mekše, č je tvrđe. Na kraju i dž i đ.", tasks:[
   {t:"izbor", q:"Odaberi slovo koje pripada u riječ.", items:[
     ["ku_a (dom)",       ["ć","č"],  "ć"],
     ["_ovjek",           ["č","ć"],  "č"],
@@ -1803,17 +1813,6 @@ provjera("avatar i PIN rade u oba predmeta", async ucitaj => {
   istina(!!W.document.getElementById("buddy"), "avatar postoji");
 });
 
-provjera("Enter preskace skrivena polja izbora", async ucitaj => {
-  const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
-  const vidljiva = vidljivaPolja(W);
-  istina(vidljiva.length > 0, "hrvatski ima polja za upis");
-  vidljiva[0].focus();
-  vidljiva[0].dispatchEvent(new W.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-  await cekaj(80);
-  istina(!W.document.activeElement.hidden, "fokus nije zavrsio u skrivenom polju");
-});
-
 provjera("prebacivanje predmeta ne ostavlja polja drugog predmeta", async ucitaj => {
   const W = await ucitaj();
   W.izgradiPredmet("hrvatski");
@@ -1827,7 +1826,13 @@ provjera("prebacivanje predmeta ne ostavlja polja drugog predmeta", async ucitaj
 
 - [ ] **Step 2: Pokreni provjere**
 
-Expected: `PASS (40)`. Ako bilo koja matematička provjera iz Taska 1 padne, regresija je stvarna i mora se popraviti prije nastavka.
+Expected: `PASS (39)`.
+
+Napomena: izuzimanje skrivenih polja iz skoka na Enter **nije pokriveno provjerom**.
+`focus()` ne postavlja `activeElement` u iframeu ovoga harnessa (`document.hasFocus()`
+je `false`), a jedini drugi opazivi ucinak rukovatelja — pokretanje `check()` na
+pravom kraju liste — jednak je s filterom i bez njega. Provjereno je rasudivanjem,
+i to je zapisano u READMEu. Ako bilo koja matematička provjera iz Taska 1 padne, regresija je stvarna i mora se popraviti prije nastavka.
 
 - [ ] **Step 3: Dopuni README**
 
