@@ -283,6 +283,16 @@
     font:700 10px/1 "Nunito",sans-serif;color:#8a8778;border-radius:4px;
   }
   .ladder.abeceda span.lit{color:#fff}
+  /* ---------- zadatak s tapkanjem ---------- */
+  .izbor-item{gap:10px;flex-wrap:wrap}
+  .izbor-prikaz{font-weight:700;font-size:20px}
+  .chips{display:flex;gap:8px}
+  button.chip{
+    min-height:54px;min-width:54px;padding:0 16px;
+    font:700 20px/1 "Nunito",sans-serif;
+    border:2px solid var(--line);border-radius:12px;background:#fff;
+  }
+  button.chip.odabrana{border-color:var(--sky);background:#e8f0fc}
   footer{
     border-top:2px solid var(--ink);padding-top:18px;color:var(--muted);font-size:15px;
   }
@@ -316,6 +326,7 @@
     .prijava-box{padding:20px 16px}
     button.lik-izbor svg{width:62px;height:76px}
     .izbor{gap:10px}
+    button.chip{width:auto}
   }
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -500,6 +511,7 @@
 <div id="toasts" role="status" aria-live="polite"></div>
 
 <script src="zadaci-matematika.js"></script>
+<script src="zadaci-hrvatski.js"></script>
 <script>
 /* ---------- predmeti ----------
    Predmet je podatak: naslovi, koja se traka crta u zaglavlju, koje pravilo
@@ -515,6 +527,15 @@ const PREDMETI = {
     traka:    "brojevi",
     provjera: "broj",
     zadaci:   ZADACI_MATEMATIKA
+  },
+  hrvatski: {
+    naziv:    "Hrvatski jezik",
+    title:    "Hrvatski jezik — ponavljanje prije 3. razreda",
+    naslov:   "Ponavljamo hrvatski<br>prije 3. razreda",
+    uvod:     "Gradivo 2. razreda: veliko početno slovo, č i ć, ije i je, glasovi i slova, rečenica, vrste riječi i značenje. Odgovori i provjeri se sam.",
+    traka:    "abeceda",
+    provjera: "rijec",
+    zadaci:   ZADACI_HRVATSKI
   }
 };
 
@@ -581,6 +602,17 @@ const main = document.getElementById("main");
 const cjelineNav = document.getElementById("cjeline");
 let inputCount = 0;
 
+// Fisher-Yates. Tipke ne smiju stajati u poretku iz podataka, inace dijete
+// nauci tapkati prvu.
+function promijesaj(popis) {
+  const k = popis.slice();
+  for (let i = k.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [k[i], k[j]] = [k[j], k[i]];
+  }
+  return k;
+}
+
 function izgradiPredmet(kljuc) {
   predmet = PREDMETI[kljuc] ? kljuc : "matematika";
   const p = PREDMETI[predmet];
@@ -642,6 +674,27 @@ function izgradiPredmet(kljuc) {
       });
       html += "</div>";
       const sol = task.items.map(([s, a]) => `${s} = ${a}`).join(" · ");
+      html += `<p class="solution">Rješenje: ${sol}</p>`;
+    } else if (task.t === "izbor") {
+      html += '<div class="items">';
+      task.items.forEach(([prikaz, ponudeno, odgovor]) => {
+        const id = "i" + (inputCount++);
+        const osnova = sec.id + "|" + (prikaz || odgovor);
+        brojacKljuca[osnova] = (brojacKljuca[osnova] || 0) + 1;
+        const kljuc2 = (osnova + "|" + (brojacKljuca[osnova] - 1)).replace(/"/g, "");
+        const tipke = promijesaj(ponudeno).map(v =>
+          `<button type="button" class="chip" data-za="${id}" data-vrijednost="${v}">${v}</button>`
+        ).join("");
+        // skriveno polje nosi odabranu vrijednost, pa razine, kljucevi,
+        // kvacice, pamcenje i avatar rade bez izmjena
+        html += `<span class="item izbor-item">
+          ${prikaz ? `<span class="izbor-prikaz">${prikaz}</span>` : ""}
+          <span class="chips" role="group" aria-label="${(prikaz || task.q).replace(/"/g, "")}">${tipke}</span>
+          <input type="text" class="ans" id="${id}" data-answer="${odgovor}" data-key="${kljuc2}" hidden>
+          <span class="mark" data-for="${id}"></span></span>`;
+      });
+      html += "</div>";
+      const sol = task.items.map(([p, _pon, a]) => `${p ? p + " → " : ""}${a}`).join(" · ");
       html += `<p class="solution">Rješenje: ${sol}</p>`;
     } else {
       html += `<div class="paper-task"><p>Riješi u vježbenici.</p></div>`;
@@ -1134,7 +1187,7 @@ function setState(inp, good, opt = {}) {
       }
       burstAt(mark, 7, { dot: true, dist: 44, dur: 560, gravity: 18 });
       tone([880, 1320], .07);
-      buddy.react("happy", inp);
+      buddy.react("happy", opt.sidro || inp);
       if (streak % 5 === 0) { toast(`Niz od ${streak}! \u{1F525}`, "fire"); tone([784, 988, 1319], .08); }
     }
   } else if (now === "no") {
@@ -1148,7 +1201,7 @@ function setState(inp, good, opt = {}) {
         mark.animate([{ transform: "scale(1.6)" }, { transform: "scale(1)" }], { duration: 280 });
       }
       tone([320, 190], .12, "sawtooth");
-      buddy.react("angry", inp);
+      buddy.react("angry", opt.sidro || inp);
     }
   }
   return true;
@@ -1301,7 +1354,7 @@ main.addEventListener("input", () => buddy.sakrij());
 main.addEventListener("keydown", e => {
   if (e.key !== "Enter" || e.target.tagName !== "INPUT") return;
   e.preventDefault();
-  const all = inputs();
+  const all = inputs().filter(i => !i.hidden);
   const next = all[all.indexOf(e.target) + 1];
   if (next) next.focus(); else { e.target.blur(); check(); }
 });
@@ -1311,6 +1364,26 @@ main.addEventListener("focusout", e => {
   const inp = e.target;
   if (inp.tagName !== "INPUT" || inp.value.trim() === "") return;
   setState(inp, norm(inp.value) === norm(inp.dataset.answer));
+  updateProgress();
+  zapamtiOdgovore();
+});
+
+// kod izbora oznaci tipku koja odgovara vrijednosti u skrivenom polju
+function oznaciTipku(inp) {
+  const skupina = inp.parentElement.querySelector(".chips");
+  if (!skupina) return;
+  skupina.querySelectorAll(".chip").forEach(t =>
+    t.classList.toggle("odabrana", t.dataset.vrijednost === inp.value));
+}
+
+// tap na tipku: skriveno polje dobije vrijednost, pa ide ista provjera kao za upis
+main.addEventListener("click", e => {
+  const tipka = e.target.closest(".chip");
+  if (!tipka) return;
+  const inp = document.getElementById(tipka.dataset.za);
+  inp.value = tipka.dataset.vrijednost;
+  oznaciTipku(inp);
+  setState(inp, norm(inp.value) === norm(inp.dataset.answer), { sidro: tipka });
   updateProgress();
   zapamtiOdgovore();
 });

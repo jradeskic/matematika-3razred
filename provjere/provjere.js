@@ -126,6 +126,84 @@ provjera("traka u zaglavlju ima 20 kucica za matematiku", async ucitaj => {
           ["0", "50", "100"], "oznake ljestvice");
 });
 
+/* ---------- tip zadatka izbor i hrvatski ---------- */
+
+provjera("hrvatski je registriran i gradi cjelinu h2", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("hrvatski");
+  jednako(W.document.title, "Hrvatski jezik — ponavljanje prije 3. razreda", "naslov");
+  jednako(W.document.querySelectorAll("#main section").length, 1, "cjelina");
+  jednako(W.document.querySelector("#main section").id, "h2", "oznaka cjeline");
+  jednako(polja(W).length, 14, "polja u h2");
+  jednako(vidljivaPolja(W).length, 0, "polja izbora su skrivena");
+});
+
+provjera("izbor: tipke su tap, svaka stavka ima svoje tipke", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("hrvatski");
+  const stavke = [...W.document.querySelectorAll(".izbor-item")];
+  jednako(stavke.length, 14, "stavki izbora");
+  stavke.forEach((s, i) => {
+    const tipke = s.querySelectorAll(".chip");
+    istina(tipke.length >= 2, `stavka ${i} ima najmanje dvije tipke`);
+    const inp = s.querySelector("input[type=text]");
+    const vrijednosti = [...tipke].map(t => t.dataset.vrijednost);
+    istina(vrijednosti.includes(inp.dataset.answer),
+           `stavka ${i}: tocan odgovor "${inp.dataset.answer}" mora biti medu tipkama ${JSON.stringify(vrijednosti)}`);
+  });
+});
+
+provjera("izbor: klik na tocnu tipku daje kvacicu i puni razinu", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("hrvatski");
+  const stavka = W.document.querySelector(".izbor-item");
+  const inp = stavka.querySelector("input[type=text]");
+  const tocnaTipka = [...stavka.querySelectorAll(".chip")]
+    .find(t => t.dataset.vrijednost === inp.dataset.answer);
+  tocnaTipka.click();
+  await cekaj(120);
+  istina(inp.classList.contains("ok"), "polje je oznaceno kao tocno");
+  istina(tocnaTipka.classList.contains("odabrana"), "tipka je oznacena kao odabrana");
+  jednako(W.document.querySelector(".lvlcount").textContent, "1 / 14", "brojac razine");
+});
+
+provjera("izbor: klik na krivu tipku daje kriz", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("hrvatski");
+  const stavka = W.document.querySelector(".izbor-item");
+  const inp = stavka.querySelector("input[type=text]");
+  const krivaTipka = [...stavka.querySelectorAll(".chip")]
+    .find(t => t.dataset.vrijednost !== inp.dataset.answer);
+  krivaTipka.click();
+  await cekaj(120);
+  istina(inp.classList.contains("no"), "polje je oznaceno kao netocno");
+});
+
+provjera("izbor: tipke se premjesaju, nisu svaki put isto", async ucitaj => {
+  // Podaci nisu dostupni kao W.ZADACI_HRVATSKI: top-level const u klasicnoj
+  // skripti ne postaje svojstvo windowa. Zato ne usporedujemo s podacima nego
+  // tri iscrtavanja medusobno: bez premjesavanja su uvijek identicna, a s njim
+  // je poklapanje sva tri puta na svih 14 stavki 2^-28.
+  const snimke = [];
+  for (let k = 0; k < 3; k++) {
+    const W = await ucitaj();
+    W.izgradiPredmet("hrvatski");
+    snimke.push(JSON.stringify([...W.document.querySelectorAll(".izbor-item")]
+      .map(s => [...s.querySelectorAll(".chip")].map(t => t.dataset.vrijednost))));
+  }
+  istina(new Set(snimke).size > 1,
+         "tri iscrtavanja dala su identican poredak tipki — premjesavanje ne radi");
+});
+
+provjera("Enter ne uskace u skriveno polje izbora", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("hrvatski");
+  const skrivena = polja(W).filter(i => i.hidden);
+  istina(skrivena.length === 14, "sva su polja h2 skrivena");
+  // skok na Enter smije vidjeti samo vidljiva polja
+  jednako(vidljivaPolja(W).length, 0, "nema vidljivih polja za skok");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {
