@@ -130,6 +130,58 @@
   }
   .solution.show{display:block}
 
+
+  /* ---------- razine ---------- */
+  .lvlbar{display:flex;align-items:center;gap:12px;margin:0 0 18px}
+  .lvlbar .track{
+    flex:1;height:14px;border:2px solid var(--ink);border-radius:999px;
+    background:#f1eee2;overflow:hidden;
+  }
+  .lvlbar .track i{
+    display:block;height:100%;width:0;border-radius:999px;
+    background:linear-gradient(90deg,var(--sky),var(--grass));
+    transition:width .45s cubic-bezier(.34,1.56,.64,1);
+  }
+  .lvlcount{
+    font-weight:700;font-size:15px;color:var(--muted);
+    font-variant-numeric:tabular-nums;min-width:4.5em;text-align:right;
+  }
+  .lvlbadge{
+    font-size:22px;opacity:0;transform:scale(.4);
+    transition:opacity .3s,transform .45s cubic-bezier(.34,1.56,.64,1);
+  }
+  section.won .lvlbadge{opacity:1;transform:scale(1)}
+  section.won .lvlcount{color:var(--grass)}
+  section.won > h2 .num{background:var(--grass)}
+  section.won .lvlbar .track{border-color:var(--grass)}
+  nav a.done{background:#e4f6ea;border-color:var(--grass)}
+  nav a.done::after{content:" \2713";color:var(--grass);font-weight:800}
+
+  /* ---------- iskrice i konfeti ---------- */
+  #fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+  #fx b{position:absolute;display:block;width:10px;height:10px;border-radius:2px;will-change:transform}
+  #fx b.dot{width:8px;height:8px;border-radius:50%}
+
+  /* ---------- poruke ---------- */
+  #toasts{
+    position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:70;
+    display:flex;flex-direction:column;gap:8px;align-items:center;
+    pointer-events:none;width:max-content;max-width:92vw;
+  }
+  .toast{
+    font:800 19px/1.2 "Baloo 2",cursive;
+    background:var(--ink);color:#fffdf7;border-radius:999px;padding:12px 22px;
+    box-shadow:0 6px 0 rgba(29,43,58,.18);text-align:center;
+  }
+  .toast.good{background:var(--grass)}
+  .toast.fire{background:var(--sun);color:var(--ink)}
+
+  /* ljestvica u zaglavlju sluzi kao traka iskustva */
+  .ladder span{transition:background .35s ease,opacity .35s ease}
+  .ladder span:not(.lit){background:#e6e1d2 !important}
+
+  #sound{padding:0 16px;font-size:22px}
+
   footer{
     border-top:2px solid var(--ink);padding-top:18px;color:var(--muted);font-size:15px;
   }
@@ -143,7 +195,10 @@
     input[type=text]{min-height:58px;font-size:21px}
     button{width:100%;justify-content:center}
     .toolbar{gap:10px}
-    .score{width:100%;text-align:center}
+    /* rezultat i zvuk dijele zadnji red, da traka ne naraste u cetiri puna reda */
+    .score{width:auto;flex:1;text-align:left;font-size:16px}
+    #sound{width:auto;min-height:46px;padding:0 16px}
+    .lvlcount{min-width:4em}
   }
   /* tablet u pejzažu i veći ekrani */
   @media (min-width:835px){
@@ -181,6 +236,7 @@
   <button class="primary" id="check">Provjeri odgovore</button>
   <button id="reveal">Pokaži rješenja</button>
   <button id="clear">Počni ispočetka</button>
+  <button id="sound" aria-label="Zvuk uključen" title="Zvuk">🔊</button>
   <span class="score" id="score">Riješeno: 0 od 0</span>
 </div>
 
@@ -190,6 +246,9 @@
   <p>Za tiskanje: <kbd>Ctrl</kbd>+<kbd>P</kbd>. Zadaci s crtanjem rade se u vježbenici.</p>
 </footer>
 </div>
+
+<div id="fx" aria-hidden="true"></div>
+<div id="toasts" role="status" aria-live="polite"></div>
 
 <script>
 /* --------- podaci: svaka cjelina je popis zadataka ---------
@@ -335,6 +394,19 @@ DATA.forEach((sec, si) => {
     el.appendChild(box);
   });
 
+  // razina dobiva traku napretka samo ako u njoj ima polja za upis
+  const total = el.querySelectorAll("input[type=text]").length;
+  if (total) {
+    el.dataset.total = total;
+    const bar = document.createElement("div");
+    bar.className = "lvlbar";
+    bar.innerHTML = `<div class="track" role="progressbar" aria-label="Napredak razine"
+                          aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="0"><i></i></div>
+                     <span class="lvlcount">0 / ${total}</span>
+                     <span class="lvlbadge" aria-hidden="true">🏆</span>`;
+    el.querySelector("p.lead").after(bar);
+  }
+
   main.appendChild(el);
 });
 
@@ -346,43 +418,271 @@ const norm = v => v.toString().toLowerCase()
   .replace(/^,|,$/g, "");
 
 const inputs = () => Array.from(document.querySelectorAll("input[type=text]"));
+const levels = () => Array.from(document.querySelectorAll("section[data-total]"));
 const scoreEl = document.getElementById("score");
 
-function updateScore() {
-  const all = inputs();
-  const ok = all.filter(i => i.classList.contains("ok")).length;
-  const filled = all.filter(i => i.value.trim() !== "").length;
-  scoreEl.textContent = `Točno: ${ok} od ${all.length} · upisano: ${filled}`;
+/* ---------- efekti: iskrice, poruke, zvuk ----------
+   Sve animacije idu preko Web Animations APIja (element.animate), ne preko CSS klasa —
+   klase se ovdje stalno prepisuju pa se keyframe animacija ne bi ponovno pokrenula.
+   Tko je u postavkama isključio animacije (prefers-reduced-motion) dobiva samo boje.
+--------------------------------------------------------- */
+const calmMq = matchMedia("(prefers-reduced-motion:reduce)");
+const calm = () => calmMq.matches;
+const fx = document.getElementById("fx");
+const toastBox = document.getElementById("toasts");
+const COLORS = ["#2f6fd0", "#2f9e5f", "#f6c445", "#e0544f", "#8a4fd0"];
+
+let audioOn = true, actx = null;
+
+function tone(freqs, dur = .09, type = "triangle") {
+  if (!audioOn) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === "suspended") actx.resume();
+    freqs.forEach((f, i) => {
+      const t0 = actx.currentTime + i * dur * .9;
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(f, t0);
+      g.gain.setValueAtTime(.0001, t0);
+      g.gain.exponentialRampToValueAtTime(.14, t0 + .012);
+      g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+      o.connect(g).connect(actx.destination);
+      o.start(t0); o.stop(t0 + dur + .03);
+    });
+  } catch (_) { /* bez zvuka, nista strasno */ }
 }
 
-function check() {
-  inputs().forEach(inp => {
-    const mark = document.querySelector(`.mark[data-for="${inp.id}"]`);
-    inp.classList.remove("ok", "no");
-    mark.classList.remove("ok", "no");
-    mark.textContent = "";
-    if (inp.value.trim() === "") return;
-    if (norm(inp.value) === norm(inp.dataset.answer)) {
-      inp.classList.add("ok"); mark.classList.add("ok"); mark.textContent = "✓";
-    } else {
-      inp.classList.add("no"); mark.classList.add("no"); mark.textContent = "✗";
+const soundBtn = document.getElementById("sound");
+soundBtn.addEventListener("click", () => {
+  audioOn = !audioOn;
+  soundBtn.textContent = audioOn ? "\u{1F50A}" : "\u{1F507}";
+  soundBtn.setAttribute("aria-label", audioOn ? "Zvuk uključen" : "Zvuk isključen");
+  if (audioOn) tone([880], .07);
+});
+
+function particles(x, y, n, opt = {}) {
+  if (calm()) return;                       // bez animacija = bez tockica koje bi ostale stajati
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement("b");
+    if (opt.dot) p.className = "dot";
+    p.style.background = opt.color || COLORS[(i + (Math.random() * 5 | 0)) % COLORS.length];
+    p.style.left = x + "px";
+    p.style.top = y + "px";
+    fx.appendChild(p);
+    const ang = opt.spread ? Math.random() * Math.PI * 2
+                           : -Math.PI / 2 + (Math.random() - .5) * 2;
+    const dist = (opt.dist || 70) * (.45 + Math.random());
+    const dx = Math.cos(ang) * dist;
+    const dy = Math.sin(ang) * dist + (opt.gravity || 40);
+    const spin = (Math.random() * 720 - 360) | 0;
+    const frames = [
+      { transform: "translate(0,0) scale(1) rotate(0deg)", opacity: 1 },
+      { transform: `translate(${dx}px,${dy}px) scale(.25) rotate(${spin}deg)`, opacity: 0 }
+    ];
+    const life = (opt.dur || 700) * (.8 + Math.random() * .5);
+    p.animate(frames, { duration: life, easing: "cubic-bezier(.2,.6,.4,1)" })
+     .finished.then(() => p.remove(), () => p.remove());
+    // ako korisnik prebaci karticu, animacija stane i .finished nikad ne stigne
+    setTimeout(() => p.remove(), life + 600);
+  }
+}
+
+function burstAt(el, n, opt) {
+  const r = el.getBoundingClientRect();
+  particles(r.left + r.width / 2, r.top + r.height / 2, n, opt);
+}
+
+function toast(text, cls = "") {
+  const t = document.createElement("div");
+  t.className = "toast" + (cls ? " " + cls : "");
+  t.textContent = text;
+  toastBox.appendChild(t);
+  if (!calm()) t.animate(
+    [{ transform: "translateY(-26px) scale(.8)", opacity: 0 }, { transform: "none", opacity: 1 }],
+    { duration: 280, easing: "cubic-bezier(.34,1.56,.64,1)" });
+  setTimeout(() => {
+    if (calm()) return t.remove();
+    t.animate([{ opacity: 1 }, { opacity: 0, transform: "translateY(-14px)" }], { duration: 260 })
+     .finished.then(() => t.remove(), () => t.remove());
+  }, 1900);
+}
+
+/* ---------- stanje jednog polja ----------
+   Jedino mjesto koje piše ok/no. Animira i broji niz samo kad se stanje stvarno promijeni,
+   pa drugi klik na „Provjeri odgovore" ne ispaljuje efekte ponovno.
+------------------------------------------- */
+let streak = 0;
+let finaleShown = false;
+
+function setState(inp, good, opt = {}) {
+  const mark = document.querySelector(`.mark[data-for="${inp.id}"]`);
+  const was = inp.classList.contains("ok") ? "ok" : inp.classList.contains("no") ? "no" : "";
+  const now = good === null ? "" : good ? "ok" : "no";
+
+  inp.classList.toggle("ok", now === "ok");
+  inp.classList.toggle("no", now === "no");
+  mark.className = "mark" + (now ? " " + now : "");
+  mark.textContent = now === "ok" ? "✓" : now === "no" ? "✗" : "";
+
+  if (now === was) return false;
+  const loud = opt.fx !== false;
+
+  if (now === "ok") {
+    streak++;
+    if (loud) {
+      if (!calm()) {
+        inp.animate([{ transform: "scale(1)" }, { transform: "scale(1.14)" }, { transform: "scale(1)" }],
+          { duration: 340, easing: "cubic-bezier(.34,1.56,.64,1)" });
+        mark.animate([{ transform: "scale(0) rotate(-40deg)", opacity: 0 },
+                      { transform: "scale(1) rotate(0deg)", opacity: 1 }],
+          { duration: 320, easing: "cubic-bezier(.34,1.56,.64,1)" });
+      }
+      burstAt(mark, 7, { dot: true, dist: 44, dur: 560, gravity: 18 });
+      tone([880, 1320], .07);
+      if (streak % 5 === 0) { toast(`Niz od ${streak}! \u{1F525}`, "fire"); tone([784, 988, 1319], .08); }
     }
+  } else if (now === "no") {
+    streak = 0;
+    if (loud) {
+      if (!calm()) {
+        inp.animate([{ transform: "translateX(0)" }, { transform: "translateX(-9px)" },
+                     { transform: "translateX(8px)" }, { transform: "translateX(-5px)" },
+                     { transform: "translateX(4px)" }, { transform: "translateX(0)" }],
+          { duration: 400, easing: "ease-in-out" });
+        mark.animate([{ transform: "scale(1.6)" }, { transform: "scale(1)" }], { duration: 280 });
+      }
+      tone([320, 190], .12, "sawtooth");
+    }
+  }
+  return true;
+}
+
+/* ---------- napredak po razinama ---------- */
+function celebrate(sec) {
+  const h = sec.querySelector("h2");
+  const r = h.getBoundingClientRect();
+  const y = Math.max(70, Math.min(r.top + 8, innerHeight - 90));
+  for (let i = 0; i < 5; i++)
+    particles(innerWidth * (.14 + i * .18), y, 11, { spread: true, dist: 140, dur: 1100, gravity: 190 });
+  if (!calm())
+    h.animate([{ transform: "scale(1)" }, { transform: "scale(1.06)" }, { transform: "scale(1)" }],
+      { duration: 520, easing: "cubic-bezier(.34,1.56,.64,1)" });
+  const name = h.textContent.replace(/^\s*\d+\s*/, "").trim();
+  toast(`Razina svladana: ${name}! \u{1F3C6}`, "good");
+  tone([659, 880, 1109, 1319], .1);
+}
+
+function finale() {
+  for (let i = 0; i < 9; i++)
+    particles(innerWidth * (.06 + i * .11), innerHeight * .3, 14,
+              { spread: true, dist: 200, dur: 1500, gravity: 320 });
+  toast("Sve razine svladane! \u{1F389}", "good");
+  tone([523, 659, 784, 1047, 1319], .13);
+}
+
+function updateProgress() {
+  const all = inputs();
+  const okAll = all.filter(i => i.classList.contains("ok")).length;
+  const secs = levels();
+  let done = 0;
+
+  secs.forEach(sec => {
+    const total = +sec.dataset.total;
+    const ok = sec.querySelectorAll("input.ok").length;
+    const track = sec.querySelector(".lvlbar .track");
+    track.querySelector("i").style.width = (ok / total * 100) + "%";
+    track.setAttribute("aria-valuenow", ok);
+    sec.querySelector(".lvlcount").textContent = `${ok} / ${total}`;
+
+    const won = ok === total;
+    if (won) done++;
+    const pill = document.querySelector(`nav a[href="#${sec.id}"]`);
+    if (pill) pill.classList.toggle("done", won);
+    if (won && !sec.classList.contains("won")) { sec.classList.add("won"); celebrate(sec); }
+    if (!won) sec.classList.remove("won");
   });
-  updateScore();
+
+  // ljestvica u zaglavlju je ujedno traka iskustva
+  const lit = all.length ? Math.round(okAll / all.length * ladder.children.length) : 0;
+  Array.from(ladder.children).forEach((b, i) => b.classList.toggle("lit", i < lit));
+
+  scoreEl.textContent = `Razine: ${done}/${secs.length} · točno ${okAll}/${all.length}`
+                      + (streak > 1 ? ` · niz ${streak} \u{1F525}` : "");
+
+  if (done === secs.length && secs.length && !finaleShown) { finaleShown = true; finale(); }
+  if (done < secs.length) finaleShown = false;
+}
+
+/* ---------- „Provjeri odgovore" ----------
+   Kad odjednom stigne puno novih točnih odgovora, ne ispaljujemo 30 zvukova i 30 iskri,
+   nego jednu zajedničku čestitku.
+------------------------------------------- */
+function check() {
+  const list = inputs();
+  const fresh = list.filter(i => i.value.trim() !== "" &&
+                                 !i.classList.contains("ok") && !i.classList.contains("no"));
+  const quiet = fresh.length > 6;
+  let gained = 0;
+
+  list.forEach(inp => {
+    if (inp.value.trim() === "") { setState(inp, null, { fx: false }); return; }
+    const good = norm(inp.value) === norm(inp.dataset.answer);
+    if (setState(inp, good, { fx: !quiet }) && good) gained++;
+  });
+
+  if (quiet && gained) {
+    toast(`+${gained} točnih! ⭐`, "good");
+    burstAt(document.getElementById("check"), 18, { spread: true, dist: 120, dur: 900, gravity: 120 });
+    tone([784, 988, 1319], .09);
+  }
+  updateProgress();
 }
 
 document.getElementById("check").addEventListener("click", check);
 
-document.getElementById("reveal").addEventListener("click", e => {
+/* ---------- rješenja zaključana PIN-om ----------
+   PIN nije u kodu, samo njegov SHA-256 otisak. Za promjenu PIN-a otvori
+   konzolu preglednika (F12) i pokreni:
+     crypto.subtle.digest("SHA-256", new TextEncoder().encode("noviPIN"))
+       .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")))
+   pa dobiveni niz upiši u PIN_HASH. Zadani PIN je 1234.
+   Napomena: ovo zaustavlja dijete, ne nekoga tko zna otvoriti View source —
+   točni odgovori su i dalje u HTML-u u atributu data-answer.
+------------------------------------------------------------ */
+const PIN_HASH = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
+
+async function sha256hex(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+// otključano ostaje do zatvaranja kartice, ne dulje
+const unlocked = () => sessionStorage.getItem("solUnlock") === PIN_HASH;
+
+async function unlock() {
+  if (unlocked()) return true;
+  const pin = prompt("PIN za prikaz rješenja:");
+  if (pin === null) return false;
+  if (await sha256hex(pin) !== PIN_HASH) { alert("Pogrešan PIN."); return false; }
+  sessionStorage.setItem("solUnlock", PIN_HASH);
+  return true;
+}
+
+document.getElementById("reveal").addEventListener("click", async e => {
   const on = document.querySelectorAll(".solution.show").length === 0;
+  if (on && !await unlock()) return;
   document.querySelectorAll(".solution").forEach(s => s.classList.toggle("show", on));
   e.target.textContent = on ? "Sakrij rješenja" : "Pokaži rješenja";
 });
 
 document.getElementById("clear").addEventListener("click", () => {
-  inputs().forEach(i => { i.value = ""; i.classList.remove("ok", "no"); });
-  document.querySelectorAll(".mark").forEach(m => { m.textContent = ""; m.className = "mark"; });
-  updateScore();
+  streak = 0;
+  finaleShown = false;
+  inputs().forEach(i => { i.value = ""; setState(i, null, { fx: false }); });
+  levels().forEach(s => s.classList.remove("won"));
+  document.querySelectorAll("nav a.done").forEach(a => a.classList.remove("done"));
+  updateProgress();
 });
 
 // Enter/„next" na tipkovnici tableta skače na sljedeće polje
@@ -398,15 +698,11 @@ main.addEventListener("keydown", e => {
 main.addEventListener("focusout", e => {
   const inp = e.target;
   if (inp.tagName !== "INPUT" || inp.value.trim() === "") return;
-  const mark = document.querySelector(`.mark[data-for="${inp.id}"]`);
-  const good = norm(inp.value) === norm(inp.dataset.answer);
-  inp.classList.toggle("ok", good); inp.classList.toggle("no", !good);
-  mark.className = "mark " + (good ? "ok" : "no");
-  mark.textContent = good ? "✓" : "✗";
-  updateScore();
+  setState(inp, norm(inp.value) === norm(inp.dataset.answer));
+  updateProgress();
 });
 
-updateScore();
+updateProgress();
 </script>
 </body>
 </html>

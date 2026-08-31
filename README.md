@@ -47,6 +47,48 @@ Odgovori su u HTML-u (`data-answer`), pa su vidljivi u *View source*. Za dijete 
 to je u praksi dovoljno, ali ako to smeta, jedina prava opcija je provjera na serveru —
 statični Pages to ne može.
 
+## Igra: razine, nizovi i animacije
+
+Svaka cjelina je jedna **razina** s vlastitom trakom napretka (`x / y` točnih odgovora).
+
+- **Točan odgovor** — polje poskakne, kvačica uleti, sitne iskrice, kratki zvuk.
+- **Netоčan odgovor** — polje se zatrese, niži tonski signal, niz se prekida.
+- **Niz** (uzastopni točni odgovori) broji se u traci s tipkama; na svakih 5 stiže poruka.
+- **Razina svladana** — konfeti, poruka i 🏆 uz naslov, a pilula u navigaciji pozeleni.
+- **Sve razine** — veliki konfeti preko cijelog ekrana.
+- Ljestvica u zaglavlju više nije samo ukras: puni se kako raste broj točnih odgovora.
+- Gumb 🔊 u traci isključuje zvuk.
+
+Detalji izvedbe, ako se bude mijenjalo:
+
+- Sve animacije idu preko `element.animate()` (Web Animations API), ne preko CSS klasa —
+  klase `ok`/`no` se stalno prepisuju pa se CSS keyframe animacija ne bi ponovno pokrenula.
+- `setState()` je jedino mjesto koje piše `ok`/`no`. Efekti se ispaljuju **samo na promjenu
+  stanja**, pa drugi klik na „Provjeri odgovore" ne ponavlja konfete i zvukove.
+- Kad jedan klik na „Provjeri odgovore" riješi više od 6 novih polja, umjesto niza pojedinačnih
+  efekata ide jedna zajednička čestitka.
+- `prefers-reduced-motion: reduce` gasi animacije **i** stvaranje čestica (ostaju samo boje).
+- Čestice se brišu i preko `setTimeout` fallbacka — ako korisnik prebaci karticu, animacija
+  stane i `Animation.finished` nikad ne stigne.
+- Napredak se **ne pamti** između posjeta; osvježavanje stranice počinje ispočetka.
+
+## PIN za rješenja
+
+Gumb **Pokaži rješenja** traži PIN. Zadani PIN je `1234`, otključanje vrijedi do zatvaranja
+kartice (`sessionStorage`). U kodu je samo SHA-256 otisak PIN-a (`PIN_HASH` u `index.html`),
+ne i sam PIN. Za promjenu otvori konzolu preglednika (F12) i pokreni:
+
+```js
+crypto.subtle.digest("SHA-256", new TextEncoder().encode("noviPIN"))
+  .then(b => console.log([...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("")))
+```
+
+pa dobiveni niz upiši u `PIN_HASH`.
+
+Ovo zaustavlja dijete, ne i nekoga tko zna otvoriti *View source* — točni odgovori su i dalje
+u `data-answer`. Za stvarnu zaštitu trebalo bi odgovore držati kao hash, a tekst rješenja
+šifrirati (AES-GCM) lozinkom, ili preseliti stranicu na hosting s pravim loginom.
+
 ## Prilagodba za tablet
 
 - Osnovna veličina teksta 19–20 px, polja i tipke minimalno 54 px visine (Appleova i
