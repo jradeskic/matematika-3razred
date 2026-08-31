@@ -1849,7 +1849,7 @@ provjera("prebacivanje predmeta ne ostavlja polja drugog predmeta", async ucitaj
 
 - [ ] **Step 2: Pokreni provjere**
 
-Expected: `PASS (39)`.
+Expected: `PASS (41)`.
 
 Napomena: izuzimanje skrivenih polja iz skoka na Enter **nije pokriveno provjerom**.
 `focus()` ne postavlja `activeElement` u iframeu ovoga harnessa (`document.hasFocus()`
