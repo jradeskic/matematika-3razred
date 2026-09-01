@@ -550,36 +550,61 @@
 <div id="fx" aria-hidden="true"></div>
 <div id="toasts" role="status" aria-live="polite"></div>
 
-<script src="zadaci-matematika.js"></script>
-<script src="zadaci-hrvatski.js"></script>
+<script src="zadaci-matematika-2.js"></script>
+<script src="zadaci-hrvatski-2.js"></script>
 <script>
-/* ---------- predmeti ----------
-   Predmet je podatak: naslovi, koja se traka crta u zaglavlju, koje pravilo
-   usporedbe odgovora vrijedi i koji su zadaci. Dodavanje predmeta je nova
-   stavka ovdje plus jedna datoteka sa zadacima.
+/* ---------- predmeti, razredi i gradivo ----------
+   Predmet nosi ono sto ne ovisi o razredu: pravilo provjere, traku u
+   zaglavlju i znakove za unos. Razred nosi sadrzaj. Dodavanje razreda je
+   jedna nova grana u GRADIVO i jedna datoteka sa zadacima po predmetu.
 ------------------------------------------------------------------------- */
 const PREDMETI = {
   matematika: {
     naziv:    "Matematika",
-    title:    "Matematika — ponavljanje prije 3. razreda",
-    naslov:   "Ponavljamo matematiku<br>prije 3. razreda",
-    uvod:     "Gradivo 2. razreda: brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija, mjerenje i podaci. Upiši odgovor i provjeri se sam.",
     traka:    "brojevi",
     provjera: "broj",
-    zadaci:   ZADACI_MATEMATIKA
+    znakovi:  {}                     // 2. razred nema traku; 5. i 6. dobivaju je u Tasku 6
   },
   hrvatski: {
     naziv:    "Hrvatski jezik",
-    title:    "Hrvatski jezik — ponavljanje prije 3. razreda",
-    naslov:   "Ponavljamo hrvatski<br>prije 3. razreda",
-    uvod:     "Gradivo 2. razreda: veliko početno slovo, č i ć, ije i je, glasovi i slova, rečenica, vrste riječi i značenje. Odgovori i provjeri se sam.",
     traka:    "abeceda",
     provjera: "rijec",
-    zadaci:   ZADACI_HRVATSKI
+    znakovi:  { "*": ["č", "ć", "š", "ž", "đ"] }
   }
 };
 
-let predmet = "matematika";        // kljuc aktivnog predmeta
+const RAZREDI = {
+  "2": { naziv: "2. razred", kratko: "2" },
+  "5": { naziv: "5. razred", kratko: "5" },
+  "6": { naziv: "6. razred", kratko: "6" }
+};
+
+const GRADIVO = {
+  "2": {
+    matematika: {
+      title:  "Matematika — gradivo 2. razreda",
+      naslov: "Ponavljamo matematiku<br>2. razreda",
+      uvod:   "Gradivo 2. razreda: brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija, mjerenje i podaci. Upiši odgovor i provjeri se sam.",
+      zadaci: ZADACI_MATEMATIKA_2
+    },
+    hrvatski: {
+      title:  "Hrvatski jezik — gradivo 2. razreda",
+      naslov: "Ponavljamo hrvatski<br>2. razreda",
+      uvod:   "Gradivo 2. razreda: veliko početno slovo, č i ć, ije i je, glasovi i slova, rečenica, vrste riječi i značenje. Odgovori i provjeri se sam.",
+      zadaci: ZADACI_HRVATSKI_2
+    }
+  }
+};
+
+let razred  = "2";                   // kljuc aktivnog razreda
+let predmet = "matematika";          // kljuc aktivnog predmeta
+
+/* Harness cita konfiguraciju kroz window: top-level const u klasicnoj
+   skripti ne postaje svojstvo windowa, a deklaracija funkcije postaje.
+   Zato se objekti izvoze rucno, a stanje kroz funkciju -- da harness ne
+   drzi referencu na promjenjivu varijablu.                              */
+Object.assign(window, { PREDMETI, RAZREDI, GRADIVO });
+window.stanje = () => ({ razred, predmet });
 
 /* ---------- profil: nadimak, avatar i zapamćen napredak ----------
    Sve stoji u localStorageu ovog preglednika, na ovom uređaju. Nema servera,
@@ -684,20 +709,22 @@ function promijesaj(popis) {
   return k;
 }
 
-function izgradiPredmet(kljuc) {
-  predmet = PREDMETI[kljuc] ? kljuc : "matematika";
+function izgradiPredmet(kljucRazreda, kljucPredmeta) {
+  razred  = (GRADIVO[kljucRazreda] && GRADIVO[kljucRazreda][kljucPredmeta]) ? kljucRazreda : "2";
+  predmet = PREDMETI[kljucPredmeta] ? kljucPredmeta : "matematika";
   const p = PREDMETI[predmet];
+  const g = GRADIVO[razred][predmet];
 
-  document.title = p.title;
-  document.getElementById("naslov").innerHTML = p.naslov;
-  document.getElementById("uvod").textContent = p.uvod;
+  document.title = g.title;
+  document.getElementById("naslov").innerHTML = g.naslov;
+  document.getElementById("uvod").textContent = g.uvod;
   izgradiTraku(p.traka);
 
   main.innerHTML = "";
   cjelineNav.innerHTML = "";
   inputCount = 0;
 
-  p.zadaci.forEach((sec, si) => {
+  g.zadaci.forEach((sec, si) => {
   const brojacKljuca = {};        // koliko se puta isti prikaz ponavlja u ovoj cjelini
   const el = document.createElement("section");
   el.id = sec.id;
@@ -795,7 +822,7 @@ function izgradiPredmet(kljuc) {
   });
 }
 
-izgradiPredmet(predmet);
+izgradiPredmet(razred, predmet);
 
 /* ---------- provjera ---------- */
 const norm = v => v.toString().toLowerCase()
@@ -1660,7 +1687,7 @@ function prebaciPredmet(kljuc) {
   streak = 0;
   finaleShown = false;
   buddy.reset();
-  izgradiPredmet(kljuc);
+  izgradiPredmet(razred, kljuc);
   profil.predmet = predmet;
   spremiProfil();
   oznaciPredmet();
@@ -1674,7 +1701,7 @@ predmetiTraka.addEventListener("click", e => {
 });
 
 /* ---------- pokretanje ---------- */
-izgradiPredmet(profil.predmet);      // otvori se na zadnje biranom predmetu
+izgradiPredmet("2", profil.predmet);   // razred dolazi iz profila u Tasku 3
 oznaciPredmet();
 nacrtajPreglede();
 buddy.postaviLik(profil.avatar);

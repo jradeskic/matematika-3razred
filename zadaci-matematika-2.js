@@ -8,7 +8,7 @@
    lead  podnaslov
    Tipovi zadataka su opisani u READMEu.                                     */
 
-const ZADACI_MATEMATIKA = [
+const ZADACI_MATEMATIKA_2 = [
 {id:"c1", nav:"Brojevi do 100", title:"Brojevi do 100", lead:"Desetice i jedinice, usporedivanje, nizovi, parni i neparni brojevi.", tasks:[
   {t:"calc", q:"Rastavi na desetice i jedinice — upiši koliko je desetica, a koliko jedinica (npr. 4D3J).",
    items:[["63","6D3J"],["90","9D0J"],["58","5D8J"],["47","4D7J"]]},

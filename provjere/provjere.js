@@ -50,7 +50,7 @@ provjera("matematika: 85 polja u 7 cjelina", async ucitaj => {
 
 provjera("matematika: naslov stranice", async ucitaj => {
   const W = await ucitaj();
-  jednako(W.document.title, "Matematika — ponavljanje prije 3. razreda", "naslov");
+  jednako(W.document.title, "Matematika — gradivo 2. razreda", "naslov");
 });
 
 provjera("matematika: navigacija ima tocno 7 zadanih linkova", async ucitaj => {
@@ -113,7 +113,7 @@ provjera("PIN 1234 otkriva rjesenja", async ucitaj => {
 provjera("izgradiPredmet je dostupan i ne udvostrucuje sadrzaj", async ucitaj => {
   const W = await ucitaj();
   istina(typeof W.izgradiPredmet === "function", "izgradiPredmet postoji");
-  W.izgradiPredmet("matematika");
+  W.izgradiPredmet("2", "matematika");
   jednako(polja(W).length, 85, "polja nakon druge izgradnje");
   jednako(W.document.querySelectorAll("section[data-total]").length, 7, "cjelina nakon druge izgradnje");
   jednako(W.document.querySelectorAll("nav a").length, 7, "linkova nakon druge izgradnje");
@@ -130,8 +130,8 @@ provjera("traka u zaglavlju ima 20 kucica za matematiku", async ucitaj => {
 
 provjera("hrvatski je registriran i gradi svih 7 cjelina", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
-  jednako(W.document.title, "Hrvatski jezik — ponavljanje prije 3. razreda", "naslov");
+  W.izgradiPredmet("2", "hrvatski");
+  jednako(W.document.title, "Hrvatski jezik — gradivo 2. razreda", "naslov");
   jednako(W.document.querySelectorAll("#main section").length, 7, "cjelina");
   jednako(W.document.querySelector("#main section").id, "h1", "oznaka prve cjeline");
   jednako(polja(W).length, 85, "polja ukupno");
@@ -140,7 +140,7 @@ provjera("hrvatski je registriran i gradi svih 7 cjelina", async ucitaj => {
 
 provjera("izbor: tipke su tap, svaka stavka ima svoje tipke", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   const stavke = [...W.document.querySelectorAll(".izbor-item")];
   jednako(stavke.length, 66, "stavki izbora");
   stavke.forEach((s, i) => {
@@ -155,7 +155,7 @@ provjera("izbor: tipke su tap, svaka stavka ima svoje tipke", async ucitaj => {
 
 provjera("izbor: klik na tocnu tipku daje kvacicu i puni razinu", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   const stavka = W.document.querySelector(".izbor-item");
   const inp = stavka.querySelector("input[type=text]");
   const tocnaTipka = [...stavka.querySelectorAll(".chip")]
@@ -169,7 +169,7 @@ provjera("izbor: klik na tocnu tipku daje kvacicu i puni razinu", async ucitaj =
 
 provjera("izbor: klik na krivu tipku daje kriz", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   const stavka = W.document.querySelector(".izbor-item");
   const inp = stavka.querySelector("input[type=text]");
   const krivaTipka = [...stavka.querySelectorAll(".chip")]
@@ -187,7 +187,7 @@ provjera("izbor: tipke se premjesaju, nisu svaki put isto", async ucitaj => {
   const snimke = [];
   for (let k = 0; k < 3; k++) {
     const W = await ucitaj();
-    W.izgradiPredmet("hrvatski");
+    W.izgradiPredmet("2", "hrvatski");
     snimke.push(JSON.stringify([...W.document.querySelectorAll(".izbor-item")]
       .map(s => [...s.querySelectorAll(".chip")].map(t => t.dataset.vrijednost))));
   }
@@ -197,7 +197,7 @@ provjera("izbor: tipke se premjesaju, nisu svaki put isto", async ucitaj => {
 
 provjera("izbor: promjena misljenja ostavlja tocno jednu odabranu tipku", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   const stavka = W.document.querySelector(".izbor-item");
   const inp = stavka.querySelector("input[type=text]");
   const tipke = [...stavka.querySelectorAll(".chip")];
@@ -219,14 +219,14 @@ provjera("izbor: promjena misljenja ostavlja tocno jednu odabranu tipku", async 
 provjera("hrvatski: veliko slovo je bitno", async ucitaj => {
   const W = await ucitaj();
   istina(typeof W.tocno === "function", "tocno() postoji");
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   istina(W.tocno("Ana", "Ana"), '"Ana" je tocno za "Ana"');
   istina(!W.tocno("ana", "Ana"), '"ana" NIJE tocno za "Ana"');
 });
 
 provjera("hrvatski: dijakritika je bitna", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   istina(W.tocno("kuća", "kuća"), '"kuća" je tocno');
   istina(!W.tocno("kuca", "kuća"), '"kuca" NIJE tocno za "kuća"');
   istina(!W.tocno("kuča", "kuća"), '"kuča" NIJE tocno za "kuća"');
@@ -234,14 +234,14 @@ provjera("hrvatski: dijakritika je bitna", async ucitaj => {
 
 provjera("hrvatski: zavrsna tocka je bitna, visak razmaka nije", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   istina(!W.tocno("Ivan ne čita", "Ivan ne čita."), "bez tocke NIJE tocno");
   istina(W.tocno("  Ivan   ne  čita.  ", "Ivan ne čita."), "visak razmaka se tolerira");
 });
 
 provjera("hrvatski: tocka i zarez nisu isto", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   istina(!W.tocno("ku,ća", "ku.ća"), "zarez nije zamjena za tocku");
 });
 
@@ -272,7 +272,7 @@ provjera("red hrvatskih slova postoji i skriven je u matematici", async ucitaj =
 
 provjera("tipka slova ubacuje znak na mjesto kursora", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   // Cjelina h2 ima samo izbor, pa za ovu provjeru otkrijemo jedno skriveno
   // polje i ponasamo se kao da je dijete uslo u njega. focus() u iframeu ne
   // postavlja activeElement, pa focusin saljemo sami.
@@ -458,7 +458,7 @@ provjera("odabir hrvatskoga u prijavi otvara hrvatski", async ucitaj => {
 
 provjera("hrvatski: 85 polja u 7 cjelina", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   jednako(polja(W).length, 85, "broj polja");
   jednako(W.document.querySelectorAll("section[data-total]").length, 7, "broj cjelina");
   jednako([...W.document.querySelectorAll("#main section")].map(s => s.id),
@@ -473,7 +473,7 @@ provjera("hrvatski: 85 polja u 7 cjelina", async ucitaj => {
 
 provjera("hrvatski: svi kljucevi su jedinstveni", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   const kljucevi = polja(W).map(i => i.dataset.key);
   jednako(kljucevi.filter(k => !k).length, 0, "polja bez kljuca");
   jednako(new Set(kljucevi).size, 85, "jedinstvenih kljuceva");
@@ -481,7 +481,7 @@ provjera("hrvatski: svi kljucevi su jedinstveni", async ucitaj => {
 
 provjera("hrvatski: tocan odgovor je uvijek medu ponudenim tipkama", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   const lose = [];
   [...W.document.querySelectorAll(".izbor-item")].forEach(s => {
     const inp = s.querySelector("input[type=text]");
@@ -494,7 +494,7 @@ provjera("hrvatski: tocan odgovor je uvijek medu ponudenim tipkama", async ucita
 
 provjera("hrvatski: svi tocni odgovori daju 85/85 i 7/7 razina", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   polja(W).forEach(i => { i.value = i.dataset.answer; });
   W.document.getElementById("check").click();
   await cekaj(200);
@@ -507,7 +507,7 @@ provjera("hrvatski: svi tocni odgovori daju 85/85 i 7/7 razina", async ucitaj =>
 
 provjera("hrvatski: jedan zadatak za vjezbenicu", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   jednako(W.document.querySelectorAll("#main .paper-task").length, 1, "zadataka za vjezbenicu");
 });
 
@@ -525,7 +525,7 @@ provjera("umireni pokret: bez animacija i bez zaostalih cestica", async ucitaj =
 provjera("avatar i PIN rade u oba predmeta", async ucitaj => {
   const W = await ucitaj();
   for (const p of ["matematika", "hrvatski"]) {
-    W.izgradiPredmet(p);
+    W.izgradiPredmet("2", p);
     W.prompt = () => "1234";
     W.document.getElementById("reveal").click();
     await cekaj(200);
@@ -538,12 +538,26 @@ provjera("avatar i PIN rade u oba predmeta", async ucitaj => {
 
 provjera("prebacivanje predmeta ne ostavlja polja drugog predmeta", async ucitaj => {
   const W = await ucitaj();
-  W.izgradiPredmet("hrvatski");
+  W.izgradiPredmet("2", "hrvatski");
   jednako(polja(W).length, 85, "hrvatski");
-  W.izgradiPredmet("matematika");
+  W.izgradiPredmet("2", "matematika");
   jednako(polja(W).length, 85, "matematika nakon prebacivanja");
   jednako([...W.document.querySelectorAll("#main section")].map(s => s.id),
           ["c1", "c2", "c3", "c4", "c5", "c6", "c7"], "cjeline su matematicke");
+});
+
+/* ---------- razredi i gradivo ---------- */
+
+provjera("GRADIVO ima 2. razred za oba predmeta", async ucitaj => {
+  const W = await ucitaj();
+  istina(!!W.GRADIVO["2"].matematika.zadaci.length, "matematika 2. ima zadatke");
+  istina(!!W.GRADIVO["2"].hrvatski.zadaci.length, "hrvatski 2. ima zadatke");
+  jednako(W.stanje().razred, "2", "aktivni razred");
+});
+
+provjera("RAZREDI ima 2., 5. i 6. razred", async ucitaj => {
+  const W = await ucitaj();
+  jednako(Object.keys(W.RAZREDI), ["2", "5", "6"], "kljucevi razreda");
 });
 
 /* ---------- pokretanje ---------- */
