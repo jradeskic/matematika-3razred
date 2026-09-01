@@ -47,10 +47,10 @@ function upisi(W, inp, vrijednost) {
 const OCEKIVANJA = {
   "2/matematika": { cjelina: 7, polja: 85 },
   "2/hrvatski":   { cjelina: 7, polja: 85 },
-  "5/matematika": { cjelina: 1, polja: 4 },
-  "5/hrvatski":   { cjelina: 1, polja: 3 },
-  "6/matematika": { cjelina: 1, polja: 5 },
-  "6/hrvatski":   { cjelina: 1, polja: 3 }
+  "5/matematika": { cjelina: 8, polja: 128 },
+  "5/hrvatski":   { cjelina: 8, polja: 99 },
+  "6/matematika": { cjelina: 9, polja: 129 },
+  "6/hrvatski":   { cjelina: 8, polja: 80 }
 };
 
 provjera("svaki skup ima ocekivani broj cjelina i polja", async ucitaj => {

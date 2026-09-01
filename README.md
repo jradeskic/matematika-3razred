@@ -75,8 +75,9 @@ lik i doslovni citati ne koriste.
 ## Razredi i predmeti
 
 Stranica ima dva predmeta: **Matematiku** i **Hrvatski jezik**, svaki dostupan za tri razreda:
-**2., 5. i 6.** Razred i predmet se biraju pri prvoj prijavi i mijenjaju dvama prekidačima u
-zaglavlju (pilule razreda, pilule predmeta). Nadimak i avatar su zajednički za sve razrede i
+**2., 5. i 6.** Predmet se bira pri prvoj prijavi, a razred **ne** — počinje na 2. razredu.
+Oba se mijenjaju prekidačima u zaglavlju: gornji red su pilule razreda, donji pilule predmeta.
+Nadimak i avatar su zajednički za sve razrede i
 predmete, a napredak se pamti odvojeno po **paru** razred/predmet. Stranica se otvori na
 zadnje biranom razredu i predmetu.
 
@@ -97,9 +98,27 @@ Dodavanje razreda: nova stavka u `RAZREDI`, nova grana u `GRADIVO` i po jedna da
 zadacima za svaki predmet. Dodavanje predmeta: nova stavka u `PREDMETI` i po jedna datoteka
 sa zadacima za svaki razred.
 
-**Datoteke za 5. i 6. razred su skeleti.** `zadaci-matematika-5.js`, `zadaci-hrvatski-5.js`,
-`zadaci-matematika-6.js` i `zadaci-hrvatski-6.js` sadrže po jednu cjelinu, dovoljnu da stranica
-i provjere rade — pravi sadržaj (sve cjeline propisane kurikulumom) dolazi u zasebnim specovima.
+**Sadržaj po razredu.** Svaka cjelina u datotekama sa zadacima nosi u komentaru oznaku ishoda
+iz kurikuluma na koji se odnosi:
+
+| Skup | Cjelina | Polja | Ishodi |
+|---|---|---|---|
+| Matematika 2. | 7 | 85 | gradivo 2. razreda |
+| Hrvatski 2. | 7 | 85 | gradivo 2. razreda |
+| Matematika 5. | 8 | 128 | `MAT OŠ A.5.1–6`, `B.5.1–2`, `C.5.1–3`, `D.5.1–5`, `E.5.1` |
+| Hrvatski 5. | 8 | 99 | jezgra `OŠ HJ A.5.5`, `A.5.6`; `B.5.2`; `A.5.1–4` kao „note" |
+| Matematika 6. | 9 | 129 | `MAT OŠ A.6.1–9`, `B.6.1`, `C.6.1–3`, `D.6.1`, `D.6.2`, `D.6.4`, `D.6.5`, `E.6.1` |
+| Hrvatski 6. | 8 | 80 | jezgra `OŠ HJ A.6.5`, `A.6.6`; `B.6.2`; `A.6.1–4` kao „note" |
+
+Što **nije** pokriveno automatskom provjerom, i zašto:
+
+- `MAT OŠ D.6.3` — ta oznaka u NN 7/2019 stoji bez vlastitoga teksta ishoda, pa se ne može
+  pouzdano pročitati što pokriva. Cjelina se ne izmišlja; treba je provjeriti u izvorniku.
+- Hrvatski, domena **C (Kultura i mediji)** i ishodi `B.x.1`, `B.x.3`, `B.x.4` — traže razgovor,
+  posjet kulturnom događaju ili stvaralački rad. Dio je zahvaćen `note` zadacima u cjelini h8.
+- Hrvatski, produktivni ishodi (govorenje, slušanje, čitanje, pisanje) idu kao `note` zadaci za
+  vježbenicu — dijete ih rješava u bilježnici, stranica ih ne ocjenjuje.
+
 Kurikulumski izvori:
 
 - Matematika: *Odluka o donošenju kurikuluma za nastavni predmet Matematika za osnovne škole i
