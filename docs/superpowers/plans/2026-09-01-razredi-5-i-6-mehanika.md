@@ -210,6 +210,14 @@ Dalje u istoj funkciji, `p.zadaci.forEach(...)` postaje `g.zadaci.forEach(...)`.
 
 - [ ] **Step 6: Prilagodi tri poziva**
 
+Provjereno: `izgradiPredmet` se poziva na **točno tri mjesta** (798, 1663, 1677); definicija je
+na 687. Zatvaranje prijave ne iscrtava stranicu iznova, pa prijava nije četvrto mjesto.
+Prije izmjene potvrdi:
+
+```bash
+grep -c "izgradiPredmet(" index.html   # mora ispisati 4: definicija + tri poziva
+```
+
 `index.html:798` (odmah nakon definicije funkcije):
 
 ```js
@@ -915,6 +923,9 @@ provjera("pokvaren odgovor u podacima ne kaznjava dijete", async ucitaj => {
   const W = await ucitaj();
   jednako(W.oblikValjan("razlomak", "tri četvrtine"), false, "neispravan odgovor");
   jednako(W.oblikValjan("razlomak", "3/4"), true, "ispravan odgovor");
+  jednako(W.oblikValjan("", "3/4"), true, "bez oblika vrijedi staro pravilo");
+  jednako(W.oblikValjan("razlomci", "3/4"), false, "tipfeler u obliku je greska");
+  jednako(W.usporedi("razlomci", "6/8", "3/4"), null, "nepoznat oblik ne usporeduje");
 });
 ```
 
@@ -995,13 +1006,20 @@ function razloziBroj(v) {
 
 const istaVrijednost = (x, y) => !!x && !!y && x.a * y.b === y.a * x.b;
 
+/* Popis dopustenih oblika. Bez njega bi tipfeler (oblik:"razlomci") tiho
+   propao na pravilo predmeta: 6/8 bi se usporedilo kao niz znakova s 3/4 i
+   dijete bi dobilo netocno, a harness bi ostao zelen.                     */
+const OBLICI = ["broj", "razlomak", "popis", "tekst"];
+window.OBLICI = OBLICI;              // harness ga cita; const ne dolazi na window
+
 // je li odgovor iz podataka razlozljiv u deklarirani oblik
 function oblikValjan(oblik, odgovor) {
+  if (!oblik) return true;                       // nedeklariran: staro pravilo
+  if (!OBLICI.includes(oblik)) return false;     // nepoznat oblik je greska u podacima
   if (oblik === "broj" || oblik === "razlomak") return !!razloziBroj(odgovor);
   if (oblik === "popis")
     return izravnajZnakove(odgovor).split(",").every(d => !!razloziBroj(d));
-  if (oblik === "tekst") return ocisti(odgovor) !== "";
-  return true;                       // nepoznat ili nedeklariran oblik
+  return ocisti(odgovor) !== "";                 // tekst
 }
 
 function usporedi(oblik, upis, odgovor) {
@@ -1056,17 +1074,36 @@ Iza polja, kad `valjan` nije istina, umjesto oznake ide napomena:
 Isto za `izbor` polja (oko retka 766): `data-oblik` se dodaje, a pokvareni zadatak dobiva
 `disabled` i nema `data-answer`.
 
-Polje bez `data-answer` ne ulazi u `data-total` razine, jer se `data-total` računa iz polja s
-odgovorom. Ako trenutni kod broji sva polja, promijeni brojanje na
-`el.querySelectorAll("input[data-answer]").length`.
+- [ ] **Step 4b: Izbaci pokvareno polje iz brojanja razine**
 
-Provjera odgovora poziva se s trećim argumentom svugdje gdje se sad zove `tocno(...)`:
+`index.html:781` sad broji sva tekstualna polja:
 
 ```js
-tocno(inp.value, inp.dataset.answer, inp.dataset.oblik)
+  const total = el.querySelectorAll("input[type=text]").length;
 ```
 
-Mjesta: `setState` putanja u `provjeriPolje`/`focusout` obrađivaču i `vratiNapredak()`.
+Postaje brojanje samo polja s odgovorom:
+
+```js
+  const total = el.querySelectorAll("input[data-answer]").length;
+```
+
+Pokvareno polje nema `data-answer`, pa ne ulazi u `total` i razina se može svladati bez njega.
+Za gradivo 2. razreda broj ostaje isti (85), jer sva polja imaju odgovor.
+
+- [ ] **Step 4c: Dodaj treći argument na sva četiri poziva `tocno`**
+
+Provjereno: `tocno` se poziva na **četiri mjesta** — `index.html:1371` (`updateProgress`),
+`1451` (`focusout` obrađivač), `1471` (klik na tipku kod `izbor`) i `1635` (`vratiNapredak`).
+Svaki dobiva `inp.dataset.oblik` kao treći argument:
+
+```bash
+sed -i 's/tocno(inp\.value, inp\.dataset\.answer)/tocno(inp.value, inp.dataset.answer, inp.dataset.oblik)/g; s/tocno(v, inp\.dataset\.answer)/tocno(v, inp.dataset.answer, inp.dataset.oblik)/g' index.html
+grep -c "inp.dataset.oblik)" index.html    # mora ispisati 4
+```
+
+Ako `grep` ispiše manje od 4, nađi preostali poziv s `grep -n "tocno(" index.html` i popravi
+rukom. Propušten poziv znači da bi polje 5./6. razreda tiho ostalo na starom pravilu.
 
 - [ ] **Step 5: Dodaj CSS za pokvareno polje**
 
@@ -1412,6 +1449,18 @@ provjera("svaki odgovor s oblikom je razlozljiv u taj oblik", async ucitaj => {
   jednako(greske, [], "odgovori koji ne odgovaraju deklariranom obliku");
 });
 
+provjera("svaki deklariran oblik je s popisa OBLICI", async ucitaj => {
+  const W = await ucitaj();
+  const greske = [];
+  for (const r of Object.keys(W.RAZREDI))
+    for (const p of Object.keys(W.PREDMETI))
+      for (const sec of W.GRADIVO[r][p].zadaci)
+        for (const task of sec.tasks)
+          if (task.oblik && !W.OBLICI.includes(task.oblik))
+            greske.push(`${r}/${p} ${sec.id} -> "${task.oblik}"`);
+  jednako(greske, [], "zadaci s nepoznatim oblikom");
+});
+
 provjera("oznake cjelina su jedinstvene unutar svakog skupa", async ucitaj => {
   const W = await ucitaj();
   const greske = [];
@@ -1470,7 +1519,8 @@ one ne mjere količinu.
 
 - [ ] **Step 4: Pokreni harness — mora proći**
 
-Očekivano: **PASS**, s brojem provjera oko 67. Zapiši točan broj u završni commit.
+Očekivano: **PASS**, s brojem provjera oko 68 (šest starih brojačkih tvrdnji je izbačeno,
+sedam novih invarijanti dodano). Zapiši točan broj u završni commit.
 
 - [ ] **Step 5: Ažuriraj README**
 
