@@ -38,7 +38,7 @@ iframeu preko `python -m http.server 8765`.
 
 ## Polazno stanje
 
-Harness na `main` prolazi s **PASS (41)**. Svaki task završava harnessom u zelenom; broj
+Harness na `main` prolazi s **PASS (43)**. Svaki task završava harnessom u zelenom; broj
 provjera raste kroz plan.
 
 ## File Structure
@@ -287,7 +287,7 @@ provjera("RAZREDI ima 2., 5. i 6. razred", async ucitaj => {
 - [ ] **Step 10: Pokreni harness — mora proći**
 
 Otvori `http://localhost:8765/provjere/pokreni.html`.
-Očekivano: **PASS (43)**.
+Očekivano: **PASS (45)**.
 
 - [ ] **Step 11: Commit**
 
@@ -470,7 +470,7 @@ U `GRADIVO`, uz postojeću granu `"2"`:
 
 - [ ] **Step 8: Pokreni harness — mora proći**
 
-Očekivano: **PASS (44)**.
+Očekivano: **PASS (46)**.
 
 - [ ] **Step 9: Commit**
 
@@ -643,7 +643,7 @@ izgradiPredmet(profil.razred, profil.predmet);   // otvori se na zadnjem paru
 
 - [ ] **Step 6: Pokreni harness — mora proći**
 
-Očekivano: **PASS (48)**.
+Očekivano: **PASS (50)**.
 
 - [ ] **Step 7: Commit**
 
@@ -834,7 +834,7 @@ oznaciRazred();
 
 - [ ] **Step 7: Pokreni harness — mora proći**
 
-Očekivano: **PASS (52)**.
+Očekivano: **PASS (54)**.
 
 - [ ] **Step 8: Commit**
 
@@ -1114,7 +1114,7 @@ rukom. Propušten poziv znači da bi polje 5./6. razreda tiho ostalo na starom p
 
 - [ ] **Step 6: Pokreni harness — mora proći**
 
-Očekivano: **PASS (59)**.
+Očekivano: **PASS (61)**.
 
 - [ ] **Step 7: Commit**
 
@@ -1237,7 +1237,7 @@ znakova iznad prekidača.
 
 - [ ] **Step 6: Pokreni harness — mora proći**
 
-Očekivano: **PASS (62)**.
+Očekivano: **PASS (64)**.
 
 - [ ] **Step 7: Commit**
 
@@ -1349,7 +1349,7 @@ iz filmova:
 
 - [ ] **Step 5: Pokreni harness — mora proći**
 
-Očekivano: **PASS (63)**.
+Očekivano: **PASS (65)**.
 
 - [ ] **Step 6: Provjeri rukom da nadimak ne razbija rečenicu**
 
@@ -1519,7 +1519,7 @@ one ne mjere količinu.
 
 - [ ] **Step 4: Pokreni harness — mora proći**
 
-Očekivano: **PASS**, s brojem provjera oko 68 (šest starih brojačkih tvrdnji je izbačeno,
+Očekivano: **PASS**, s brojem provjera oko 70 (dvije stare brojačke tvrdnje izbačene,
 sedam novih invarijanti dodano). Zapiši točan broj u završni commit.
 
 - [ ] **Step 5: Ažuriraj README**
