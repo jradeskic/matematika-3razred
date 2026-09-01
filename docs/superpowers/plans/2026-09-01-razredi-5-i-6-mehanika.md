@@ -1347,7 +1347,9 @@ U `PATULJAK.rijeci`, postojećih deset `happy` rečenica ostaje, dodaje se deset
       happy: [
         /* … postojećih deset ostaje nepromijenjeno … */
         "Eto ga na[, {ime}]!", "Kao iz topa!", "Svaka čast, majstore!",
-        "To je to[, {ime}]!", "Ide ti kao po loju!", "Pravi si mudrijaš!",
+        // "To je to[, {ime}]!" NE dodavati -- postojeci Patuljak ju vec ima kao drugu
+        // recenicu u happy polju. Provjeri duplikate prije dodavanja.
+        "Genijalno[, {ime}]!", "Ide ti kao po loju!", "Pravi si mudrijaš!",
         "Nema ti mane[, {ime}]!", "Bravo, glavo!", "Točnije od sata!",
         "Ti si mi faca[, {ime}]!"
       ],
