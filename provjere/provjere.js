@@ -540,6 +540,20 @@ provjera("avatar i PIN rade u oba predmeta", async ucitaj => {
   istina(!!W.document.getElementById("buddy"), "avatar postoji");
 });
 
+/* ---------- avatar: repertoar recenica ---------- */
+
+provjera("oba lika imaju najmanje 20 recenica za tocno i netocno", async ucitaj => {
+  const W = await ucitaj();
+  for (const lik of ["patuljak", "jedi"]) {
+    const r = W.LIKOVI[lik].rijeci;
+    istina(r.happy.length >= 20, lik + ": happy ima " + r.happy.length);
+    istina(r.angry.length >= 20, lik + ": angry ima " + r.angry.length);
+    istina(r.party.length >= 8,  lik + ": party ima " + r.party.length);
+    jednako(new Set(r.happy).size, r.happy.length, lik + ": happy bez ponavljanja");
+    jednako(new Set(r.angry).size, r.angry.length, lik + ": angry bez ponavljanja");
+  }
+});
+
 provjera("prebacivanje predmeta ne ostavlja polja drugog predmeta", async ucitaj => {
   const W = await ucitaj();
   W.izgradiPredmet("2", "hrvatski");
