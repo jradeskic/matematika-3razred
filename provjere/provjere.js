@@ -823,7 +823,11 @@ provjera("tipka iz trake upisuje znak u polje u fokusu", async ucitaj => {
   W.document.querySelector("#razredi .razred[data-razred='6']").click();
   await cekaj(300);
   const inp = vidljivaPolja(W)[0];
+  // focus() sam ne pali focusin kad prozor s harnessom nema OS fokus (npr. u
+  // pozadinskom tabu automatizacije), pa focusin odasiljemo izravno -- isti
+  // obrazac kao "tipka slova ubacuje znak na mjesto kursora".
   inp.focus();
+  inp.dispatchEvent(new W.FocusEvent("focusin", { bubbles: true }));
   await cekaj(60);
   W.document.querySelector("#slova .slovo[data-slovo='/']").click();
   jednako(inp.value, "/", "znak je upisan");
