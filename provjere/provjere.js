@@ -560,6 +560,16 @@ provjera("RAZREDI ima 2., 5. i 6. razred", async ucitaj => {
   jednako(Object.keys(W.RAZREDI), ["2", "5", "6"], "kljucevi razreda");
 });
 
+provjera("GRADIVO ima sva sest skupova i ni jedan nije prazan", async ucitaj => {
+  const W = await ucitaj();
+  const parovi = [];
+  for (const r of Object.keys(W.RAZREDI))
+    for (const p of Object.keys(W.PREDMETI))
+      parovi.push([r + "/" + p, (W.GRADIVO[r] && W.GRADIVO[r][p] || {}).zadaci]);
+  const prazni = parovi.filter(([, z]) => !z || !z.length).map(([k]) => k);
+  jednako(prazni, [], "skupovi bez zadataka");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {
