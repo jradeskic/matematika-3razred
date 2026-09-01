@@ -1530,8 +1530,11 @@ provjera("pokvaren zadatak daje onemoguceno polje izvan brojanja razine", async 
   istina(!!polje, "polje je oznaceno pokvarenim");
   istina(polje.disabled, "polje je onemoguceno");
   jednako(polje.dataset.answer, undefined, "polje nema odgovor");
-  jednako(W.document.querySelector("section[data-total]").dataset.total, "0",
-          "pokvareno polje ne ulazi u brojanje razine");
+  // Postojeci kod je `if (total) { el.dataset.total = total; ... }`, pa kod nule
+  // atribut potpuno izostavlja -- ne postavlja ga na "0". Cjelina bez ispravnih
+  // polja tako nema ni traku napretka, sto je zeljeno.
+  istina(!W.document.querySelector("#main section").hasAttribute("data-total"),
+         "cjelina sa samo pokvarenim poljem nema data-total");
   W.GRADIVO["6"].matematika.zadaci = cuvaj;
   W.izgradiPredmet("2", "matematika");
 });
