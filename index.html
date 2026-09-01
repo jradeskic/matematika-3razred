@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Matematika — ponavljanje prije 3. razreda</title>
+<title>Matematika — gradivo 2. razreda</title>
 <meta name="description" content="Zadaci za ponavljanje gradiva matematike 2. razreda osnovne škole prije ulaska u 3. razred.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -657,7 +657,7 @@ window.stanje = () => ({ razred, predmet });
 /* ---------- profil: nadimak, avatar i zapamćen napredak ----------
    Sve stoji u localStorageu ovog preglednika, na ovom uređaju. Nema servera,
    pa nadimak nije prijava nego samo ime kojega se stranica sjeti.
-   Napredak se pamti odvojeno po predmetu.
+   Napredak se pamti odvojeno po paru razred/predmet.
 ------------------------------------------------------------------- */
 const KLJUC_PROFILA = "mat3-profil-v1";
 const profil = { v: 3, ime: "", avatar: "patuljak", razred: "2", predmet: "matematika", napredak: {} };
@@ -666,9 +666,9 @@ const profil = { v: 3, ime: "", avatar: "patuljak", razred: "2", predmet: "matem
 // Set "promijenjeni", pa zastita od zastarjele kartice radi nepromijenjeno.
 const kljucNapretka = () => razred + "/" + predmet;
 
-// Predmeti koje je ova sesija mijenjala. Za njih je stanje u memoriji
-// mjerodavno i disk ga ne smije prepisati -- ni kad se predmet prebaci prije
-// nego odgodeni upis stigne okinuti.
+// Parovi razred/predmet koje je ova sesija mijenjala. Za njih je stanje u
+// memoriji mjerodavno i disk ga ne smije prepisati -- ni kad se par prebaci
+// prije nego odgodeni upis stigne okinuti.
 const promijenjeni = new Set();
 
 function ucitajProfil() {
@@ -729,7 +729,7 @@ function spremiProfil() {
 }
 
 const imaProfil = ucitajProfil();
-if (imaProfil) spremiProfil();       // odmah upisi migrirani zapis (v:2)
+if (imaProfil) spremiProfil();       // odmah upisi migrirani zapis (v:3)
 
 /* ---------- traka u zaglavlju ----------
    Matematika ima brojevnu ljestvicu, hrvatski abecedu. Ista mehanika
