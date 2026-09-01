@@ -631,9 +631,42 @@ function vratiNapredak() {
 
 Ostatak `vratiNapredak()` je nepromijenjen.
 
-Blok spajanja s diskom u `spremiProfil()` (`index.html:626-628`) se **ne mijenja** — iterira
-`Object.keys(naDisku.napredak)` i uspoređuje sa `promijenjeni`, pa radi na složenim ključevima
-jednako kao na starim.
+Blok spajanja s diskom u `spremiProfil()` (`index.html:626-628`) **mora promijeniti uvjet
+verzije** s `naDisku.v === 2` na `naDisku.v >= 3`:
+
+```js
+      if (naDisku && naDisku.v >= 3 && naDisku.napredak &&
+```
+
+Ostatak bloka ostaje kakav je — iterira `Object.keys(naDisku.napredak)` i uspoređuje sa
+`promijenjeni`, pa radi na složenim ključevima jednako kao na starim.
+
+**Zašto uvjet mora ići uz migraciju:** čim `profil.v` postane 3, zapis na disku je `v:3`, pa
+`=== 2` više nikad nije istinit i blok spajanja se ne izvrši. Zaštita od zastarjele kartice bila
+bi trajno mrtva, a napredak koji druga kartica upiše bio bi prepisan pri sljedećem odgođenom
+upisu — što ruši nadređenu invarijantu „nijedna grana ne briše napredak". `>= 2` je pogrešno u
+drugu stranu: goli ključ `matematika` s v:2 diska vratio bi se u `profil.napredak` i zauvijek
+ostao u zapisu. `=== 3` je prestrogo, jer v:4 zapis po ugovoru ove verzije ima složene ključeve
+i mora ući u spajanje.
+
+- [ ] **Step 4b: Prilagodi i gumb „Počni ispočetka"**
+
+Gumb koji prazni napredak (`index.html:1429`, `profil.napredak[predmet] = {}`) također je pisač u
+`napredak` i mora prijeći na složeni ključ:
+
+```js
+  profil.napredak[kljucNapretka()] = {};   // inace bi osvjezavanje vratilo stare odgovore
+  promijenjeni.add(kljucNapretka());
+```
+
+Bez ovoga gumb tiho ne radi: brisao bi pod golim `predmet`, a `vratiNapredak()` čita složeni
+ključ, pa bi se stari odgovori vratili pri prvom osvježavanju.
+
+Nakon Taska 3 svaki pisač u `profil.napredak` ide kroz `kljucNapretka()`. Provjeri:
+
+```bash
+grep -n "profil.napredak\[" index.html    # svaki mora koristiti kljucNapretka() ili slozeni kljuc
+```
 
 - [ ] **Step 5: Prilagodi pokretanje**
 

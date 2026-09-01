@@ -148,17 +148,25 @@ Odmah nakon migracije upisuje se `v:3` zapis, kao što se sad upisuje `v:2`.
 ### Mjesta u kodu koja se mijenjaju
 
 Ključ pamćenja prelazi iz `predmet` u `` `${razred}/${predmet}` ``. To nije jedna izmjena
-nego četiri, i sve moraju ići zajedno — inače se stranica otvara na pogrešnom razredu ili
-zaštita od zastarjele kartice prestaje štititi:
+nego **pet**, i sve moraju ići zajedno — inače se stranica otvara na pogrešnom razredu, gumb
+za brisanje tiho ne radi, ili zaštita od zastarjele kartice prestaje štititi:
 
 1. `zapamtiOdgovore()` (`index.html:1619–1623`) — `profil.napredak[kljuc] = zapis`,
    `promijenjeni.add(kljuc)`, **i `profil.razred = razred`** uz postojeći `profil.predmet`.
 2. `vratiNapredak()` (`index.html:1627`) — čita `profil.napredak[kljuc]`.
 3. `izgradiPredmet()` (`index.html:687`) — prima `(razred, predmet)`, ne samo predmet;
    sadržaj vuče iz `GRADIVO[razred][predmet]`.
-4. Spajanje s diskom u `spremiProfil()` (`index.html:626–628`) — kod ostaje isti, jer
-   iterira `Object.keys(naDisku.napredak)` i uspoređuje s `promijenjeni`; radi na bilo kojem
-   obliku ključa dok su obje strane prešle na isti. Harness to provjerava.
+4. Spajanje s diskom u `spremiProfil()` (`index.html:626–628`) — uvjet verzije prelazi s
+   `naDisku.v === 2` na `naDisku.v >= 3`. Ostatak bloka ostaje isti: iterira
+   `Object.keys(naDisku.napredak)` i uspoređuje s `promijenjeni`, pa radi na bilo kojem obliku
+   ključa dok su obje strane prešle na isti. Uvjet **mora** ići uz migraciju: čim zapis na disku
+   postane `v:3`, `=== 2` više nikad nije istinit, blok se ne izvrši i napredak druge kartice
+   bude prepisan — što ruši invarijantu da nijedna grana ne briše napredak.
+5. Gumb „Počni ispočetka" (`index.html:1429`) — `profil.napredak[kljuc] = {}` i
+   `promijenjeni.add(kljuc)`. Bez toga briše pod golim `predmet`, a `vratiNapredak()` čita
+   složeni ključ, pa se stari odgovori vrate pri prvom osvježavanju.
+
+Harness provjerava sve navedeno.
 
 Stranica se otvara na zadnjem **paru** (razred, predmet). Ako zapamćeni razred ili predmet
 više ne postoji u `RAZREDI` / `PREDMETI`, pada na `"2"` i `matematika`.
