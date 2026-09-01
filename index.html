@@ -583,7 +583,7 @@ const PREDMETI = {
     naziv:    "Matematika",
     traka:    "brojevi",
     provjera: "broj",
-    znakovi:  {}                     // 2. razred nema traku; 5. i 6. dobivaju je u Tasku 6
+    znakovi:  { "5": ["-", "/", ",", "²", "³"], "6": ["-", "/", ",", "²", "³"] }
   },
   hrvatski: {
     naziv:    "Hrvatski jezik",
@@ -1670,22 +1670,34 @@ main.addEventListener("click", e => {
   zapamtiOdgovore();
 });
 
-/* ---------- hrvatska slova ----------
-   Red se pojavi samo u hrvatskom i samo dok je polje za upis u fokusu.
+/* ---------- traka znakova za unos ----------
+   Red se pojavi samo kad predmet i razred imaju znakove i samo dok je polje
+   za upis u fokusu. Hrvatski dobiva č ć š ž đ na svim razredima, matematika
+   - / , ² ³ na 5. i 6. -- na tabletu se bez toga ne mogu upisati.
    mousedown/touchstart se zaustavljaju da polje ne izgubi fokus: inace bi
    focusout provjerio odgovor usred tipkanja i oznacio ga netocnim.
 ------------------------------------------------------------------------- */
-const HRVATSKA_SLOVA = ["č", "ć", "š", "ž", "đ"];
 const slovaTraka = document.getElementById("slova");
-slovaTraka.innerHTML = HRVATSKA_SLOVA.map(z =>
-  `<button type="button" class="slovo" data-slovo="${z}" aria-label="slovo ${z}">${z}</button>`).join("");
+
+function znakoviZaUnos() {
+  const z = PREDMETI[predmet].znakovi || {};
+  return z[razred] || z["*"] || [];
+}
+
+function iscrtajZnakove() {
+  slovaTraka.innerHTML = znakoviZaUnos().map(z =>
+    `<button type="button" class="slovo" data-slovo="${z}" aria-label="znak ${z}">${z}</button>`
+  ).join("");
+}
+
+iscrtajZnakove();
 
 let poljeUFokusu = null;
 
 main.addEventListener("focusin", e => {
   if (e.target.tagName !== "INPUT" || e.target.hidden) return;
   poljeUFokusu = e.target;
-  slovaTraka.hidden = PREDMETI[predmet].provjera !== "rijec";
+  slovaTraka.hidden = znakoviZaUnos().length === 0;
   // ako bi traka slova pokrila polje, pomakni polje iznad nje
   if (!slovaTraka.hidden) {
     const r = e.target.getBoundingClientRect();
@@ -1879,6 +1891,7 @@ function prebaciRazred(kljuc) {
   profil.razred = razred;
   spremiProfil();
   oznaciRazred();
+  iscrtajZnakove();
   vratiNapredak();
   updateProgress();
 }
@@ -1914,6 +1927,7 @@ function prebaciPredmet(kljuc) {
   profil.predmet = predmet;
   spremiProfil();
   oznaciPredmet();
+  iscrtajZnakove();
   vratiNapredak();                   // tiho, bez konfeta za prosle razine
   updateProgress();
 }
@@ -1928,6 +1942,7 @@ izgradiPredmet(profil.razred, profil.predmet);   // otvori se na zadnjem paru
 iscrtajRazrede();
 oznaciRazred();
 oznaciPredmet();
+iscrtajZnakove();                    // traka je do sada iscrtana za zadane vrijednosti razred/predmet
 nacrtajPreglede();
 buddy.postaviLik(profil.avatar);
 osvjeziPozdrav();

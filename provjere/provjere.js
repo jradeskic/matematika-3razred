@@ -261,18 +261,22 @@ provjera("matematika ne dobiva duga polja", async ucitaj => {
           "matematika nema odgovor dulji od 14 znakova, pa ni duga polja");
 });
 
-provjera("red hrvatskih slova postoji i skriven je u matematici", async ucitaj => {
+provjera("traka znakova postoji i skrivena je i prazna na matematici 2. razreda", async ucitaj => {
   const W = await ucitaj();
   const slova = W.document.getElementById("slova");
   istina(!!slova, "#slova postoji");
   jednako([...slova.querySelectorAll(".slovo")].map(b => b.dataset.slovo),
-          ["č", "ć", "š", "ž", "đ"], "slova u traci");
-  istina(slova.hidden, "u matematici je traka skrivena");
+          [], "2. razred matematike nema znakova, traka je prazna");
+  istina(slova.hidden, "u matematici 2. razreda je traka skrivena");
 });
 
 provjera("tipka slova ubacuje znak na mjesto kursora", async ucitaj => {
   const W = await ucitaj();
   W.izgradiPredmet("2", "hrvatski");
+  // izgradiPredmet ne iscrtava traku znakova (to rade prebaciRazred/
+  // prebaciPredmet); izravan poziv izgradiPredmet u ovoj provjeri zato
+  // sam osvjezava traku za novi predmet.
+  W.iscrtajZnakove();
   // Cjelina h2 ima samo izbor, pa za ovu provjeru otkrijemo jedno skriveno
   // polje i ponasamo se kao da je dijete uslo u njega. focus() u iframeu ne
   // postavlja activeElement, pa focusin saljemo sami.
@@ -789,6 +793,40 @@ provjera("pokvareno polje u stvarnim podacima ne rusi ostatak stranice", async u
     W.GRADIVO["6"].matematika.zadaci = izvorni;
     W.izgradiPredmet("2", "matematika");
   }
+});
+
+/* ---------- traka znakova za unos ---------- */
+
+provjera("hrvatski ima traku slova na svim razredima", async ucitaj => {
+  const W = await ucitaj();
+  W.document.querySelector("#predmeti .predmet[data-predmet='hrvatski']").click();
+  await cekaj(300);
+  jednako(W.znakoviZaUnos(), ["č", "ć", "š", "ž", "đ"], "znakovi na 2. razredu");
+  W.document.querySelector("#razredi .razred[data-razred='6']").click();
+  await cekaj(300);
+  jednako(W.znakoviZaUnos(), ["č", "ć", "š", "ž", "đ"], "znakovi na 6. razredu");
+});
+
+provjera("matematika ima traku znakova samo na 5. i 6. razredu", async ucitaj => {
+  const W = await ucitaj();
+  jednako(W.znakoviZaUnos(), [], "2. razred nema traku");
+  W.document.querySelector("#razredi .razred[data-razred='5']").click();
+  await cekaj(300);
+  jednako(W.znakoviZaUnos(), ["-", "/", ",", "²", "³"], "5. razred");
+  W.document.querySelector("#razredi .razred[data-razred='6']").click();
+  await cekaj(300);
+  jednako(W.znakoviZaUnos(), ["-", "/", ",", "²", "³"], "6. razred");
+});
+
+provjera("tipka iz trake upisuje znak u polje u fokusu", async ucitaj => {
+  const W = await ucitaj();
+  W.document.querySelector("#razredi .razred[data-razred='6']").click();
+  await cekaj(300);
+  const inp = vidljivaPolja(W)[0];
+  inp.focus();
+  await cekaj(60);
+  W.document.querySelector("#slova .slovo[data-slovo='/']").click();
+  jednako(inp.value, "/", "znak je upisan");
 });
 
 /* ---------- pokretanje ---------- */
