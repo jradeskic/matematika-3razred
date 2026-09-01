@@ -135,13 +135,30 @@ Migracija u `ucitajProfil()`, po uzoru na postojeći v1→v2 put:
 | `v:3` | čita se kako je; nepoznati ključevi u `napredak` se zadržavaju |
 | `v:2` | `napredak.matematika` → `napredak["2/matematika"]`, `napredak.hrvatski` → `napredak["2/hrvatski"]`, `razred = "2"` |
 | `v:1` (bez predmeta) | `zapis.odgovori` → `napredak["2/matematika"]`, `predmet = "matematika"`, `razred = "2"` |
-| `v` veći od 3 | čitaju se **samo** `ime` i `avatar`; `napredak` se ne dira i ne prepisuje |
+| `v` veći od 3 | `napredak` se čita kao kod `v:3`; ključevi koji odgovaraju postojećem `razred/predmet` paru se prikazuju, nepoznati se **zadržavaju u memoriji i vraćaju pri upisu** |
 | pokvaren zapis / ugašena pohrana | kao dosad: prazan profil, bez pada |
 
-Zapis s višim `v` znači da je korisnik otvorio noviju verziju stranice. Bolje mu ne pokazati
-napredak nego mu ga zbrisati, zato se `napredak` u tom slučaju ne prepisuje.
+Zapis s višim `v` znači da je korisnik otvorio noviju verziju stranice. Format `napredak`
+mape je unaprijed kompatibilan (ravna mapa `"razred/predmet" → odgovori`), pa se čita, a
+ključevi koje ova verzija ne poznaje putuju kroz memoriju netaknuti i vraćaju se na disk.
+Nijedan slučaj ne briše napredak.
 
 Odmah nakon migracije upisuje se `v:3` zapis, kao što se sad upisuje `v:2`.
+
+### Mjesta u kodu koja se mijenjaju
+
+Ključ pamćenja prelazi iz `predmet` u `` `${razred}/${predmet}` ``. To nije jedna izmjena
+nego četiri, i sve moraju ići zajedno — inače se stranica otvara na pogrešnom razredu ili
+zaštita od zastarjele kartice prestaje štititi:
+
+1. `zapamtiOdgovore()` (`index.html:1619–1623`) — `profil.napredak[kljuc] = zapis`,
+   `promijenjeni.add(kljuc)`, **i `profil.razred = razred`** uz postojeći `profil.predmet`.
+2. `vratiNapredak()` (`index.html:1627`) — čita `profil.napredak[kljuc]`.
+3. `izgradiPredmet()` (`index.html:687`) — prima `(razred, predmet)`, ne samo predmet;
+   sadržaj vuče iz `GRADIVO[razred][predmet]`.
+4. Spajanje s diskom u `spremiProfil()` (`index.html:626–628`) — kod ostaje isti, jer
+   iterira `Object.keys(naDisku.napredak)` i uspoređuje s `promijenjeni`; radi na bilo kojem
+   obliku ključa dok su obje strane prešle na isti. Harness to provjerava.
 
 Stranica se otvara na zadnjem **paru** (razred, predmet). Ako zapamćeni razred ili predmet
 više ne postoji u `RAZREDI` / `PREDMETI`, pada na `"2"` i `matematika`.
@@ -196,8 +213,10 @@ Pravila:
 - Mjerne jedinice: kad je jedinica dio odgovora, oblik je `tekst`; kad je jedinica u tekstu
   zadatka a upisuje se samo broj, oblik je `broj`. Zadatak mora reći koje se traži.
 - Ako `oblik` postoji a **odgovor u podacima** se ne da razložiti u taj oblik, to je greška u
-  podacima: provjera pada na `tekst`, a harness to prijavljuje kao neuspjeh. Nikad se ne
-  prijavljuje kao netočan odgovor djeteta.
+  podacima, ne u upisu. Polje se iscrtava onemogućeno, s napomenom „zadatak je u pripremi",
+  i **ne ulazi u `data-total` razine.** Nema tihog pada na drugi oblik provjere: dijete nikad
+  ne smije dobiti „netočno" zbog greške u podacima. Harness (provjera 3) hvata to prije
+  objave, pa je ovo ponašanje mreža za slučaj da se pokvarena datoteka ipak objavi.
 - Ako se **upis djeteta** ne da razložiti u deklarirani oblik, odgovor je netočan (dijete je
   upisalo nešto što nije taj oblik) — ponašanje kao dosad.
 
@@ -256,16 +275,22 @@ Provjere koje se dodaju:
 
 1. Za svaki `(razred, predmet)` iz `GRADIVO` globalna varijabla postoji i nije prazna.
 2. Svaki `izbor` zadatak: točan odgovor je među ponuđenima.
-3. Svaki zadatak s `oblik`: odgovor iz podataka razlaže se u deklarirani oblik.
+3. Svaki zadatak s `oblik`: odgovor iz podataka razlaže se u deklarirani oblik. Ovo je jedina
+   prava zaštita; ponašanje iz sekcije 6 je samo mreža.
 4. Oznake cjelina jedinstvene su unutar svake datoteke.
-5. Migracija: zapis `v:1`, `v:2` i `v:4` daje očekivani `napredak`; `v:4` ga ne gubi.
-6. Prebacivanje razreda i predmeta u nizu ne gubi upisane odgovore.
-7. Jedinični testovi provjere: `broj` (varijante minusa, `,` i `.`), `razlomak`
+5. Migracija: zapis `v:1`, `v:2`, `v:3` i `v:4` daje očekivani `napredak`. Za `v:4` zapis s
+   nepoznatim ključem (`"9/fizika"`) provjerava se dvoje: poznati ključevi se **prikazuju**, a
+   nepoznati preživi upis na disk.
+6. Prebacivanje razreda i predmeta u nizu ne gubi upisane odgovore; nakon osvježavanja
+   stranica se otvara na zadnjem paru (razred, predmet) — dakle `profil.razred` je zapisan.
+7. Namjerno pokvaren zadatak (`oblik:"razlomak"`, odgovor `"tri četvrtine"`): polje je
+   onemogućeno i ne ulazi u `data-total`, a upis se ne označava netočnim.
+8. Jedinični testovi provjere: `broj` (varijante minusa, `,` i `.`), `razlomak`
    (`3/4` = `6/8`, `1 1/2` = `3/2`, `0,1 + 0,2` bez binarne pogreške), `popis` (poredak
    bitan), `tekst` (dijakritika bitna).
-8. Odsutna globalna varijabla: pilula tog razreda je onemogućena, ostatak stranice radi.
-9. Traka znakova: hrvatski je ima na svim razredima, matematika samo na 5. i 6.
-10. Postojeće provjere za 2. razred prolaze nepromijenjene.
+9. Odsutna globalna varijabla: pilula tog razreda je onemogućena, ostatak stranice radi.
+10. Traka znakova: hrvatski je ima na svim razredima, matematika samo na 5. i 6.
+11. Postojeće provjere za 2. razred prolaze nepromijenjene, bez izmjene tvrdnji.
 
 Harness se pokreće kao dosad, preko lokalnog servera:
 
