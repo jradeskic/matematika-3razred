@@ -1201,7 +1201,11 @@ provjera("tipka iz trake upisuje znak u polje u fokusu", async ucitaj => {
   W.document.querySelector("#razredi .razred[data-razred='6']").click();
   await cekaj(300);
   const inp = vidljivaPolja(W)[0];
+  // Samo inp.focus() nije dosta: kad prozor preglednika nema OS fokus,
+  // focusin se ne okine, traka ostane skrivena i provjera pada iako je kod
+  // ispravan. Odasiljemo dogadjaj sami, kao sto upisi() radi za focusout.
   inp.focus();
+  inp.dispatchEvent(new W.FocusEvent("focusin", { bubbles: true }));
   await cekaj(60);
   W.document.querySelector("#slova .slovo[data-slovo='/']").click();
   jednako(inp.value, "/", "znak je upisan");
