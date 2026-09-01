@@ -1346,7 +1346,7 @@ U `PATULJAK.rijeci`, postojećih deset `happy` rečenica ostaje, dodaje se deset
 ```js
       happy: [
         /* … postojećih deset ostaje nepromijenjeno … */
-        "Eto ga na[, {ime}]!", "Kao iz topa!", "Svaka čast, majstore!",
+        "Eto ga na[, {ime}]!", "Kao iz topa!", "Šampionski potez!",
         // "To je to[, {ime}]!" NE dodavati -- postojeci Patuljak ju vec ima kao drugu
         // recenicu u happy polju. Provjeri duplikate prije dodavanja.
         "Genijalno[, {ime}]!", "Ide ti kao po loju!", "Pravi si mudrijaš!",
@@ -1356,9 +1356,9 @@ U `PATULJAK.rijeci`, postojećih deset `happy` rečenica ostaje, dodaje se deset
       angry: [
         /* … postojećih deset ostaje nepromijenjeno … */
         "Uh, promašaj[, {ime}]!", "Nije to, nije!", "Opa, pazi malo!",
-        "Blizu, ali ne[, {ime}].", "Vrati se i prebroji!", "Joj, joj, joj!",
+        "Fulao si za dlaku[, {ime}]!", "Vrati se i prebroji!", "Joj, joj, joj!",
         "Nešto nam tu ne štima.", "Još jedan pokušaj[, {ime}]!",
-        "Aj, zamislio sam se pa i ja.", "Ne predaj se[, {ime}]!"
+        "Ovo nije tvoj dan!", "Ne predaj se[, {ime}]!"
       ],
       party: [
         /* … postojeće ostaje … */
@@ -1378,23 +1378,23 @@ iz filmova:
 ```js
       happy: [
         /* … postojećih deset ostaje nepromijenjeno … */
-        "Bistar um imaš[, {ime}].", "Svjetlu stranu odabrao si.",
+        "Bistar um imaš[, {ime}].", "Svijetlu stranu odabrao si.",
         "Mirno je oko ovog broja.", "Naučio si, vidim.",
         "Snaga tvoja raste[, {ime}].", "Put pravi našao si.",
-        "Jasna je Sila danas.", "Dobro. Vrlo dobro[, {ime}].",
+        "Jasna je Sila danas.", "Pravi odgovor osjetio si[, {ime}].",
         "Strpljenje plod je dalo.", "Sjaji znanje u tebi."
       ],
       angry: [
         /* … postojećih deset ostaje nepromijenjeno … */
         "Zamućen je put ovaj.", "Ne još[, {ime}]. Ne još.",
         "Sila drugdje vodi te.", "Pogriješio si, ali učiti smiješ.",
-        "Uzmi zraka[, {ime}], pa opet.", "Sjena je nad odgovorom.",
+        "Uzmi zraka[, {ime}], pa pokušaj opet.", "Sjena je nad odgovorom.",
         "Brzina prijatelj ti nije.", "Slušaj bolje, mladi padawane.",
         "Drugi put pokušaj.", "Neuspjeh učitelj je najbolji."
       ],
       party: [
         /* … postojeće ostaje … */
-        "Snažan u Sili postao si[, {ime}]!", "Razinu svladao si, vidim.",
+        "Snažan u Sili postao si[, {ime}]!", "Iskušenje svladao si[, {ime}]!",
         "Put Jedija tvoj je.", "Sjaji Sila u tebi[, {ime}]!"
       ]
 ```
