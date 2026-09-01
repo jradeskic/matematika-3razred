@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Matematika — gradivo 2. razreda</title>
-<meta name="description" content="Zadaci za ponavljanje gradiva matematike 2. razreda osnovne škole prije ulaska u 3. razred.">
+<meta name="description" content="Zadaci za ponavljanje gradiva matematike i hrvatskog jezika za 2., 5. i 6. razred osnovne škole.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -379,7 +379,7 @@
 <div class="wrap">
 
 <header class="hero">
-  <h1 id="naslov">Ponavljamo matematiku<br>prije 3. razreda</h1>
+  <h1 id="naslov">Ponavljamo matematiku<br>2. razreda</h1>
   <p id="uvod">Gradivo 2. razreda: brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija, mjerenje i podaci. Upiši odgovor i provjeri se sam.</p>
   <p class="pozdrav" id="pozdrav" hidden>
     <svg class="mini" id="mini" viewBox="0 0 100 122" aria-hidden="true"></svg>
@@ -605,13 +605,16 @@ const GRADIVO = {
       title:  "Matematika — gradivo 2. razreda",
       naslov: "Ponavljamo matematiku<br>2. razreda",
       uvod:   "Gradivo 2. razreda: brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija, mjerenje i podaci. Upiši odgovor i provjeri se sam.",
-      zadaci: ZADACI_MATEMATIKA_2
+      // typeof cuvar: ako datoteka sa zadacima nije ucitana, GRADIVO ipak
+      // postoji (prazan skup), pa ostatak stranice radi normalno umjesto
+      // da inline skripta pukne na ReferenceError prije ijednog cuvara
+      zadaci: typeof ZADACI_MATEMATIKA_2 !== "undefined" ? ZADACI_MATEMATIKA_2 : []
     },
     hrvatski: {
       title:  "Hrvatski jezik — gradivo 2. razreda",
       naslov: "Ponavljamo hrvatski<br>2. razreda",
       uvod:   "Gradivo 2. razreda: veliko početno slovo, č i ć, ije i je, glasovi i slova, rečenica, vrste riječi i značenje. Odgovori i provjeri se sam.",
-      zadaci: ZADACI_HRVATSKI_2
+      zadaci: typeof ZADACI_HRVATSKI_2 !== "undefined" ? ZADACI_HRVATSKI_2 : []
     }
   },
   "5": {
@@ -619,13 +622,13 @@ const GRADIVO = {
       title:  "Matematika — gradivo 5. razreda",
       naslov: "Ponavljamo matematiku<br>5. razreda",
       uvod:   "Gradivo 5. razreda: prirodni brojevi i djeljivost, razlomci, decimalni brojevi, jednadžbe, likovi i kutovi, mjerenje i podaci.",
-      zadaci: ZADACI_MATEMATIKA_5
+      zadaci: typeof ZADACI_MATEMATIKA_5 !== "undefined" ? ZADACI_MATEMATIKA_5 : []
     },
     hrvatski: {
       title:  "Hrvatski jezik — gradivo 5. razreda",
       naslov: "Ponavljamo hrvatski<br>5. razreda",
       uvod:   "Gradivo 5. razreda: promjenjive i nepromjenjive vrste riječi, pravopis i književni pojmovi.",
-      zadaci: ZADACI_HRVATSKI_5
+      zadaci: typeof ZADACI_HRVATSKI_5 !== "undefined" ? ZADACI_HRVATSKI_5 : []
     }
   },
   "6": {
@@ -633,16 +636,23 @@ const GRADIVO = {
       title:  "Matematika — gradivo 6. razreda",
       naslov: "Ponavljamo matematiku<br>6. razreda",
       uvod:   "Gradivo 6. razreda: racionalni brojevi, cijeli brojevi, postoci, konstrukcije trokuta i četverokuta, koordinatni sustav i podaci.",
-      zadaci: ZADACI_MATEMATIKA_6
+      zadaci: typeof ZADACI_MATEMATIKA_6 !== "undefined" ? ZADACI_MATEMATIKA_6 : []
     },
     hrvatski: {
       title:  "Hrvatski jezik — gradivo 6. razreda",
       naslov: "Ponavljamo hrvatski<br>6. razreda",
       uvod:   "Gradivo 6. razreda: promjenjive vrste riječi, glagolska vremena, jezična raznolikost i pravopis.",
-      zadaci: ZADACI_HRVATSKI_6
+      zadaci: typeof ZADACI_HRVATSKI_6 !== "undefined" ? ZADACI_HRVATSKI_6 : []
     }
   }
 };
+
+// ima li ovaj par razred/predmet stvarno ucitane zadatke. Definirano ovdje
+// (a ne uz prekidac razreda nize) jer izgradiPredmet() poziva ovu funkciju,
+// a prvi poziv izgradiPredmet() je odmah nakon bloka "provjera" nize, davno
+// prije nego bi njena stara pozicija bila inicijalizirana -- TDZ bi pukao.
+const imaGradivo = (r, p) =>
+  !!(GRADIVO[r] && GRADIVO[r][p] && GRADIVO[r][p].zadaci && GRADIVO[r][p].zadaci.length);
 
 let razred  = "2";                   // kljuc aktivnog razreda
 let predmet = "matematika";          // kljuc aktivnog predmeta
@@ -682,12 +692,17 @@ function ucitajProfil() {
     const mapa = (zapis.napredak && typeof zapis.napredak === "object" &&
                   !Array.isArray(zapis.napredak)) ? zapis.napredak : {};
 
-    if (zapis.v >= 3) {
+    // verzija moze doci kao string iz rucno urednenog ili starog zapisa;
+    // "2" >= 3 i "2" === 2 su oboje false, pa bi bez ovoga zapis pao u
+    // v:1 granu i izgubio vec sloen napredak
+    const v = Number(zapis.v);
+
+    if (v >= 3) {
       // v:3 i noviji: kljucevi su vec slozeni. Nepoznate kljuceve zadrzavamo --
       // dolaze iz novije verzije stranice i ne smijemo ih izgubiti pri upisu.
       profil.razred = RAZREDI[zapis.razred] ? zapis.razred : "2";
       profil.napredak = mapa;
-    } else if (zapis.v === 2) {
+    } else if (v === 2) {
       // zapis prije uvodenja razreda: sve je bilo gradivo 2. razreda
       profil.razred = "2";
       profil.napredak = {};
@@ -778,6 +793,17 @@ function promijesaj(popis) {
 function izgradiPredmet(kljucRazreda, kljucPredmeta) {
   razred  = (GRADIVO[kljucRazreda] && GRADIVO[kljucRazreda][kljucPredmeta]) ? kljucRazreda : "2";
   predmet = PREDMETI[kljucPredmeta] ? kljucPredmeta : "matematika";
+  // Trazeni par moze postojati u GRADIVU, a opet nemati zadataka (datoteka
+  // s zadacima se nije ucitala -- typeof cuvar gore tada ostavi zadaci:[]).
+  // Ostati na takvom paru bi ostavilo dijete na praznoj stranici s pilulom
+  // koja je istovremeno aktivna i onemogucena. Umjesto toga padamo na prvi
+  // par razred/predmet koji stvarno ima ucitano gradivo.
+  if (!imaGradivo(razred, predmet)) {
+    const zamjena = Object.keys(RAZREDI)
+      .flatMap(r => Object.keys(PREDMETI).map(p => [r, p]))
+      .find(([r, p]) => imaGradivo(r, p));
+    if (zamjena) [razred, predmet] = zamjena;
+  }
   const p = PREDMETI[predmet];
   const g = GRADIVO[razred][predmet];
 
@@ -854,11 +880,14 @@ function izgradiPredmet(kljucRazreda, kljucPredmeta) {
         const osnova = sec.id + "|" + (prikaz || odgovor);
         brojacKljuca[osnova] = (brojacKljuca[osnova] || 0) + 1;
         const kljuc2 = (osnova + "|" + (brojacKljuca[osnova] - 1)).replace(/"/g, "");
-        const tipke = promijesaj(ponudeno).map(v =>
-          `<button type="button" class="chip" data-za="${id}" data-vrijednost="${v}">${v}</button>`
-        ).join("");
         const oblik = task.oblik || "";
         const valjan = !oblik || oblikValjan(oblik, odgovor);
+        // pokvaren zadatak: tipke ne smiju izgledati klikabilne (skriveno
+        // polje nema data-answer, disabled ovdje samo sprjecava izgled/fokus,
+        // klik-obradjivac ima svoj cuvar za slucaj da ipak stigne dogadjaj)
+        const tipke = promijesaj(ponudeno).map(v =>
+          `<button type="button" class="chip" data-za="${id}" data-vrijednost="${v}"${valjan ? "" : " disabled"}>${v}</button>`
+        ).join("");
         // skriveno polje nosi odabranu vrijednost, pa razine, kljucevi,
         // kvacice, pamcenje i avatar rade bez izmjena
         html += `<span class="item izbor-item">
@@ -1580,7 +1609,8 @@ function updateProgress(opt = {}) {
    nego jednu zajedničku čestitku.
 ------------------------------------------- */
 function check() {
-  const list = inputs();
+  // pokvareno polje (bez data-answer) se ne provjerava, isto kao u updateProgress()
+  const list = inputs().filter(i => i.hasAttribute("data-answer"));
   const fresh = list.filter(i => i.value.trim() !== "" &&
                                  !i.classList.contains("ok") && !i.classList.contains("no"));
   const quiet = fresh.length > 6;
@@ -1686,6 +1716,11 @@ main.addEventListener("click", e => {
   const tipka = e.target.closest(".chip");
   if (!tipka) return;
   const inp = document.getElementById(tipka.dataset.za);
+  // pokvaren izbor zadatak nema data-answer na skrivenom polju; tocno()
+  // bi na undefined odgovoru puknuo na razloziBroj(undefined) i ostavio
+  // skriveno polje s vrijednosti -- sljedeci klik na "Provjeri odgovore"
+  // bi tada puknuo u check() na tom istom polju
+  if (!inp.hasAttribute("data-answer")) return;
   inp.value = tipka.dataset.vrijednost;
   oznaciTipku(inp);
   setState(inp, tocno(inp.value, inp.dataset.answer, inp.dataset.oblik), { sidro: tipka });
@@ -1848,7 +1883,11 @@ poljeIme.addEventListener("keydown", e => {
 --------------------------------------------------------------------------- */
 function zapamtiOdgovore() {
   const zapis = {};
-  inputs().forEach(i => { if (i.value.trim() !== "") zapis[i.dataset.key] = i.value; });
+  // isti cuvar kao u vratiNapredak(): pokvareno polje nema data-answer i ne
+  // smije se pamtiti kao odgovor -- inace bismo na disk upisali vrijednost
+  // koju vratiNapredak() ionako nikad ne bi vratio na ekran
+  inputs().filter(i => i.hasAttribute("data-answer"))
+    .forEach(i => { if (i.value.trim() !== "") zapis[i.dataset.key] = i.value; });
   const kljuc = kljucNapretka();
   profil.napredak[kljuc] = zapis;
   promijenjeni.add(kljuc);
@@ -1883,8 +1922,8 @@ function vratiNapredak() {
 ------------------------------------------------------------------------- */
 const razrediTraka = document.getElementById("razredi");
 
-const imaGradivo = (r, p) =>
-  !!(GRADIVO[r] && GRADIVO[r][p] && GRADIVO[r][p].zadaci && GRADIVO[r][p].zadaci.length);
+// imaGradivo je definirana uz GRADIVO, gore -- izgradiPredmet() je treba
+// vec pri prvom pozivu, davno prije ovog dijela skripte.
 
 function iscrtajRazrede() {
   razrediTraka.innerHTML = Object.entries(RAZREDI).map(([k, r]) => {

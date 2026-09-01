@@ -133,6 +133,26 @@ provjera("odsutan skup zadataka onemogucuje pilulu, stranica radi", async ucitaj
   W.GRADIVO["6"].matematika.zadaci = cuvaj;
 });
 
+/* Gornja provjera postavlja zadaci = [] u runtimeu, pa nikad ne prolazi kroz
+   ReferenceError putanju koju spec obecava preziviti: GRADIVO se gradi
+   jednom, pri prvom parsiranju inline skripte u <head>/<body>, iz globalnih
+   ZADACI_* varijabli koje postave <script src> tagovi prije toga. Do trenutka
+   kad provjera dobije W (ucitaj() ceka na window.onload), sve je vec davno
+   izgradeno -- globalnu varijablu vise nije moguce "zaboraviti" i ponovno
+   pokrenuti tu granu bez potpunog ponovnog gradenja stranice iz izmijenjenog
+   HTML-a (ruzan trik: pisanje cijele stranice u novi iframe). Umjesto toga
+   provjeravamo da izvorni kod stvarno nosi typeof cuvar na svih sest mjesta
+   -- to je upravo mehanizam koji sprjecava ReferenceError kad datoteka sa
+   zadacima ne stigne. */
+provjera("svih sest zadaci izraza u GRADIVU ima typeof cuvar", async ucitaj => {
+  const izvor = await fetch("../index.html").then(r => r.text());
+  const imena = ["ZADACI_MATEMATIKA_2", "ZADACI_HRVATSKI_2", "ZADACI_MATEMATIKA_5",
+                 "ZADACI_HRVATSKI_5", "ZADACI_MATEMATIKA_6", "ZADACI_HRVATSKI_6"];
+  const nedostaje = imena.filter(ime =>
+    !new RegExp(`zadaci:\\s*typeof ${ime} !== "undefined" \\? ${ime} : \\[\\]`).test(izvor));
+  jednako(nedostaje, [], "zadaci izrazi bez typeof cuvara");
+});
+
 provjera("pokvaren zadatak daje onemoguceno polje izvan brojanja razine", async ucitaj => {
   const W = await ucitaj();
   const cuvaj = W.GRADIVO["6"].matematika.zadaci;
@@ -783,6 +803,20 @@ provjera("prebacivanje razreda cuva napredak oba razreda", async ucitaj => {
   jednako(polja(W)[0].value, polja(W)[0].dataset.answer, "odgovor 2. razreda je vracen");
   const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
   jednako(Object.keys(zapis.napredak).sort(), ["2/matematika", "6/matematika"], "oba kljuca");
+});
+
+provjera("prebacivanje razreda ne gubi jos nezapisan odgovor", async ucitaj => {
+  const W = await ucitaj();
+  const m = polja(W)[0];
+  upisi(W, m, m.dataset.answer);            // pokrece odgodeni upis (200ms)
+  // odmah, bez cekaj(): sve tri gornje provjere razreda cekaju cekaj(300)
+  // izmedju klikova, pa nikad ne gadjaju ovaj prozor -- upis vec okine prije
+  // klika. Ovdje je isti scenarij kao "prebacivanje predmeta ne gubi jos
+  // nezapisane odgovore", ali za pilulu razreda.
+  W.document.querySelector("#razredi .razred[data-razred='6']").click();
+  await cekaj(600);
+  const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(Object.keys(zapis.napredak["2/matematika"]).length, 1, "odgovor 2. razreda nije izgubljen");
 });
 
 provjera("razred i predmet prezive osvjezavanje stranice", async ucitaj => {
