@@ -671,6 +671,72 @@ provjera("razred i predmet prezive osvjezavanje stranice", async ucitaj => {
   jednako(W2.stanje().predmet, "hrvatski", "predmet nakon osvjezavanja");
 });
 
+/* ---------- provjera po obliku odgovora ---------- */
+
+provjera("oblik broj: varijante minusa i decimalnog znaka", async ucitaj => {
+  const W = await ucitaj();
+  const u = (a, b) => W.usporedi("broj", a, b);
+  istina(u("-5", "−5"),   "ASCII minus vrijedi za tipografski");
+  istina(u("−5", "-5"),   "tipografski minus vrijedi za ASCII");
+  istina(u("‑5", "-5"),   "neprelomni minus vrijedi");
+  istina(u("2.5", "2,5"), "tocka i zarez su isti decimalni znak");
+  istina(u("2,50", "2,5"), "nula na kraju ne mijenja vrijednost");
+  istina(!u("5", "-5"),   "predznak je bitan");
+});
+
+provjera("oblik razlomak: usporedba po vrijednosti", async ucitaj => {
+  const W = await ucitaj();
+  const u = (a, b) => W.usporedi("razlomak", a, b);
+  istina(u("6/8", "3/4"),    "prosireni razlomak vrijedi");
+  istina(u("0,75", "3/4"),   "decimalni zapis vrijedi");
+  istina(u("1 1/2", "3/2"),  "mjesoviti zapis vrijedi");
+  istina(u("-3/4", "−3/4"),  "negativni razlomak, oba minusa");
+  istina(!u("4/3", "3/4"),   "obrnut razlomak ne vrijedi");
+});
+
+provjera("oblik razlomak: nema binarne pogreske", async ucitaj => {
+  const W = await ucitaj();
+  istina(W.usporedi("razlomak", "0,3", "3/10"), "0,3 = 3/10");
+  const r = W.razloziBroj("0,1");
+  const s = W.razloziBroj("0,2");
+  // zbroj 0,1 + 0,2 je tocno 3/10 (kao 15/50, bez binarne pogreske);
+  // krizna usporedba umjesto izravne provjere brojnika/nazivnika, jer
+  // razloziBroj vraca svaki broj vec skracen na najmanje zajednicke
+  // razlomke pa produkt nazivnika nije nuzno bas 10
+  jednako((r.a * s.b + s.a * r.b) * 10, 3 * (r.b * s.b), "0,1 + 0,2 je tocno 3/10");
+});
+
+provjera("oblik popis: poredak je bitan, razmaci nisu", async ucitaj => {
+  const W = await ucitaj();
+  istina(W.usporedi("popis", "40, 50, 60", "40,50,60"), "razmaci ne smetaju");
+  istina(!W.usporedi("popis", "50,40,60", "40,50,60"), "poredak je bitan");
+});
+
+provjera("oblik tekst: dijakritika i eksponent su bitni", async ucitaj => {
+  const W = await ucitaj();
+  istina(W.usporedi("tekst", "cm²", "cm²"), "isti zapis");
+  istina(!W.usporedi("tekst", "cm2", "cm²"), "eksponent je bitan");
+  istina(!W.usporedi("tekst", "jednakokracan", "jednakokračan"), "dijakritika je bitna");
+});
+
+provjera("2. razred se provjerava starim pravilom", async ucitaj => {
+  const W = await ucitaj();
+  const inp = polja(W).find(i => i.dataset.answer.includes(","));
+  jednako(inp.dataset.oblik, undefined, "polje 2. razreda nema oblik");
+  upisi(W, inp, inp.dataset.answer.replace(/,/g, "."));
+  await cekaj(120);
+  istina(inp.classList.contains("ok"), "tocka i zarez se i dalje broje kao isto");
+});
+
+provjera("pokvaren odgovor u podacima ne kaznjava dijete", async ucitaj => {
+  const W = await ucitaj();
+  jednako(W.oblikValjan("razlomak", "tri četvrtine"), false, "neispravan odgovor");
+  jednako(W.oblikValjan("razlomak", "3/4"), true, "ispravan odgovor");
+  jednako(W.oblikValjan("", "3/4"), true, "bez oblika vrijedi staro pravilo");
+  jednako(W.oblikValjan("razlomci", "3/4"), false, "tipfeler u obliku je greska");
+  jednako(W.usporedi("razlomci", "6/8", "3/4"), null, "nepoznat oblik ne usporeduje");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {

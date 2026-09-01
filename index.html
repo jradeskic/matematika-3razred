@@ -107,6 +107,8 @@
     color:var(--ink);
   }
   input[type=text]:focus-visible{outline:3px solid var(--sky);outline-offset:1px;border-color:var(--sky)}
+  input.pokvaren{background:#f4f2ec;color:var(--muted)}
+  .napomena{font-size:14px;color:var(--muted);margin-left:8px}
   input.ok{border-color:var(--grass);background:#eefaf1}
   input.no{border-color:var(--berry);background:#fdeeed}
   .mark{width:1.2em;font-weight:800}
@@ -829,12 +831,18 @@ function izgradiPredmet(kljucRazreda, kljucPredmeta) {
         // rečenice u hrvatskom traže puno šire polje; matematika nema odgovor
         // dulji od 14 znakova, pa ovaj stupanj tamo nikad ne nastupi
         const wide = numeric ? "" : (answer.length > 14 ? " duga" : " wide");
+        const oblik = task.oblik || "";
+        const valjan = !oblik || oblikValjan(oblik, answer);
         html += `<span class="item">
           <label for="${id}">${shown}</label>
-          <input type="text" class="ans${wide}" id="${id}" data-answer="${answer}" data-key="${kljuc2}"
+          <input type="text" class="ans${wide}${valjan ? "" : " pokvaren"}" id="${id}"
+                 ${valjan ? `data-answer="${answer}"` : "disabled"}
+                 ${oblik ? `data-oblik="${oblik}"` : ""}
+                 data-key="${kljuc2}"
                  autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
                  enterkeyhint="next" inputmode="${mode}" aria-label="${shown.replace(/"/g, "")}">
           <span class="mark" data-for="${id}"></span></span>`;
+        if (!valjan) html += `<span class="napomena">zadatak je u pripremi</span>`;
       });
       html += "</div>";
       const sol = task.items.map(([s, a]) => `${s} = ${a}`).join(" · ");
@@ -849,13 +857,19 @@ function izgradiPredmet(kljucRazreda, kljucPredmeta) {
         const tipke = promijesaj(ponudeno).map(v =>
           `<button type="button" class="chip" data-za="${id}" data-vrijednost="${v}">${v}</button>`
         ).join("");
+        const oblik = task.oblik || "";
+        const valjan = !oblik || oblikValjan(oblik, odgovor);
         // skriveno polje nosi odabranu vrijednost, pa razine, kljucevi,
         // kvacice, pamcenje i avatar rade bez izmjena
         html += `<span class="item izbor-item">
           ${prikaz ? `<span class="izbor-prikaz">${prikaz}</span>` : ""}
           <span class="chips" role="group" aria-label="${(prikaz || task.q).replace(/"/g, "")}">${tipke}</span>
-          <input type="text" class="ans" id="${id}" data-answer="${odgovor}" data-key="${kljuc2}" hidden>
+          <input type="text" class="ans${valjan ? "" : " pokvaren"}" id="${id}"
+                 ${valjan ? `data-answer="${odgovor}"` : "disabled"}
+                 ${oblik ? `data-oblik="${oblik}"` : ""}
+                 data-key="${kljuc2}" hidden>
           <span class="mark" data-for="${id}"></span></span>`;
+        if (!valjan) html += `<span class="napomena">zadatak je u pripremi</span>`;
       });
       html += "</div>";
       const sol = task.items.map(([p, _pon, a]) => `${p ? p + " → " : ""}${a}`).join(" · ");
@@ -870,7 +884,7 @@ function izgradiPredmet(kljucRazreda, kljucPredmeta) {
   });
 
   // razina dobiva traku napretka samo ako u njoj ima polja za upis
-  const total = el.querySelectorAll("input[type=text]").length;
+  const total = el.querySelectorAll("input[data-answer]").length;
   if (total) {
     el.dataset.total = total;
     const bar = document.createElement("div");
@@ -899,8 +913,96 @@ const norm = v => v.toString().toLowerCase()
    zavrsni recenicni znak su bitni, jer se upravo to uvjezbava.            */
 const ocisti = v => v.toString().trim().replace(/\s+/g, " ");
 
-// koje pravilo vrijedi odlucuje predmet, ne tip zadatka
-function tocno(upis, odgovor) {
+/* ---------- oblici odgovora ----------
+   Oblik se deklarira u podacima poljem "oblik", ne pogada se iz zapisa:
+   "2,5" je decimalni broj, "8,33" je dvoclani popis, a razlikovati ih iz
+   samog niza znakova nije moguce. Gradivo 2. razreda nema "oblik" i ide
+   starim putem, bit po bit.
+------------------------------------------------------------------------- */
+
+// sve varijante minus znaka u ASCII minus, pa decimalni zarez u tocku
+const izravnajZnakove = v => v.toString().trim()
+  .replace(/[−‑–—]/g, "-")
+  .replace(/\s+/g, " ");
+
+/* Razlozi broj u egzaktan razlomak a/b s cjelobrojnim a i b. Bez
+   parseFloat usporedbe: 0,1 + 0,2 mora ostati 3/10, ne 0.30000000000000004.
+   Prima: "-5", "2,5", "3/4", "-3/4", "1 1/2". Vraca null ako ne uspije.   */
+function razloziBroj(v) {
+  const s = izravnajZnakove(v).replace(/,/g, ".");
+  if (s === "") return null;
+
+  const cijeliIliDecimalni = t => {
+    if (!/^-?\d+(\.\d+)?$/.test(t)) return null;
+    const minus = t.startsWith("-") ? -1 : 1;
+    const [c, d = ""] = t.replace("-", "").split(".");
+    const b = Math.pow(10, d.length);
+    return { a: minus * Number(c + d), b };
+  };
+
+  const skrati = ({ a, b }) => {
+    const nzd = (x, y) => y ? nzd(y, x % y) : Math.abs(x);
+    const d = nzd(a, b) || 1;
+    return b < 0 ? { a: -a / d, b: -b / d } : { a: a / d, b: b / d };
+  };
+
+  // mjesoviti broj: "1 1/2"
+  const mjes = s.match(/^(-?\d+)\s+(\d+)\/(\d+)$/);
+  if (mjes) {
+    const c = Number(mjes[1]), n = Number(mjes[2]), d = Number(mjes[3]);
+    if (!d) return null;
+    const znak = c < 0 ? -1 : 1;
+    return skrati({ a: znak * (Math.abs(c) * d + n), b: d });
+  }
+
+  // razlomak: "3/4", "-3/4"
+  const raz = s.match(/^(-?\d+)\/(-?\d+)$/);
+  if (raz) {
+    const d = Number(raz[2]);
+    if (!d) return null;
+    return skrati({ a: Number(raz[1]), b: d });
+  }
+
+  const cd = cijeliIliDecimalni(s);
+  return cd ? skrati(cd) : null;
+}
+
+const istaVrijednost = (x, y) => !!x && !!y && x.a * y.b === y.a * x.b;
+
+/* Popis dopustenih oblika. Bez njega bi tipfeler (oblik:"razlomci") tiho
+   propao na pravilo predmeta: 6/8 bi se usporedilo kao niz znakova s 3/4 i
+   dijete bi dobilo netocno, a harness bi ostao zelen.                     */
+const OBLICI = ["broj", "razlomak", "popis", "tekst"];
+window.OBLICI = OBLICI;              // harness ga cita; const ne dolazi na window
+
+// je li odgovor iz podataka razlozljiv u deklarirani oblik
+function oblikValjan(oblik, odgovor) {
+  if (!oblik) return true;                       // nedeklariran: staro pravilo
+  if (!OBLICI.includes(oblik)) return false;     // nepoznat oblik je greska u podacima
+  if (oblik === "broj" || oblik === "razlomak") return !!razloziBroj(odgovor);
+  if (oblik === "popis")
+    return izravnajZnakove(odgovor).split(",").every(d => !!razloziBroj(d));
+  return ocisti(odgovor) !== "";                 // tekst
+}
+
+function usporedi(oblik, upis, odgovor) {
+  if (oblik === "broj" || oblik === "razlomak")
+    return istaVrijednost(razloziBroj(upis), razloziBroj(odgovor));
+  if (oblik === "popis") {
+    const a = izravnajZnakove(upis).split(",").map(razloziBroj);
+    const b = izravnajZnakove(odgovor).split(",").map(razloziBroj);
+    return a.length === b.length && a.every((x, i) => istaVrijednost(x, b[i]));
+  }
+  if (oblik === "tekst") return ocisti(upis) === ocisti(odgovor);
+  return null;                        // nema deklariranog oblika
+}
+
+// koje pravilo vrijedi odlucuje oblik, a kad ga nema -- predmet
+function tocno(upis, odgovor, oblik) {
+  if (oblik) {
+    const r = usporedi(oblik, upis, odgovor);
+    if (r !== null) return r;
+  }
   return PREDMETI[predmet].provjera === "rijec"
     ? ocisti(upis) === ocisti(odgovor)
     : norm(upis) === norm(odgovor);
@@ -1459,7 +1561,7 @@ function check() {
 
   list.forEach(inp => {
     if (inp.value.trim() === "") { setState(inp, null, { fx: false }); return; }
-    const good = tocno(inp.value, inp.dataset.answer);
+    const good = tocno(inp.value, inp.dataset.answer, inp.dataset.oblik);
     if (setState(inp, good, { fx: !quiet }) && good) gained++;
   });
 
@@ -1539,7 +1641,7 @@ main.addEventListener("keydown", e => {
 main.addEventListener("focusout", e => {
   const inp = e.target;
   if (inp.tagName !== "INPUT" || inp.value.trim() === "") return;
-  setState(inp, tocno(inp.value, inp.dataset.answer));
+  setState(inp, tocno(inp.value, inp.dataset.answer, inp.dataset.oblik));
   updateProgress();
   zapamtiOdgovore();
 });
@@ -1559,7 +1661,7 @@ main.addEventListener("click", e => {
   const inp = document.getElementById(tipka.dataset.za);
   inp.value = tipka.dataset.vrijednost;
   oznaciTipku(inp);
-  setState(inp, tocno(inp.value, inp.dataset.answer), { sidro: tipka });
+  setState(inp, tocno(inp.value, inp.dataset.answer, inp.dataset.oblik), { sidro: tipka });
   updateProgress();
   zapamtiOdgovore();
 });
@@ -1725,7 +1827,7 @@ function vratiNapredak() {
     if (typeof v !== "string" || v.trim() === "") return;
     inp.value = v;
     oznaciTipku(inp);                  // kod izbora vrati i odabranu tipku
-    setState(inp, tocno(v, inp.dataset.answer), { fx: false });
+    setState(inp, tocno(v, inp.dataset.answer, inp.dataset.oblik), { fx: false });
     vraceno++;
   });
   streak = 0;                          // niz se ne prenosi kroz posjete
