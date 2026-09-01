@@ -829,6 +829,21 @@ provjera("tipka iz trake upisuje znak u polje u fokusu", async ucitaj => {
   jednako(inp.value, "/", "znak je upisan");
 });
 
+provjera("prebacivanje predmeta iscrtava traku znakova u DOM-u", async ucitaj => {
+  const W = await ucitaj();
+  const slova = () => [...W.document.querySelectorAll("#slova .slovo")].map(b => b.dataset.slovo);
+  jednako(slova(), [], "matematika 2. razred nema tipki u #slova");
+  W.document.querySelector("#predmeti .predmet[data-predmet='hrvatski']").click();
+  await cekaj(300);
+  jednako(slova(), ["č", "ć", "š", "ž", "đ"], "hrvatski iscrtava tipke u #slova");
+  W.document.querySelector("#razredi .razred[data-razred='6']").click();
+  await cekaj(300);
+  jednako(slova(), ["č", "ć", "š", "ž", "đ"], "hrvatski 6. razred i dalje ima iste tipke u #slova");
+  W.document.querySelector("#predmeti .predmet[data-predmet='matematika']").click();
+  await cekaj(300);
+  jednako(slova(), ["-", "/", ",", "²", "³"], "matematika 6. razred iscrtava svoje tipke u #slova");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {
