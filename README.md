@@ -54,10 +54,11 @@ se makne prije roka u trenutku kad dijete započne tipkati (`input` u `#main`). 
 ostaje čitljiv ako se stane, a ne smeta ako se nastavi.
 
 - Točan odgovor: pet različitih izvedbi (skok, vrtnja, ples, bacanje kape, naraste od sreće)
-  i deset rečenica („Bravo!", „Majstore!", „Tako se to radi!"…).
-- Netočan: pet izvedbi (trese se, lupi nogom, napuše se, okrene se, vrti glavom) i deset
+  i dvadeset rečenica („Bravo!", „Majstore!", „Tako se to radi!"…).
+- Netočan: pet izvedbi (trese se, lupi nogom, napuše se, okrene se, vrti glavom) i dvadeset
   rečenica („Ajme meni!", „Grrr!", „Probaj opet!"…). Izraz lica se mijenja: obrve se skupe,
   obrazi pocrvene, usta se nadure.
+- Svladana razina ima osam vlastitih rečenica po liku.
 - Ni pokret ni rečenica se ne ponavljaju dva puta zaredom.
 - Kod svladane razine ima posebnu izvedbu i svoje rečenice.
 
@@ -84,7 +85,7 @@ zadnje biranom razredu i predmetu.
 Konfiguracija stoji u tri objekta u `index.html`:
 
 - `PREDMETI[predmet]` — `{ naziv, traka, provjera, znakovi }`, jedan zapis po predmetu.
-- `RAZREDI` — popis dostupnih razreda (trenutno `"2"`, `"5"`, `"6"`).
+- `RAZREDI[razred]` — `{ naziv, kratko }`, jedan zapis po razredu (trenutno `"2"`, `"5"`, `"6"`).
 - `GRADIVO[razred][predmet]` — `{ title, naslov, uvod, zadaci }`, sadržaj za taj par.
 
 Zadaci stoje izvan `index.html`, jedna datoteka po paru razred/predmet:
@@ -105,19 +106,22 @@ iz kurikuluma na koji se odnosi:
 |---|---|---|---|
 | Matematika 2. | 7 | 85 | gradivo 2. razreda |
 | Hrvatski 2. | 7 | 85 | gradivo 2. razreda |
-| Matematika 5. | 8 | 128 | `MAT OŠ A.5.1–6`, `B.5.1–2`, `C.5.1–3`, `D.5.1–5`, `E.5.1` |
-| Hrvatski 5. | 8 | 99 | jezgra `OŠ HJ A.5.5`, `A.5.6`; `B.5.2`; `A.5.1–4` kao „note" |
-| Matematika 6. | 9 | 129 | `MAT OŠ A.6.1–9`, `B.6.1`, `C.6.1–3`, `D.6.1`, `D.6.2`, `D.6.4`, `D.6.5`, `E.6.1` |
-| Hrvatski 6. | 8 | 80 | jezgra `OŠ HJ A.6.5`, `A.6.6`; `B.6.2`; `A.6.1–4` kao „note" |
+| Matematika 5. | 8 | 134 | `MAT OŠ A.5.1–6`, `B.5.1–2`, `C.5.1–3`, `D.5.1–5`, `E.5.1` |
+| Hrvatski 5. | 8 | 106 | jezgra `OŠ HJ A.5.5`, `A.5.6`; `B.5.2`; `A.5.1–4` kao „note" |
+| Matematika 6. | 9 | 132 | `MAT OŠ A.6.1–9`, `B.6.1`, `C.6.1–3`, `D.6.1–5`, `E.6.1` — svi ishodi 6. razreda |
+| Hrvatski 6. | 8 | 87 | jezgra `OŠ HJ A.6.5`, `A.6.6`; `B.6.2`; `A.6.1–4` kao „note" |
 
 Što **nije** pokriveno automatskom provjerom, i zašto:
 
-- `MAT OŠ D.6.3` — ta oznaka u NN 7/2019 stoji bez vlastitoga teksta ishoda, pa se ne može
-  pouzdano pročitati što pokriva. Cjelina se ne izmišlja; treba je provjeriti u izvorniku.
 - Hrvatski, domena **C (Kultura i mediji)** i ishodi `B.x.1`, `B.x.3`, `B.x.4` — traže razgovor,
   posjet kulturnom događaju ili stvaralački rad. Dio je zahvaćen `note` zadacima u cjelini h8.
 - Hrvatski, produktivni ishodi (govorenje, slušanje, čitanje, pisanje) idu kao `note` zadaci za
   vježbenicu — dijete ih rješava u bilježnici, stranica ih ne ocjenjuje.
+
+Napomena o `MAT OŠ D.6.3`: ta oznaka u NN 7/2019 stoji u istoj ćeliji kao `A.6.9`, nad
+zajedničkim tekstom ishoda „Primjenjuje računanje postotnoga iznosa zadane osnovne vrijednosti".
+To su isti ishod naveden u dvjema domenama (isti uzorak kao `A.7.1` + `D.7.6`), pa ga cjelina
+o postocima pokriva — matematika 6. razreda time pokriva **sve** ishode svojega razreda.
 
 Kurikulumski izvori:
 

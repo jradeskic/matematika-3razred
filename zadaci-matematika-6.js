@@ -4,10 +4,12 @@
    Matematika za osnovne skole i gimnazije, NN 7/2019. Oznaka ishoda stoji u
    komentaru uz svaku cjelinu.
 
-   Pokriveno: A.6.1-A.6.9, B.6.1, C.6.1-C.6.3, D.6.1, D.6.2, D.6.4, D.6.5, E.6.1.
-   NEPOKRIVENO: MAT OS D.6.3. Ta oznaka u NN 7/2019 stoji bez vlastitoga teksta
-   ishoda, neposredno uz A.6.9, pa se ne moze pouzdano procitati sto pokriva.
-   Cjelina se ne izmislja; treba je provjeriti u izvorniku prije dopune.
+   Pokriveno: A.6.1-A.6.9, B.6.1, C.6.1-C.6.3, D.6.1-D.6.5, E.6.1 -- dakle svi
+   ishodi 6. razreda.
+   Biljeska o D.6.3: ta oznaka u NN 7/2019 stoji u istoj celiji kao A.6.9, nad
+   zajednickim tekstom ishoda "Primjenjuje racunanje postotnoga iznosa zadane
+   osnovne vrijednosti". D.6.3 i A.6.9 su isti ishod naveden u dvjema domenama
+   (isti uzorak kao A.7.1 + D.7.6), pa ga cjelina c6 pokriva.
 
    Polje "oblik" deklarira kako se odgovor provjerava:
      "broj"     cijeli ili decimalni broj, po vrijednosti (- i minus isti znak, , = .)
@@ -32,6 +34,10 @@ const ZADACI_MATEMATIKA_6 = [
    items:[["4 i 6","12"],["6 i 9","18"],["8 i 12","24"],["5 i 7","35"]]},
   {t:"calc", oblik:"popis", q:"Upiši prva tri višekratnika broja, odvojena zarezom.",
    items:[["7","7,14,21"],["12","12,24,36"]]},
+  {t:"izbor", q:"Je li umnožak djeljiv zadanim brojem?", items:[
+    ["6 · 5 djeljivo s 3",   ["da","ne"], "da"],
+    ["7 · 4 djeljivo s 2",   ["da","ne"], "da"],
+    ["5 · 7 djeljivo s 4",   ["da","ne"], "ne"]]},
   {t:"izbor", q:"Jesu li brojevi relativno prosti, to jest je li njihov NZD jednak 1?", items:[
     ["9 i 16",  ["da","ne"], "da"],
     ["12 i 18", ["da","ne"], "ne"],
@@ -43,9 +49,9 @@ const ZADACI_MATEMATIKA_6 = [
 /* MAT OS A.6.2 (prosirivanje, skracivanje, zajednicki nazivnik) */
 {id:"c2", nav:"Razlomci", title:"Proširivanje i skraćivanje razlomaka",
  lead:"Skraćivanje do neskrativoga razlomka i svođenje na zajednički nazivnik.", tasks:[
-  {t:"calc", oblik:"tekst", q:"Skrati razlomak do neskrativoga. Zapiši u obliku 3/4.",
+  {t:"calc", oblik:"tekst", q:"Skrati razlomak do neskrativoga. Zapiši u obliku 2/5.",
    items:[["6/8","3/4"],["10/15","2/3"],["24/36","2/3"],["45/60","3/4"]]},
-  {t:"calc", oblik:"tekst", q:"Proširi razlomak brojem 3. Zapiši u obliku 6/15.",
+  {t:"calc", oblik:"tekst", q:"Proširi razlomak brojem 3. Zapiši u obliku 4/9.",
    items:[["2/5","6/15"],["3/4","9/12"],["1/6","3/18"]]},
   {t:"calc", oblik:"broj", q:"Koliki je najmanji zajednički nazivnik?",
    items:[["1/4 i 1/6","12"],["2/3 i 3/5","15"],["1/2 i 5/8","8"]]},
@@ -85,7 +91,7 @@ const ZADACI_MATEMATIKA_6 = [
 /* MAT OS A.6.5 (racunanje s nenegativnim racionalnim brojevima) */
 {id:"c4", nav:"Računanje s razlomcima", title:"Računanje s razlomcima",
  lead:"Zbrajanje, oduzimanje, množenje i dijeljenje razlomaka.", tasks:[
-  {t:"calc", oblik:"tekst", q:"Izračunaj i skrati do kraja. Zapiši u obliku 3/4.",
+  {t:"calc", oblik:"tekst", q:"Izračunaj i skrati do kraja. Zapiši u obliku 2/5.",
    items:[["1/4 + 1/4","1/2"],["2/3 + 1/6","5/6"],["3/4 − 1/2","1/4"],["1/2 · 2/3","1/3"]]},
   {t:"calc", oblik:"tekst", q:"Izračunaj i skrati do kraja.",
    items:[["5/6 · 3/10","1/4"],["7/8 − 3/8","1/2"],["2/5 + 3/10","7/10"]]},
@@ -127,7 +133,7 @@ const ZADACI_MATEMATIKA_6 = [
     ["100",   ["10²","10³"], "10²"],
     ["1 000", ["10³","10²"], "10³"],
     ["1",     ["10⁰","10¹"], "10⁰"]]},
-  {t:"calc", oblik:"broj", q:"Izračunaj postotni iznos. Upiši broj bez znaka %.",
+  {t:"calc", oblik:"broj", q:"Izračunaj postotni iznos. Upiši samo broj.",
    items:[["10 % od 250","25"],["25 % od 80","20"],["50 % od 46","23"],["20 % od 150","30"]]},
   {t:"calc", oblik:"broj", q:"Upiši samo broj eura.",
    items:[["cijena 40 € snižena za 25 %, nova cijena","30"],
@@ -137,10 +143,11 @@ const ZADACI_MATEMATIKA_6 = [
     ["1 %", ["1/100","1/10"],   "1/100"],
     ["1 ‰", ["1/1000","1/100"], "1/1000"]]},
   {t:"note", q:"U trgovini je majica od 24 € snižena za 25 %. Koliko sada košta i koliko si uštedio?",
-   solution:"snizenje 6 €, nova cijena 18 €"}
+   solution:"sniženje 6 €, nova cijena 18 €"}
 ]},
 
-/* MAT OS B.6.1 (linearna jednadzba u Q+ i Z, omjeri) */
+/* MAT OS B.6.1 (linearna jednadzba u Q+ i Z); omjeri pripadaju A.6.3
+   ("Povezuje omjer dviju velicina s razlomkom"), a ne B.6.1. */
 {id:"c7", nav:"Jednadžbe i omjeri", title:"Jednadžbe i omjeri",
  lead:"Jednadžbe s cijelim i racionalnim brojevima, omjer dviju veličina.", tasks:[
   {t:"calc", oblik:"broj", q:"Riješi jednadžbu — upiši vrijednost x.",
@@ -172,17 +179,19 @@ const ZADACI_MATEMATIKA_6 = [
   {t:"izbor", q:"Koji je to četverokut?", items:[
     ["sve stranice jednake, svi kutovi pravi",                    ["kvadrat","romb"],          "kvadrat"],
     ["sve stranice jednake, kutovi nisu pravi",                   ["romb","pravokutnik"],      "romb"],
-    ["nasuprotne stranice paralelne i jednake, kutovi nisu pravi",["paralelogram","trapez"],   "paralelogram"]]},
+    ["nasuprotne stranice paralelne i jednake, kutovi nisu pravi",["paralelogram","kvadrat"],  "paralelogram"]]},
   {t:"calc", oblik:"broj", q:"Opseg i površina — upiši samo broj.",
    items:[["opseg trokuta stranica 5 cm, 6 cm i 7 cm","18"],
           ["površina trokuta osnovice 8 cm i visine 5 cm","20"],
           ["površina paralelograma osnovice 9 cm i visine 4 cm","36"]]},
-  {t:"calc", oblik:"broj", q:"Pretvori u kvadratne centimetre.",
+  {t:"calc", oblik:"broj", q:"Pretvori u kvadratne centimetre. Upiši samo broj.",
    items:[["1 dm²","100"],["2,5 dm²","250"]]},
   {t:"izbor", q:"Koliko stupnjeva ima kut koji nastane kad simetrala prepolovi pravi kut?", items:[
     ["", ["45°","90°"], "45°"]]},
   {t:"note", q:"Konstruiraj trokut sa stranicama 5 cm, 6 cm i 7 cm, pa mu nacrtaj sve tri visine.",
-   solution:"visine se sijeku u jednoj točki"}
+   solution:"visine se sijeku u jednoj točki"},
+  {t:"note", q:"Konstruiraj kut od 60° i nacrtaj mu simetralu. Koliko iznosi svaki dobiveni kut?",
+   solution:"simetrala dijeli kut na dva kuta od 30°"}
 ]},
 
 /* MAT OS D.6.4 (brojevni pravac), D.6.5 (koordinatni sustav), E.6.1 (podaci) */
@@ -205,6 +214,8 @@ const ZADACI_MATEMATIKA_6 = [
           ["najveći podatak","7"],
           ["frekvencija broja 5","2"]]},
   {t:"note", q:"Nacrtaj koordinatni sustav i ucrtaj točke A(2, 3), B(−2, 3) i C(0, −4).",
-   solution:"A u prvom kvadrantu, B u drugom, C na okomitoj osi ispod ishodišta"}
+   solution:"A u prvom kvadrantu, B u drugom, C na okomitoj osi ispod ishodišta"},
+  {t:"note", q:"Za podatke 3, 5, 3, 7, 2, 3, 5 napravi tablicu frekvencija, pa nacrtaj stupčasti dijagram.",
+   solution:"2 → 1, 3 → 3, 5 → 2, 7 → 1; četiri stupca tih visina"}
 ]}
 ];

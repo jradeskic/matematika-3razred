@@ -11,7 +11,7 @@
 
    NEPOKRIVENO automatskom provjerom: domena C (Kultura i mediji, C.5.1-C.5.3) i
    B.5.1, B.5.3, B.5.4. Ti ishodi trazu razgovor, posjet ili stvaralacki rad i ne
-   svode se na polje za upis. Dio ih je zahvacen kroz "note" zadatke u h8.
+   svode se na polje za upis. Knjizevni "note" zadatak je u h6, produktivni u h8.
 
    Zadaci hrvatskoga ne koriste polje "oblik" -- provjera je po predmetu:
    veliko i malo slovo, dijakritika i zavrsni recenicni znak su bitni.
@@ -30,7 +30,10 @@ const ZADACI_HRVATSKI_5 = [
     ["ispod",  ["prijedlog","veznik"],   "prijedlog"],
     ["ali",    ["veznik","prijedlog"],   "veznik"],
     ["ja",     ["zamjenica","imenica"],  "zamjenica"],
-    ["tri",    ["broj","pridjev"],       "broj"]]},
+    ["tri",    ["broj","pridjev"],       "broj"],
+    ["joj",    ["usklik","prilog"],      "usklik"],
+    ["ne",     ["čestica","veznik"],     "čestica"],
+    ["zar",    ["čestica","prilog"],     "čestica"]]},
   {t:"izbor", q:"Je li riječ promjenjiva ili nepromjenjiva?", items:[
     ["kuća",   ["promjenjiva","nepromjenjiva"], "promjenjiva"],
     ["jučer",  ["nepromjenjiva","promjenjiva"], "nepromjenjiva"],
@@ -61,11 +64,11 @@ const ZADACI_HRVATSKI_5 = [
     ["stol",   ["muški","ženski"],   "muški"],
     ["knjiga", ["ženski","srednji"], "ženski"],
     ["selo",   ["srednji","muški"],  "srednji"]]},
-  {t:"calc", q:"Upiši komparativ pridjeva.", items:[
+  {t:"calc", q:"Upiši komparativ pridjeva, malim slovom.", items:[
     ["visok",  "viši"],
     ["jak",    "jači"],
     ["lijep",  "ljepši"]]},
-  {t:"calc", q:"Upiši superlativ pridjeva.", items:[
+  {t:"calc", q:"Upiši superlativ pridjeva, malim slovom.", items:[
     ["visok",  "najviši"],
     ["dobar",  "najbolji"],
     ["mali",   "najmanji"]]},
@@ -82,11 +85,11 @@ const ZADACI_HRVATSKI_5 = [
     ["Čitat ću knjigu.",    ["futur","perfekt"],    "futur"],
     ["Pisali smo zadaću.",  ["perfekt","prezent"],  "perfekt"],
     ["Doći ćemo sutra.",    ["futur","prezent"],    "futur"]]},
-  {t:"calc", q:"Upiši glagol u prezentu, prva osoba jednine (ja …).", items:[
+  {t:"calc", q:"Upiši samo glagolski oblik u prezentu, prva osoba jednine, malim slovom.", items:[
     ["pisati",  "pišem"],
     ["trčati",  "trčim"],
     ["čitati",  "čitam"]]},
-  {t:"calc", q:"Upiši infinitiv glagola.", items:[
+  {t:"calc", q:"Upiši infinitiv glagola, malim slovom.", items:[
     ["pišem",  "pisati"],
     ["trčim",  "trčati"],
     ["radim",  "raditi"]]},
@@ -94,7 +97,7 @@ const ZADACI_HRVATSKI_5 = [
     ["Ana je pjevala.",   ["je","pjevala"],   "je"],
     ["Mi ćemo doći.",     ["ćemo","doći"],    "ćemo"],
     ["Oni su otišli.",    ["su","otišli"],    "su"]]},
-  {t:"calc", q:"Upiši glagolski pridjev radni (muški rod jednine).", items:[
+  {t:"calc", q:"Upiši glagolski pridjev radni, muški rod jednine, malim slovom.", items:[
     ["pisati",  "pisao"],
     ["čitati",  "čitao"],
     ["doći",    "došao"]]},
@@ -112,12 +115,12 @@ const ZADACI_HRVATSKI_5 = [
     ["Vidim kuću. (kuću)",          ["akuzativ","nominativ"],      "akuzativ"],
     ["Govorim o kući. (kući)",      ["lokativ","instrumental"],    "lokativ"],
     ["Idem s Anom. (Anom)",         ["instrumental","dativ"],      "instrumental"]]},
-  {t:"calc", q:"Upiši ime padeža koji odgovara na ta pitanja.", items:[
+  {t:"calc", q:"Upiši ime padeža koji odgovara na ta pitanja, malim slovom.", items:[
     ["Koga? Čega?",   "genitiv"],
     ["Komu? Čemu?",   "dativ"],
     ["Koga? Što?",    "akuzativ"],
     ["Kim? Čim?",     "instrumental"]]},
-  {t:"calc", q:"Upiši imenicu knjiga u zadanom padežu jednine.", items:[
+  {t:"calc", q:"Upiši imenicu knjiga u zadanom padežu jednine, malim slovom.", items:[
     ["genitiv",       "knjige"],
     ["dativ",         "knjizi"],
     ["akuzativ",      "knjigu"]]},
@@ -145,6 +148,10 @@ const ZADACI_HRVATSKI_5 = [
     ["", ["neću","ne ću"],       "neću"],
     ["", ["ne znam","neznam"],   "ne znam"],
     ["", ["s njim","snjim"],     "s njim"]]},
+  {t:"izbor", q:"Gdje stoji zarez? Vokativ i usklik odvajaju se zarezom od ostatka rečenice.", items:[
+    ["", ["Ana, dođi ovamo!","Ana dođi ovamo!"],           "Ana, dođi ovamo!"],
+    ["", ["Joj, kako me boli!","Joj kako me boli!"],       "Joj, kako me boli!"],
+    ["", ["Hvala ti, prijatelju.","Hvala ti prijatelju."], "Hvala ti, prijatelju."]]},
   {t:"calc", q:"Prepiši ispravno, s velikim početnim slovima.", items:[
     ["u zagrebu smo bili prošlo ljeto.",      "U Zagrebu smo bili prošlo ljeto."],
     ["moj prijatelj marko živi u splitu.",    "Moj prijatelj Marko živi u Splitu."],
@@ -153,7 +160,8 @@ const ZADACI_HRVATSKI_5 = [
    solution:"ije je dugi odraz jata (mlijeko, cvijet, lijep), je kratki (djeca, mjesto, vjera)"}
 ]},
 
-/* OS HJ B.5.2 (temeljna zanrovska obiljezja knjizevnoga teksta) */
+/* OS HJ B.5.2 (temeljna zanrovska obiljezja knjizevnoga teksta).
+   Rima se ovdje uci kao uobicajena skolska dopuna; formalno je u B.6.2. */
 {id:"h6", nav:"Književni pojmovi", title:"Književni pojmovi",
  lead:"Lirsko, prozno i dramsko; stih, strofa, rima i stilska sredstva.", tasks:[
   {t:"izbor", q:"Kojoj vrsti teksta to pripada?", items:[
@@ -170,8 +178,9 @@ const ZADACI_HRVATSKI_5 = [
   {t:"izbor", q:"Koje je jezično-stilsko sredstvo?", items:[
     ["bijeli snijeg",   ["epitet","usporedba"],  "epitet"],
     ["brz kao vjetar",  ["usporedba","epitet"],  "usporedba"]]},
-  {t:"calc", q:"Upiši broj riječima.", items:[
-    ["koliko stihova ima strofa od četiri reda",  "četiri"]]},
+  {t:"calc", q:"Upiši broj riječima, malim slovom.", items:[
+    ["koliko stihova ima katren",  "četiri"],
+    ["koliko stihova ima dvostih", "dva"]]},
   {t:"note", q:"Pročitaj pjesmu po izboru i zapiši: koliko ima strofa, koliko stihova u prvoj strofi i pronađi jedan epitet.",
    solution:"odgovor ovisi o odabranoj pjesmi"}
 ]},
@@ -187,9 +196,10 @@ const ZADACI_HRVATSKI_5 = [
     ["Idem u školu.",   ["da","ne"], "da"],
     ["Kam greš?",       ["ne","da"], "ne"],
     ["Danas je lijepo.",["da","ne"], "da"]]},
-  {t:"calc", q:"Odgovori jednom riječju.", items:[
-    ["koje je pismo službeno u Republici Hrvatskoj",  "latinica"],
-    ["koliko hrvatski jezik ima narječja",            "tri"]]},
+  {t:"calc", q:"Odgovori jednom riječju, malim slovom.", items:[
+    ["koje je pismo službeno u Republici Hrvatskoj",  "latinica"]]},
+  {t:"calc", q:"Upiši broj riječima, malim slovom.", items:[
+    ["koliko narječja ima hrvatski jezik",            "tri"]]},
   {t:"note", q:"Zapiši tri riječi iz svojega mjesnoga govora i uz svaku napiši riječ hrvatskoga standardnog jezika.",
    solution:"odgovor ovisi o mjestu"}
 ]},
@@ -197,9 +207,9 @@ const ZADACI_HRVATSKI_5 = [
 /* OS HJ A.5.1 (govorenje), A.5.2 (slusanje), A.5.3 (citanje), A.5.4 (pisanje) --
    produktivni ishodi, za vjezbenicu i razgovor, bez automatske provjere */
 {id:"h8", nav:"Govorenje i pisanje", title:"Govorenje, čitanje i pisanje",
- lead:"Zadaci za vježbenicu i razgovor — ovdje se ne ocjenjuje, ovdje se piše.", tasks:[
-  {t:"calc", q:"Dopuni.", items:[
-    ["Tekst trodijelne strukture ima uvod, razradu i __",  "zaključak"]]},
+ lead:"Uglavnom zadaci za vježbenicu i razgovor — ovdje se piše, ne ocjenjuje.", tasks:[
+  {t:"calc", q:"Dopuni jednom riječju, malim slovom.", items:[
+    ["Tekst trodijelne strukture ima uvod, razradu i __.",  "zaključak"]]},
   {t:"note", q:"Napiši sastavak trodijelne strukture na temu „Dan koji ću pamtiti”. Uvod, razrada, zaključak — svaki dio u svojem odlomku.",
    solution:"uvod uvodi u temu, razrada nosi događaje, zaključak zaokružuje"},
   {t:"note", q:"Pročitaj kratak članak iz novina ili s interneta, pa napiši tri ključne riječi i jednu rečenicu koja sažima o čemu je tekst.",

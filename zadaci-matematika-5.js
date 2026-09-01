@@ -18,7 +18,7 @@ const ZADACI_MATEMATIKA_5 = [
 
 /* MAT OS A.5.1 (brojevni izraz, usporedivanje), A.5.6 (zaokruzivanje) */
 {id:"c1", nav:"Prirodni brojevi", title:"Prirodni brojevi i zaokruživanje",
- lead:"Računanje, usporedivanje, redoslijed operacija i zaokruživanje.", tasks:[
+ lead:"Računanje, uspoređivanje, redoslijed operacija i zaokruživanje.", tasks:[
   {t:"calc", oblik:"broj", q:"Izračunaj.",
    items:[["120 + 380","500"],["950 − 275","675"],["25 · 12","300"],["840 : 7","120"]]},
   {t:"calc", oblik:"tekst", q:"Upiši znak <span aria-hidden=\"true\">&lt;</span>, <span aria-hidden=\"true\">&gt;</span> ili =",
@@ -65,12 +65,12 @@ const ZADACI_MATEMATIKA_5 = [
 
 /* MAT OS A.5.3 (prikazi razlomaka) */
 {id:"c3", nav:"Razlomci", title:"Razlomci",
- lead:"Zapis razlomka, mješoviti broj, dio cjeline i usporedivanje.", tasks:[
-  {t:"calc", oblik:"razlomak", q:"Zapiši razlomkom (npr. 3/4).",
+ lead:"Zapis razlomka, mješoviti broj, dio cjeline i uspoređivanje.", tasks:[
+  {t:"calc", oblik:"razlomak", q:"Koliki je to razlomak? Zapiši u obliku 2/7.",
    items:[["tri četvrtine","3/4"],["pet osmina","5/8"],["dvije trećine","2/3"]]},
-  {t:"calc", oblik:"tekst", q:"Pretvori u mješoviti broj. Zapiši u obliku 3 1/2.",
+  {t:"calc", oblik:"tekst", q:"Pretvori u mješoviti broj. Zapiši u obliku 2 1/3.",
    items:[["7/2","3 1/2"],["11/4","2 3/4"],["9/5","1 4/5"]]},
-  {t:"calc", oblik:"tekst", q:"Pretvori u nepravi razlomak. Zapiši u obliku 7/2.",
+  {t:"calc", oblik:"tekst", q:"Pretvori u nepravi razlomak. Zapiši u obliku 8/3.",
    items:[["3 1/2","7/2"],["2 3/4","11/4"],["1 4/5","9/5"]]},
   {t:"calc", oblik:"broj", q:"Koliko je?",
    items:[["3/4 od 20","15"],["2/5 od 45","18"],["5/6 od 30","25"]]},
@@ -88,7 +88,7 @@ const ZADACI_MATEMATIKA_5 = [
 
 /* MAT OS A.5.4 (zapisi decimalnoga broja), A.5.5 (racunanje s decimalnim brojevima) */
 {id:"c4", nav:"Decimalni brojevi", title:"Decimalni brojevi",
- lead:"Računanje, usporedivanje i zaokruživanje decimalnih brojeva.", tasks:[
+ lead:"Računanje, uspoređivanje i zaokruživanje decimalnih brojeva.", tasks:[
   {t:"calc", oblik:"broj", q:"Izračunaj.",
    items:[["2,5 + 1,75","4,25"],["6,4 − 2,9","3,5"],["1,2 · 3","3,6"],["4,5 : 5","0,9"]]},
   {t:"calc", oblik:"broj", q:"Izračunaj.",
@@ -138,7 +138,7 @@ const ZADACI_MATEMATIKA_5 = [
    items:[["susjedni kut kutu od 65°","115"],
           ["vršni kut kutu od 65°","65"],
           ["kut koji s kutom od 30° daje pravi kut","60"],
-          ["1° ima toliko minuta","60"]]},
+          ["koliko minuta ima 1°","60"]]},
   {t:"izbor", q:"Kako se zove taj dio kružnice?", items:[
     ["dužina od središta do kružnice",                    ["polumjer","promjer"], "polumjer"],
     ["dužina kroz središte, od kružnice do kružnice",     ["promjer","tetiva"],   "promjer"],
@@ -149,6 +149,10 @@ const ZADACI_MATEMATIKA_5 = [
     ["kvadrat",              ["da","ne"], "da"],
     ["jednakokračni trokut", ["da","ne"], "da"],
     ["raznostranični trokut",["da","ne"], "ne"]]},
+  {t:"izbor", q:"Ima li lik centar simetrije?", items:[
+    ["kvadrat",              ["da","ne"], "da"],
+    ["paralelogram",         ["da","ne"], "da"],
+    ["jednakokračni trokut", ["da","ne"], "ne"]]},
   {t:"note", q:"Nacrtaj dužinu AB i njezinu os simetrije. Kakav kut os zatvara s dužinom?",
    solution:"pravi kut, 90°; os prolazi polovištem dužine"}
 ]},
@@ -156,12 +160,14 @@ const ZADACI_MATEMATIKA_5 = [
 /* MAT OS D.5.2 (mjerne jedinice), D.5.3 (novac), D.5.4 (opseg i povrsina), D.5.5 (volumen) */
 {id:"c7", nav:"Mjerenje i površina", title:"Mjerenje, opseg, površina i volumen",
  lead:"Pretvaranje jedinica, novac, opseg i površina likova, volumen kocke i kvadra.", tasks:[
-  {t:"calc", oblik:"broj", q:"Pretvori u centimetre.",
+  {t:"calc", oblik:"broj", q:"Pretvori u centimetre. Upiši samo broj.",
    items:[["3 m","300"],["45 mm","4,5"],["2,5 dm","25"]]},
-  {t:"calc", oblik:"broj", q:"Pretvori u grame.",
+  {t:"calc", oblik:"broj", q:"Pretvori u grame. Upiši samo broj, bez razmaka.",
    items:[["2 kg","2000"],["5 dag","50"],["1,5 kg","1500"]]},
-  {t:"calc", oblik:"broj", q:"Pretvori u minute.",
+  {t:"calc", oblik:"broj", q:"Pretvori u minute. Upiši samo broj.",
    items:[["2 h","120"],["1 h 15 min","75"],["180 s","3"]]},
+  {t:"calc", oblik:"broj", q:"Pretvori u litre. Upiši samo broj.",
+   items:[["2 hl","200"],["5 dl","0,5"],["250 ml","0,25"]]},
   {t:"calc", oblik:"broj", q:"Opseg i površina — upiši samo broj.",
    items:[["opseg kvadrata stranice 7 cm","28"],
           ["površina kvadrata stranice 7 cm","49"],
@@ -171,7 +177,7 @@ const ZADACI_MATEMATIKA_5 = [
    items:[["volumen kocke ruba 4 cm","64"],
           ["volumen kvadra 5 cm, 3 cm i 2 cm","30"]]},
   {t:"calc", oblik:"broj", q:"Novac — upiši samo broj eura.",
-   items:[["3 kruha po 1,20 €","3,6"],
+   items:[["koliko koštaju 3 kruha po 1,20 €","3,6"],
           ["cijena 1 kg ako 2 kg košta 7,40 €","3,7"],
           ["koliko ostane od 20 € nakon računa od 13,50 €","6,5"]]},
   {t:"izbor", q:"Koja je mjerna jedinica za površinu?", items:[
@@ -183,7 +189,7 @@ const ZADACI_MATEMATIKA_5 = [
 
 /* MAT OS E.5.1 (baratanje podacima) */
 {id:"c8", nav:"Podaci", title:"Podaci i dijagrami",
- lead:"Čitanje podataka iz popisa i tablice.", tasks:[
+ lead:"Čitanje podataka iz popisa i crtanje dijagrama.", tasks:[
   {t:"calc", oblik:"broj", q:"Ocjene iz matematike u skupini učenika: 5, 4, 4, 3, 5, 5, 2. Odgovori brojem.",
    items:[["koliko učenika ima ocjenu 5","3"],
           ["koliko ih je ukupno","7"],
@@ -193,7 +199,7 @@ const ZADACI_MATEMATIKA_5 = [
    items:[["koliko je dana bilo bez kiše","2"],
           ["koliko je ukupno palo mm kiše","28"],
           ["koliko mm je palo najviše u jednom danu","12"]]},
-  {t:"izbor", q:"Što se nanosi na vodoravnu os stupčastoga dijagrama?", items:[
+  {t:"izbor", q:"U uspravnome stupčastom dijagramu, što se nanosi na vodoravnu os?", items:[
     ["", ["obilježja podataka","broj elemenata"], "obilježja podataka"]]},
   {t:"note", q:"Nacrtaj stupčasti dijagram za ocjene 5, 4, 4, 3, 5, 5, 2.",
    solution:"stupci: ocjena 2 → 1, ocjena 3 → 1, ocjena 4 → 2, ocjena 5 → 3"}
