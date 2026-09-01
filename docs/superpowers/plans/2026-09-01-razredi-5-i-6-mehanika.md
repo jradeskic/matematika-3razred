@@ -924,10 +924,12 @@ provjera("oblik razlomak: usporedba po vrijednosti", async ucitaj => {
 provjera("oblik razlomak: nema binarne pogreske", async ucitaj => {
   const W = await ucitaj();
   istina(W.usporedi("razlomak", "0,3", "3/10"), "0,3 = 3/10");
+  // 0,1 -> 1/10, 0,2 -> 1/5 (skrati ga skrati). Unakrsni zbroj je 15/50, sto je
+  // egzaktno 3/10 -- provjeravamo vrijednost, ne konkretan brojnik i nazivnik.
   const r = W.razloziBroj("0,1");
   const s = W.razloziBroj("0,2");
-  jednako(r.a * s.b + s.a * r.b, 3, "brojnik zbroja 0,1 + 0,2");
-  jednako(r.b * s.b, 10, "nazivnik zbroja 0,1 + 0,2");
+  const zbrojA = r.a * s.b + s.a * r.b, zbrojB = r.b * s.b;
+  jednako(zbrojA * 10, 3 * zbrojB, "0,1 + 0,2 je egzaktno 3/10, bez binarne pogreske");
 });
 
 provjera("oblik popis: poredak je bitan, razmaci nisu", async ucitaj => {
