@@ -624,6 +624,53 @@ provjera("napredak se pamti po paru razred/predmet", async ucitaj => {
   jednako(zapis.razred, "2", "zapisan razred");
 });
 
+/* ---------- prekidac razreda ---------- */
+
+provjera("prekidac razreda ima pilulu za svaki razred", async ucitaj => {
+  const W = await ucitaj();
+  const pilule = [...W.document.querySelectorAll("#razredi .razred")];
+  jednako(pilule.map(p => p.dataset.razred), ["2", "5", "6"], "pilule");
+  jednako(pilule.filter(p => p.classList.contains("aktivan")).length, 1, "jedna je aktivna");
+  jednako(pilule.filter(p => p.disabled).length, 0, "ni jedna nije onemogucena");
+});
+
+provjera("prebacivanje razreda mijenja naslov i cjeline", async ucitaj => {
+  const W = await ucitaj();
+  W.document.querySelector("#razredi .razred[data-razred='6']").click();
+  await cekaj(300);
+  jednako(W.document.title, "Matematika — gradivo 6. razreda", "naslov");
+  jednako(W.stanje().razred, "6", "aktivni razred");
+  istina(!!W.document.querySelector("#main section#c1"), "cjelina je iscrtana");
+});
+
+provjera("prebacivanje razreda cuva napredak oba razreda", async ucitaj => {
+  const W = await ucitaj();
+  const m = polja(W)[0];
+  upisi(W, m, m.dataset.answer);
+  await cekaj(300);
+  W.document.querySelector("#razredi .razred[data-razred='6']").click();
+  await cekaj(300);
+  const n = polja(W)[0];
+  upisi(W, n, n.dataset.answer);
+  await cekaj(300);
+  W.document.querySelector("#razredi .razred[data-razred='2']").click();
+  await cekaj(300);
+  jednako(polja(W)[0].value, polja(W)[0].dataset.answer, "odgovor 2. razreda je vracen");
+  const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(Object.keys(zapis.napredak).sort(), ["2/matematika", "6/matematika"], "oba kljuca");
+});
+
+provjera("razred i predmet prezive osvjezavanje stranice", async ucitaj => {
+  const W = await ucitaj();
+  W.document.querySelector("#razredi .razred[data-razred='5']").click();
+  await cekaj(300);
+  W.document.querySelector("#predmeti .predmet[data-predmet='hrvatski']").click();
+  await cekaj(300);
+  const W2 = await ucitaj();
+  jednako(W2.stanje().razred, "5", "razred nakon osvjezavanja");
+  jednako(W2.stanje().predmet, "hrvatski", "predmet nakon osvjezavanja");
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {

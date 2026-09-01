@@ -301,6 +301,14 @@
     background:#f1eee2;border:2px solid transparent;color:var(--ink);
   }
   button.predmet.aktivan{background:var(--sky);border-color:var(--sky);color:#fff}
+  .razredi{display:flex;gap:10px;margin:14px 0 0;flex-wrap:wrap}
+  button.razred{
+    min-height:46px;min-width:46px;padding:0 18px;border-radius:999px;
+    font:700 16px/1 "Nunito",sans-serif;
+    background:#f1eee2;border:2px solid transparent;color:var(--ink);
+  }
+  button.razred.aktivan{background:var(--grass);border-color:var(--grass);color:#fff}
+  button.razred:disabled{opacity:.45}
   button.predmet-izbor{
     flex:1;min-height:64px;padding:12px 10px;
     border:2px solid var(--line);border-radius:16px;background:#fff;
@@ -355,7 +363,12 @@
     button.chip{width:auto}
     button.slovo{width:auto}
     button.predmet{width:auto}
+    button.razred{width:auto}
     button.predmet-izbor{width:auto}
+  }
+  @media (max-width:420px){
+    button.razred{padding:0 14px}
+    button.razred .dugo{display:none}
   }
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -371,6 +384,7 @@
     <span id="pozdravTekst"></span>
     <button type="button" class="link" id="promijeni">promijeni</button>
   </p>
+  <div class="razredi" id="razredi" role="group" aria-label="Razred"></div>
   <div class="predmeti" id="predmeti" role="group" aria-label="Predmet"></div>
   <div class="ladder" id="ladder" aria-hidden="true"></div>
   <div class="ladder-scale"><span>0</span><span>50</span><span>100</span></div>
@@ -1719,6 +1733,52 @@ function vratiNapredak() {
   return vraceno;
 }
 
+/* ---------- prekidac razreda ----------
+   Isti mehanizam kao prekidac predmeta. Razred bez ucitanih zadataka dobiva
+   onemogucenu pilulu: bolje jedan nedostupan razred nego bijela stranica.
+------------------------------------------------------------------------- */
+const razrediTraka = document.getElementById("razredi");
+
+const imaGradivo = (r, p) =>
+  !!(GRADIVO[r] && GRADIVO[r][p] && GRADIVO[r][p].zadaci && GRADIVO[r][p].zadaci.length);
+
+function iscrtajRazrede() {
+  razrediTraka.innerHTML = Object.entries(RAZREDI).map(([k, r]) => {
+    const dostupan = imaGradivo(k, predmet);
+    return `<button type="button" class="razred" data-razred="${k}"` +
+           ` aria-pressed="false" aria-label="${r.naziv}"` +
+           (dostupan ? "" : ` disabled title="zadaci za ovaj razred nisu učitani"`) +
+           `>${r.kratko}<span class="dugo">. razred</span></button>`;
+  }).join("");
+}
+
+function oznaciRazred() {
+  razrediTraka.querySelectorAll(".razred").forEach(b => {
+    const je = b.dataset.razred === razred;
+    b.classList.toggle("aktivan", je);
+    b.setAttribute("aria-pressed", je ? "true" : "false");
+  });
+}
+
+function prebaciRazred(kljuc) {
+  if (kljuc === razred || !imaGradivo(kljuc, predmet)) return;
+  zapamtiOdgovore();                 // zapamti ono sto ostaje za sobom
+  streak = 0;
+  finaleShown = false;
+  buddy.reset();
+  izgradiPredmet(kljuc, predmet);
+  profil.razred = razred;
+  spremiProfil();
+  oznaciRazred();
+  vratiNapredak();
+  updateProgress();
+}
+
+razrediTraka.addEventListener("click", e => {
+  const b = e.target.closest(".razred");
+  if (b && !b.disabled) prebaciRazred(b.dataset.razred);
+});
+
 /* ---------- prekidac predmeta ---------- */
 const predmetiTraka = document.getElementById("predmeti");
 predmetiTraka.innerHTML = Object.entries(PREDMETI).map(([k, p]) =>
@@ -1740,6 +1800,8 @@ function prebaciPredmet(kljuc) {
   finaleShown = false;
   buddy.reset();
   izgradiPredmet(razred, kljuc);
+  iscrtajRazrede();                  // dostupnost razreda ovisi o predmetu
+  oznaciRazred();
   profil.predmet = predmet;
   spremiProfil();
   oznaciPredmet();
@@ -1754,6 +1816,8 @@ predmetiTraka.addEventListener("click", e => {
 
 /* ---------- pokretanje ---------- */
 izgradiPredmet(profil.razred, profil.predmet);   // otvori se na zadnjem paru
+iscrtajRazrede();
+oznaciRazred();
 oznaciPredmet();
 nacrtajPreglede();
 buddy.postaviLik(profil.avatar);
