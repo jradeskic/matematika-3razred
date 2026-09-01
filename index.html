@@ -644,7 +644,11 @@ window.stanje = () => ({ razred, predmet });
    Napredak se pamti odvojeno po predmetu.
 ------------------------------------------------------------------- */
 const KLJUC_PROFILA = "mat3-profil-v1";
-const profil = { v: 2, ime: "", avatar: "patuljak", predmet: "matematika", napredak: {} };
+const profil = { v: 3, ime: "", avatar: "patuljak", razred: "2", predmet: "matematika", napredak: {} };
+
+// Kljuc pamcenja je par razreda i predmeta. Isti oblik kljuca koristi i
+// Set "promijenjeni", pa zastita od zastarjele kartice radi nepromijenjeno.
+const kljucNapretka = () => razred + "/" + predmet;
 
 // Predmeti koje je ova sesija mijenjala. Za njih je stanje u memoriji
 // mjerodavno i disk ga ne smije prepisati -- ni kad se predmet prebaci prije
@@ -657,14 +661,28 @@ function ucitajProfil() {
     if (!zapis || typeof zapis !== "object") return false;
     profil.ime = typeof zapis.ime === "string" ? zapis.ime.slice(0, 20) : "";
     profil.avatar = zapis.avatar === "jedi" ? "jedi" : "patuljak";
-    if (zapis.v === 2) {
-      profil.predmet = PREDMETI[zapis.predmet] ? zapis.predmet : "matematika";
-      profil.napredak = (zapis.napredak && typeof zapis.napredak === "object") ? zapis.napredak : {};
+    profil.predmet = PREDMETI[zapis.predmet] ? zapis.predmet : "matematika";
+
+    const mapa = (zapis.napredak && typeof zapis.napredak === "object" &&
+                  !Array.isArray(zapis.napredak)) ? zapis.napredak : {};
+
+    if (zapis.v >= 3) {
+      // v:3 i noviji: kljucevi su vec slozeni. Nepoznate kljuceve zadrzavamo --
+      // dolaze iz novije verzije stranice i ne smijemo ih izgubiti pri upisu.
+      profil.razred = RAZREDI[zapis.razred] ? zapis.razred : "2";
+      profil.napredak = mapa;
+    } else if (zapis.v === 2) {
+      // zapis prije uvodenja razreda: sve je bilo gradivo 2. razreda
+      profil.razred = "2";
+      profil.napredak = {};
+      for (const p of Object.keys(mapa))
+        if (PREDMETI[p]) profil.napredak["2/" + p] = mapa[p];
     } else {
-      // zapis prije uvodenja predmeta: odgovori su bili samo matematicki
+      // v:1, prije uvodenja predmeta: odgovori su bili samo matematicki
+      profil.razred = "2";
       profil.predmet = "matematika";
       profil.napredak = {
-        matematika: (zapis.odgovori && typeof zapis.odgovori === "object") ? zapis.odgovori : {}
+        "2/matematika": (zapis.odgovori && typeof zapis.odgovori === "object") ? zapis.odgovori : {}
       };
     }
     return true;
@@ -679,7 +697,7 @@ function spremiProfil() {
     // upisivanje, inace bi dijete tiho prestalo pamtiti napredak.
     try {
       const naDisku = JSON.parse(localStorage.getItem(KLJUC_PROFILA) || "null");
-      if (naDisku && naDisku.v === 2 && naDisku.napredak &&
+      if (naDisku && naDisku.v >= 3 && naDisku.napredak &&
           typeof naDisku.napredak === "object" && !Array.isArray(naDisku.napredak))
         for (const p of Object.keys(naDisku.napredak))
           if (!promijenjeni.has(p)) profil.napredak[p] = naDisku.napredak[p];
@@ -1485,8 +1503,8 @@ document.getElementById("clear").addEventListener("click", () => {
   levels().forEach(s => s.classList.remove("won"));
   document.querySelectorAll("nav a.done").forEach(a => a.classList.remove("done"));
   buddy.reset();
-  profil.napredak[predmet] = {};        // inace bi osvjezavanje vratilo stare odgovore
-  promijenjeni.add(predmet);
+  profil.napredak[kljucNapretka()] = {}; // inace bi osvjezavanje vratilo stare odgovore
+  promijenjeni.add(kljucNapretka());
   spremiProfil();
   updateProgress();
 });
@@ -1676,14 +1694,16 @@ poljeIme.addEventListener("keydown", e => {
 function zapamtiOdgovore() {
   const zapis = {};
   inputs().forEach(i => { if (i.value.trim() !== "") zapis[i.dataset.key] = i.value; });
-  profil.napredak[predmet] = zapis;
-  promijenjeni.add(predmet);
+  const kljuc = kljucNapretka();
+  profil.napredak[kljuc] = zapis;
+  promijenjeni.add(kljuc);
+  profil.razred = razred;
   profil.predmet = predmet;
   spremiProfil();
 }
 
 function vratiNapredak() {
-  const zapis = profil.napredak[predmet];
+  const zapis = profil.napredak[kljucNapretka()];
   if (!zapis || !Object.keys(zapis).length) return 0;
   let vraceno = 0;
   inputs().forEach(inp => {
@@ -1733,7 +1753,7 @@ predmetiTraka.addEventListener("click", e => {
 });
 
 /* ---------- pokretanje ---------- */
-izgradiPredmet("2", profil.predmet);   // razred dolazi iz profila u Tasku 3
+izgradiPredmet(profil.razred, profil.predmet);   // otvori se na zadnjem paru
 oznaciPredmet();
 nacrtajPreglede();
 buddy.postaviLik(profil.avatar);

@@ -298,10 +298,10 @@ provjera("stari zapis se prevodi u v:2 i cuva matematicki napredak", async ucita
   const W = await ucitaj();
   await cekaj(300);
   const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
-  jednako(zapis.v, 2, "verzija zapisa");
+  jednako(zapis.v, 3, "verzija zapisa");
   jednako(zapis.ime, "Luka", "ime je ocuvano");
   jednako(zapis.avatar, "jedi", "avatar je ocuvan");
-  jednako(zapis.napredak.matematika["c1|63|0"], "6D3J", "matematicki odgovor je ocuvan");
+  jednako(zapis.napredak["2/matematika"]["c1|63|0"], "6D3J", "matematicki odgovor je ocuvan");
   jednako(W.document.querySelectorAll("#main input.ok").length, 1, "odgovor je vracen na ekran");
 });
 
@@ -326,8 +326,8 @@ provjera("prebacivanje predmeta cuva napredak oba predmeta", async ucitaj => {
   [...stavka.querySelectorAll(".chip")].find(t => t.dataset.vrijednost === inp.dataset.answer).click();
   await cekaj(300);
   const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
-  jednako(Object.keys(zapis.napredak.matematika).length, 1, "matematicki napredak je ostao");
-  jednako(Object.keys(zapis.napredak.hrvatski).length, 1, "hrvatski napredak je zapisan");
+  jednako(Object.keys(zapis.napredak["2/matematika"]).length, 1, "matematicki napredak je ostao");
+  jednako(Object.keys(zapis.napredak["2/hrvatski"]).length, 1, "hrvatski napredak je zapisan");
   jednako(zapis.predmet, "hrvatski", "zadnje biran predmet");
   // natrag na matematiku: odgovor je tu
   W.document.querySelector('.predmet[data-predmet="matematika"]').click();
@@ -350,7 +350,7 @@ provjera("prebacivanje predmeta ne gubi jos nezapisane odgovore", async ucitaj =
   W.document.querySelector('.predmet[data-predmet="matematika"]').click();
   await cekaj(600);
   const disk = JSON.parse(localStorage.getItem("mat3-profil-v1"));
-  jednako(Object.keys(disk.napredak.hrvatski).length, 5, "svih pet je zapisano");
+  jednako(Object.keys(disk.napredak["2/hrvatski"]).length, 5, "svih pet je zapisano");
 });
 
 provjera("Pocni ispocetka nije ponisten brzim prebacivanjem", async ucitaj => {
@@ -362,7 +362,7 @@ provjera("Pocni ispocetka nije ponisten brzim prebacivanjem", async ucitaj => {
   W.document.querySelector('.predmet[data-predmet="hrvatski"]').click();   // odmah, bez pauze
   await cekaj(600);
   const disk = JSON.parse(localStorage.getItem("mat3-profil-v1"));
-  jednako(Object.keys(disk.napredak.matematika).length, 0, "matematika je ostala obrisana");
+  jednako(Object.keys(disk.napredak["2/matematika"]).length, 0, "matematika je ostala obrisana");
 });
 
 provjera("prebacivanje predmeta ne ispaljuje konfete", async ucitaj => {
@@ -395,8 +395,8 @@ provjera("Pocni ispocetka brise samo trenutni predmet", async ucitaj => {
   W.document.getElementById("clear").click();
   await cekaj(300);
   const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
-  jednako(Object.keys(zapis.napredak.hrvatski).length, 0, "hrvatski je obrisan");
-  jednako(Object.keys(zapis.napredak.matematika).length, 1, "matematika je ostala");
+  jednako(Object.keys(zapis.napredak["2/hrvatski"]).length, 0, "hrvatski je obrisan");
+  jednako(Object.keys(zapis.napredak["2/matematika"]).length, 1, "matematika je ostala");
 });
 
 provjera("ustajala kartica ne brise napredak drugog predmeta", async ucitaj => {
@@ -407,16 +407,16 @@ provjera("ustajala kartica ne brise napredak drugog predmeta", async ucitaj => {
   await cekaj(300);
   // druga kartica u meduvremenu upisuje napredak hrvatskoga
   const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
-  zapis.napredak.hrvatski = { "h2|ku_a (dom)|0": "ć" };
+  zapis.napredak["2/hrvatski"] = { "h2|ku_a (dom)|0": "ć" };
   localStorage.setItem("mat3-profil-v1", JSON.stringify(zapis));
   // prva kartica sada spremi jos jedan matematicki odgovor
   const m2 = polja(W)[1];
   upisi(W, m2, m2.dataset.answer);
   await cekaj(300);
   const nakon = JSON.parse(localStorage.getItem("mat3-profil-v1"));
-  jednako(nakon.napredak.hrvatski, { "h2|ku_a (dom)|0": "ć" },
+  jednako(nakon.napredak["2/hrvatski"], { "h2|ku_a (dom)|0": "ć" },
           "napredak hrvatskoga je ocuvan");
-  jednako(Object.keys(nakon.napredak.matematika).length, 2,
+  jednako(Object.keys(nakon.napredak["2/matematika"]).length, 2,
           "oba matematicka odgovora su zapisana");
 });
 
@@ -427,8 +427,8 @@ provjera("pokvaren zapis na disku ne zaustavlja spremanje", async ucitaj => {
   upisi(W, m, m.dataset.answer);
   await cekaj(300);
   const nakon = JSON.parse(localStorage.getItem("mat3-profil-v1"));
-  jednako(nakon.v, 2, "zapis je prepisan ispravnim oblikom");
-  jednako(Object.keys(nakon.napredak.matematika).length, 1, "odgovor je zapamcen");
+  jednako(nakon.v, 3, "zapis je prepisan ispravnim oblikom");
+  jednako(Object.keys(nakon.napredak["2/matematika"]).length, 1, "odgovor je zapamcen");
 });
 
 /* ---------- odabir predmeta u prijavi ---------- */
@@ -568,6 +568,60 @@ provjera("GRADIVO ima sva sest skupova i ni jedan nije prazan", async ucitaj => 
       parovi.push([r + "/" + p, (W.GRADIVO[r] && W.GRADIVO[r][p] || {}).zadaci]);
   const prazni = parovi.filter(([, z]) => !z || !z.length).map(([k]) => k);
   jednako(prazni, [], "skupovi bez zadataka");
+});
+
+/* ---------- migracija profila na v:3 ---------- */
+
+provjera("v:1 zapis se migrira u napredak 2/matematika", async ucitaj => {
+  localStorage.setItem("mat3-profil-v1", JSON.stringify({
+    ime: "Luka", avatar: "jedi", odgovori: { "c1|63|0": "6D3J" }
+  }));
+  const W = await ucitaj();
+  await cekaj(300);
+  const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(zapis.v, 3, "verzija zapisa");
+  jednako(zapis.ime, "Luka", "ime je ocuvano");
+  jednako(zapis.razred, "2", "razred");
+  jednako(zapis.napredak["2/matematika"]["c1|63|0"], "6D3J", "odgovor je preseljen");
+  jednako(W.document.querySelectorAll("#main input.ok").length, 1, "odgovor je vracen na ekran");
+});
+
+provjera("v:2 zapis se migrira u slozene kljuceve", async ucitaj => {
+  localStorage.setItem("mat3-profil-v1", JSON.stringify({
+    v: 2, ime: "Ana", avatar: "patuljak", predmet: "hrvatski",
+    napredak: { matematika: { "c1|63|0": "6D3J" }, hrvatski: { "h1|Živim u ____.|0": "Hrvatskoj" } }
+  }));
+  const W = await ucitaj();
+  await cekaj(300);
+  const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(zapis.v, 3, "verzija zapisa");
+  jednako(zapis.napredak["2/matematika"]["c1|63|0"], "6D3J", "matematika preseljena");
+  istina(!!zapis.napredak["2/hrvatski"], "hrvatski preseljen");
+  jednako(zapis.napredak.matematika, undefined, "stari kljuc je uklonjen");
+  jednako(W.stanje().predmet, "hrvatski", "otvara se na zapamcenom predmetu");
+  jednako(W.stanje().razred, "2", "otvara se na 2. razredu");
+});
+
+provjera("zapis novije verzije se cita i ne gubi nepoznate kljuceve", async ucitaj => {
+  localStorage.setItem("mat3-profil-v1", JSON.stringify({
+    v: 4, ime: "Mia", avatar: "jedi", razred: "2", predmet: "matematika",
+    napredak: { "2/matematika": { "c1|63|0": "6D3J" }, "9/fizika": { "x|y|0": "42" } }
+  }));
+  const W = await ucitaj();
+  await cekaj(300);
+  const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(W.document.querySelectorAll("#main input.ok").length, 1, "poznati napredak je prikazan");
+  jednako(zapis.napredak["9/fizika"]["x|y|0"], "42", "nepoznati kljuc je prezivio upis");
+});
+
+provjera("napredak se pamti po paru razred/predmet", async ucitaj => {
+  const W = await ucitaj();
+  const m = polja(W)[0];
+  upisi(W, m, m.dataset.answer);
+  await cekaj(300);
+  const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(Object.keys(zapis.napredak), ["2/matematika"], "kljucevi napretka");
+  jednako(zapis.razred, "2", "zapisan razred");
 });
 
 /* ---------- pokretanje ---------- */
