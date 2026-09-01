@@ -1266,9 +1266,20 @@ U `prebaciRazred()` i `prebaciPredmet()`, uz `oznaciRazred()` / `oznaciPredmet()
   iscrtajZnakove();
 ```
 
-`iscrtajZnakove` je definirana **nakon** tih funkcija u datoteci, ali se poziva samo iz
-obrađivača događaja, pa je do prvog klika već deklarirana. Ako se to promijeni, premjesti blok
-znakova iznad prekidača.
+**I pri pokretanju stranice**, uz `iscrtajRazrede()` / `oznaciRazred()`:
+
+```js
+iscrtajZnakove();
+```
+
+Bez tog poziva korisnik s pamćenim profilom (npr. hrvatski, 6. razred) dobije pri prvom fokusu
+praznu ili pogrešnu traku, jer je `#slova` iscrtan samo za zadane vrijednosti — i to ostane tako
+dok razred ili predmet ručno ne prebaci.
+
+Poziv `iscrtajZnakove()` **ne smije** ući u `izgradiPredmet()`, iako bi to izgledalo čišće:
+`izgradiPredmet` se poziva rano u skripti, iznad deklaracije `const slovaTraka`, pa bi to bacilo
+`Cannot access 'slovaTraka' before initialization`. Pozivi ostaju u `prebaciRazred()`,
+`prebaciPredmet()` i bloku pokretanja.
 
 - [ ] **Step 6: Pokreni harness — mora proći**
 
