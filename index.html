@@ -900,8 +900,6 @@ function izgradiPredmet(kljucRazreda, kljucPredmeta) {
   });
 }
 
-izgradiPredmet(razred, predmet);
-
 /* ---------- provjera ---------- */
 const norm = v => v.toString().toLowerCase()
   .replace(/\s+/g, "")
@@ -1007,6 +1005,11 @@ function tocno(upis, odgovor, oblik) {
     ? ocisti(upis) === ocisti(odgovor)
     : norm(upis) === norm(odgovor);
 }
+
+// poziv je ovdje, ispod cijelog bloka oblika: izgradiPredmet -> oblikValjan
+// koristi izravnajZnakove i OBLICI, a to su const-ovi koji bi inace bili
+// jos u TDZ-u da je poziv ostao na vrhu skripte (odmah iznad "provjera")
+izgradiPredmet(razred, predmet);
 
 // samo polja u zadacima; polje za nadimak u prijavi ne smije se racunati
 const inputs = () => Array.from(main.querySelectorAll("input[type=text]"));
@@ -1510,7 +1513,8 @@ function finale() {
 }
 
 function updateProgress(opt = {}) {
-  const all = inputs();
+  // pokvareno polje (bez data-answer) se ne broji, isto kao ni data-total razine
+  const all = inputs().filter(i => i.hasAttribute("data-answer"));
   const okAll = all.filter(i => i.classList.contains("ok")).length;
   const secs = levels();
   let done = 0;
@@ -1823,6 +1827,9 @@ function vratiNapredak() {
   if (!zapis || !Object.keys(zapis).length) return 0;
   let vraceno = 0;
   inputs().forEach(inp => {
+    // pokvareno polje nema data-answer; tocno() bi na njemu puknuo na
+    // razloziBroj(undefined) i prekinuo vracanje svih preostalih polja
+    if (!inp.hasAttribute("data-answer")) return;
     const v = zapis[inp.dataset.key];
     if (typeof v !== "string" || v.trim() === "") return;
     inp.value = v;

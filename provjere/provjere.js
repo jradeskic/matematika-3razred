@@ -737,6 +737,60 @@ provjera("pokvaren odgovor u podacima ne kaznjava dijete", async ucitaj => {
   jednako(W.usporedi("razlomci", "6/8", "3/4"), null, "nepoznat oblik ne usporeduje");
 });
 
+/* Pokrivenost stvarne putanje pokvarenog polja (Important 1-3 iz recenzije Taska 5):
+   pokvaren zadatak se privremeno ubaci u stvarno gradivo 6. razreda, izgradiPredmet
+   se pozove izravno (bez klikova po sucelju), pa se provjeri da pokvareno polje ne
+   rusi ni iscrtavanje ni vracanje spremljenog napretka za preostala polja.        */
+provjera("pokvareno polje u stvarnim podacima ne rusi ostatak stranice", async ucitaj => {
+  const W = await ucitaj();
+  const izvorni = W.GRADIVO["6"].matematika.zadaci;
+  try {
+    W.GRADIVO["6"].matematika.zadaci = [
+      ...izvorni,
+      { id: "testpokvareno", nav: "Test", title: "Test", lead: "Test.", tasks: [
+        { t: "calc", oblik: "razlomak", q: "Test.", items: [["3/4 =", "tri četvrtine"]] }
+      ] }
+    ];
+    W.izgradiPredmet("6", "matematika");
+
+    const secPokvareno = W.document.getElementById("testpokvareno");
+    const inpPokvareno = secPokvareno.querySelector("input[type=text]");
+    istina(inpPokvareno.disabled, "pokvareno polje je disabled");
+    istina(inpPokvareno.classList.contains("pokvaren"), "pokvareno polje ima klasu pokvaren");
+    istina(!inpPokvareno.hasAttribute("data-answer"), "pokvareno polje nema data-answer");
+    istina(!secPokvareno.hasAttribute("data-total"),
+      "cjelina bez ijednog valjanog polja ne dobiva data-total (total je 0, pa se traka ne iscrtava)");
+
+    // spremljen napredak: kljuc pokvarenog polja iz vremena kad je zadatak bio valjan,
+    // plus stvarno polje iz c1 koje mora ostati vraceno unatoc pokvarenom polju.
+    // "profil" je const objekt i ne dolazi na window (isto ogranicenje kao
+    // kljucNapretka/imaGradivo), pa napredak upisujemo na disk pa ga ucitajProfil()
+    // (deklaracija funkcije, dolazi na window) vrati u zivi "profil" u memoriji.
+    const secDobro = W.document.getElementById("c1");
+    const inpDobro = secDobro.querySelector("input[data-answer]");
+    const st = W.stanje();
+    const kljuc = st.razred + "/" + st.predmet;
+    W.localStorage.setItem("mat3-profil-v1", JSON.stringify({
+      v: 3, ime: "", avatar: "patuljak", razred: st.razred, predmet: st.predmet,
+      napredak: {
+        [kljuc]: {
+          [inpPokvareno.dataset.key]: "3/4",
+          [inpDobro.dataset.key]: inpDobro.dataset.answer
+        }
+      }
+    }));
+    W.ucitajProfil();
+
+    let bacilo = false;
+    try { W.vratiNapredak(); } catch (e) { bacilo = true; }
+    istina(!bacilo, "vratiNapredak ne baca kad spremljeni kljuc pogodi pokvareno polje");
+    istina(inpDobro.classList.contains("ok"), "preostalo (valjano) polje se i dalje vraca");
+  } finally {
+    W.GRADIVO["6"].matematika.zadaci = izvorni;
+    W.izgradiPredmet("2", "matematika");
+  }
+});
+
 /* ---------- pokretanje ---------- */
 
 (async () => {
