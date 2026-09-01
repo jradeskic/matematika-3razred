@@ -145,7 +145,7 @@ provjera("odsutan skup zadataka onemogucuje pilulu, stranica radi", async ucitaj
    -- to je upravo mehanizam koji sprjecava ReferenceError kad datoteka sa
    zadacima ne stigne. */
 provjera("svih sest zadaci izraza u GRADIVU ima typeof cuvar", async ucitaj => {
-  const izvor = await fetch("../index.html").then(r => r.text());
+  const izvor = await fetch("../index.html?nc=" + Date.now()).then(r => r.text());
   const imena = ["ZADACI_MATEMATIKA_2", "ZADACI_HRVATSKI_2", "ZADACI_MATEMATIKA_5",
                  "ZADACI_HRVATSKI_5", "ZADACI_MATEMATIKA_6", "ZADACI_HRVATSKI_6"];
   const nedostaje = imena.filter(ime =>
@@ -806,9 +806,20 @@ provjera("prebacivanje razreda cuva napredak oba razreda", async ucitaj => {
 });
 
 provjera("prebacivanje razreda ne gubi jos nezapisan odgovor", async ucitaj => {
+  localStorage.setItem("mat3-profil-v1", JSON.stringify({
+    v: 3, ime: "", avatar: "patuljak", razred: "2", predmet: "matematika",
+    napredak: { "2/matematika": {}, "6/matematika": {} }
+  }));
   const W = await ucitaj();
   const m = polja(W)[0];
-  upisi(W, m, m.dataset.answer);            // pokrece odgodeni upis (200ms)
+  // upisi() salje sinteticki "focusout", a on sam po sebi vec zove
+  // zapamtiOdgovore() (main ima focusout slusac) -- to bi maskiralo bas onu
+  // regresiju koju ovdje zelimo uhvatiti. Zato ovdje samo mijenjamo
+  // vrijednost i saljemo "input" (kao dijete koje jos tipka), bez izlaska iz
+  // polja -- jedini poziv zapamtiOdgovore() koji moze zabiljeziti ovaj
+  // odgovor prije prebacivanja razreda je onaj unutar prebaciRazred().
+  m.value = m.dataset.answer;
+  m.dispatchEvent(new W.Event("input", { bubbles: true }));
   // odmah, bez cekaj(): sve tri gornje provjere razreda cekaju cekaj(300)
   // izmedju klikova, pa nikad ne gadjaju ovaj prozor -- upis vec okine prije
   // klika. Ovdje je isti scenarij kao "prebacivanje predmeta ne gubi jos
