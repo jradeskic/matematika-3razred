@@ -38,7 +38,7 @@ iframeu preko `python -m http.server 8765`.
 
 ## Polazno stanje
 
-Harness na `main` prolazi s **PASS (41)**. Svaki task završava harnessom u zelenom; broj
+Harness na `main` prolazi s **PASS (43)**. Svaki task završava harnessom u zelenom; broj
 provjera raste kroz plan.
 
 ## File Structure
@@ -287,7 +287,7 @@ provjera("RAZREDI ima 2., 5. i 6. razred", async ucitaj => {
 - [ ] **Step 10: Pokreni harness — mora proći**
 
 Otvori `http://localhost:8765/provjere/pokreni.html`.
-Očekivano: **PASS (43)**.
+Očekivano: **PASS (45)**.
 
 - [ ] **Step 11: Commit**
 
@@ -470,7 +470,7 @@ U `GRADIVO`, uz postojeću granu `"2"`:
 
 - [ ] **Step 8: Pokreni harness — mora proći**
 
-Očekivano: **PASS (44)**.
+Očekivano: **PASS (46)**.
 
 - [ ] **Step 9: Commit**
 
@@ -631,9 +631,42 @@ function vratiNapredak() {
 
 Ostatak `vratiNapredak()` je nepromijenjen.
 
-Blok spajanja s diskom u `spremiProfil()` (`index.html:626-628`) se **ne mijenja** — iterira
-`Object.keys(naDisku.napredak)` i uspoređuje sa `promijenjeni`, pa radi na složenim ključevima
-jednako kao na starim.
+Blok spajanja s diskom u `spremiProfil()` (`index.html:626-628`) **mora promijeniti uvjet
+verzije** s `naDisku.v === 2` na `naDisku.v >= 3`:
+
+```js
+      if (naDisku && naDisku.v >= 3 && naDisku.napredak &&
+```
+
+Ostatak bloka ostaje kakav je — iterira `Object.keys(naDisku.napredak)` i uspoređuje sa
+`promijenjeni`, pa radi na složenim ključevima jednako kao na starim.
+
+**Zašto uvjet mora ići uz migraciju:** čim `profil.v` postane 3, zapis na disku je `v:3`, pa
+`=== 2` više nikad nije istinit i blok spajanja se ne izvrši. Zaštita od zastarjele kartice bila
+bi trajno mrtva, a napredak koji druga kartica upiše bio bi prepisan pri sljedećem odgođenom
+upisu — što ruši nadređenu invarijantu „nijedna grana ne briše napredak". `>= 2` je pogrešno u
+drugu stranu: goli ključ `matematika` s v:2 diska vratio bi se u `profil.napredak` i zauvijek
+ostao u zapisu. `=== 3` je prestrogo, jer v:4 zapis po ugovoru ove verzije ima složene ključeve
+i mora ući u spajanje.
+
+- [ ] **Step 4b: Prilagodi i gumb „Počni ispočetka"**
+
+Gumb koji prazni napredak (`index.html:1429`, `profil.napredak[predmet] = {}`) također je pisač u
+`napredak` i mora prijeći na složeni ključ:
+
+```js
+  profil.napredak[kljucNapretka()] = {};   // inace bi osvjezavanje vratilo stare odgovore
+  promijenjeni.add(kljucNapretka());
+```
+
+Bez ovoga gumb tiho ne radi: brisao bi pod golim `predmet`, a `vratiNapredak()` čita složeni
+ključ, pa bi se stari odgovori vratili pri prvom osvježavanju.
+
+Nakon Taska 3 svaki pisač u `profil.napredak` ide kroz `kljucNapretka()`. Provjeri:
+
+```bash
+grep -n "profil.napredak\[" index.html    # svaki mora koristiti kljucNapretka() ili slozeni kljuc
+```
 
 - [ ] **Step 5: Prilagodi pokretanje**
 
@@ -643,7 +676,7 @@ izgradiPredmet(profil.razred, profil.predmet);   // otvori se na zadnjem paru
 
 - [ ] **Step 6: Pokreni harness — mora proći**
 
-Očekivano: **PASS (48)**.
+Očekivano: **PASS (50)**.
 
 - [ ] **Step 7: Commit**
 
@@ -834,7 +867,7 @@ oznaciRazred();
 
 - [ ] **Step 7: Pokreni harness — mora proći**
 
-Očekivano: **PASS (52)**.
+Očekivano: **PASS (54)**.
 
 - [ ] **Step 8: Commit**
 
@@ -891,10 +924,12 @@ provjera("oblik razlomak: usporedba po vrijednosti", async ucitaj => {
 provjera("oblik razlomak: nema binarne pogreske", async ucitaj => {
   const W = await ucitaj();
   istina(W.usporedi("razlomak", "0,3", "3/10"), "0,3 = 3/10");
+  // 0,1 -> 1/10, 0,2 -> 1/5 (skrati ga skrati). Unakrsni zbroj je 15/50, sto je
+  // egzaktno 3/10 -- provjeravamo vrijednost, ne konkretan brojnik i nazivnik.
   const r = W.razloziBroj("0,1");
   const s = W.razloziBroj("0,2");
-  jednako(r.a * s.b + s.a * r.b, 3, "brojnik zbroja 0,1 + 0,2");
-  jednako(r.b * s.b, 10, "nazivnik zbroja 0,1 + 0,2");
+  const zbrojA = r.a * s.b + s.a * r.b, zbrojB = r.b * s.b;
+  jednako(zbrojA * 10, 3 * zbrojB, "0,1 + 0,2 je egzaktno 3/10, bez binarne pogreske");
 });
 
 provjera("oblik popis: poredak je bitan, razmaci nisu", async ucitaj => {
@@ -1114,7 +1149,7 @@ rukom. Propušten poziv znači da bi polje 5./6. razreda tiho ostalo na starom p
 
 - [ ] **Step 6: Pokreni harness — mora proći**
 
-Očekivano: **PASS (59)**.
+Očekivano: **PASS (61)**.
 
 - [ ] **Step 7: Commit**
 
@@ -1166,7 +1201,11 @@ provjera("tipka iz trake upisuje znak u polje u fokusu", async ucitaj => {
   W.document.querySelector("#razredi .razred[data-razred='6']").click();
   await cekaj(300);
   const inp = vidljivaPolja(W)[0];
+  // Samo inp.focus() nije dosta: kad prozor preglednika nema OS fokus,
+  // focusin se ne okine, traka ostane skrivena i provjera pada iako je kod
+  // ispravan. Odasiljemo dogadjaj sami, kao sto upisi() radi za focusout.
   inp.focus();
+  inp.dispatchEvent(new W.FocusEvent("focusin", { bubbles: true }));
   await cekaj(60);
   W.document.querySelector("#slova .slovo[data-slovo='/']").click();
   jednako(inp.value, "/", "znak je upisan");
@@ -1231,13 +1270,24 @@ U `prebaciRazred()` i `prebaciPredmet()`, uz `oznaciRazred()` / `oznaciPredmet()
   iscrtajZnakove();
 ```
 
-`iscrtajZnakove` je definirana **nakon** tih funkcija u datoteci, ali se poziva samo iz
-obrađivača događaja, pa je do prvog klika već deklarirana. Ako se to promijeni, premjesti blok
-znakova iznad prekidača.
+**I pri pokretanju stranice**, uz `iscrtajRazrede()` / `oznaciRazred()`:
+
+```js
+iscrtajZnakove();
+```
+
+Bez tog poziva korisnik s pamćenim profilom (npr. hrvatski, 6. razred) dobije pri prvom fokusu
+praznu ili pogrešnu traku, jer je `#slova` iscrtan samo za zadane vrijednosti — i to ostane tako
+dok razred ili predmet ručno ne prebaci.
+
+Poziv `iscrtajZnakove()` **ne smije** ući u `izgradiPredmet()`, iako bi to izgledalo čišće:
+`izgradiPredmet` se poziva rano u skripti, iznad deklaracije `const slovaTraka`, pa bi to bacilo
+`Cannot access 'slovaTraka' before initialization`. Pozivi ostaju u `prebaciRazred()`,
+`prebaciPredmet()` i bloku pokretanja.
 
 - [ ] **Step 6: Pokreni harness — mora proći**
 
-Očekivano: **PASS (62)**.
+Očekivano: **PASS (64)**.
 
 - [ ] **Step 7: Commit**
 
@@ -1296,17 +1346,19 @@ U `PATULJAK.rijeci`, postojećih deset `happy` rečenica ostaje, dodaje se deset
 ```js
       happy: [
         /* … postojećih deset ostaje nepromijenjeno … */
-        "Eto ga na[, {ime}]!", "Kao iz topa!", "Svaka čast, majstore!",
-        "To je to[, {ime}]!", "Ide ti kao po loju!", "Pravi si mudrijaš!",
+        "Eto ga na[, {ime}]!", "Kao iz topa!", "Šampionski potez!",
+        // "To je to[, {ime}]!" NE dodavati -- postojeci Patuljak ju vec ima kao drugu
+        // recenicu u happy polju. Provjeri duplikate prije dodavanja.
+        "Genijalno[, {ime}]!", "Ide ti kao po loju!", "Pravi si mudrijaš!",
         "Nema ti mane[, {ime}]!", "Bravo, glavo!", "Točnije od sata!",
         "Ti si mi faca[, {ime}]!"
       ],
       angry: [
         /* … postojećih deset ostaje nepromijenjeno … */
         "Uh, promašaj[, {ime}]!", "Nije to, nije!", "Opa, pazi malo!",
-        "Blizu, ali ne[, {ime}].", "Vrati se i prebroji!", "Joj, joj, joj!",
+        "Fulao si za dlaku[, {ime}]!", "Vrati se i prebroji!", "Joj, joj, joj!",
         "Nešto nam tu ne štima.", "Još jedan pokušaj[, {ime}]!",
-        "Aj, zamislio sam se pa i ja.", "Ne predaj se[, {ime}]!"
+        "Ovo nije tvoj dan!", "Ne predaj se[, {ime}]!"
       ],
       party: [
         /* … postojeće ostaje … */
@@ -1326,30 +1378,30 @@ iz filmova:
 ```js
       happy: [
         /* … postojećih deset ostaje nepromijenjeno … */
-        "Bistar um imaš[, {ime}].", "Svjetlu stranu odabrao si.",
+        "Bistar um imaš[, {ime}].", "Svijetlu stranu odabrao si.",
         "Mirno je oko ovog broja.", "Naučio si, vidim.",
         "Snaga tvoja raste[, {ime}].", "Put pravi našao si.",
-        "Jasna je Sila danas.", "Dobro. Vrlo dobro[, {ime}].",
+        "Jasna je Sila danas.", "Pravi odgovor osjetio si[, {ime}].",
         "Strpljenje plod je dalo.", "Sjaji znanje u tebi."
       ],
       angry: [
         /* … postojećih deset ostaje nepromijenjeno … */
         "Zamućen je put ovaj.", "Ne još[, {ime}]. Ne još.",
         "Sila drugdje vodi te.", "Pogriješio si, ali učiti smiješ.",
-        "Uzmi zraka[, {ime}], pa opet.", "Sjena je nad odgovorom.",
+        "Uzmi zraka[, {ime}], pa pokušaj opet.", "Sjena je nad odgovorom.",
         "Brzina prijatelj ti nije.", "Slušaj bolje, mladi padawane.",
         "Drugi put pokušaj.", "Neuspjeh učitelj je najbolji."
       ],
       party: [
         /* … postojeće ostaje … */
-        "Snažan u Sili postao si[, {ime}]!", "Razinu svladao si, vidim.",
+        "Snažan u Sili postao si[, {ime}]!", "Znanje svoje pokazao si[, {ime}]!",
         "Put Jedija tvoj je.", "Sjaji Sila u tebi[, {ime}]!"
       ]
 ```
 
 - [ ] **Step 5: Pokreni harness — mora proći**
 
-Očekivano: **PASS (63)**.
+Očekivano: **PASS (65)**.
 
 - [ ] **Step 6: Provjeri rukom da nadimak ne razbija rečenicu**
 
@@ -1495,8 +1547,11 @@ provjera("pokvaren zadatak daje onemoguceno polje izvan brojanja razine", async 
   istina(!!polje, "polje je oznaceno pokvarenim");
   istina(polje.disabled, "polje je onemoguceno");
   jednako(polje.dataset.answer, undefined, "polje nema odgovor");
-  jednako(W.document.querySelector("section[data-total]").dataset.total, "0",
-          "pokvareno polje ne ulazi u brojanje razine");
+  // Postojeci kod je `if (total) { el.dataset.total = total; ... }`, pa kod nule
+  // atribut potpuno izostavlja -- ne postavlja ga na "0". Cjelina bez ispravnih
+  // polja tako nema ni traku napretka, sto je zeljeno.
+  istina(!W.document.querySelector("#main section").hasAttribute("data-total"),
+         "cjelina sa samo pokvarenim poljem nema data-total");
   W.GRADIVO["6"].matematika.zadaci = cuvaj;
   W.izgradiPredmet("2", "matematika");
 });
@@ -1519,7 +1574,7 @@ one ne mjere količinu.
 
 - [ ] **Step 4: Pokreni harness — mora proći**
 
-Očekivano: **PASS**, s brojem provjera oko 68 (šest starih brojačkih tvrdnji je izbačeno,
+Očekivano: **PASS**, s brojem provjera oko 70 (dvije stare brojačke tvrdnje izbačene,
 sedam novih invarijanti dodano). Zapiši točan broj u završni commit.
 
 - [ ] **Step 5: Ažuriraj README**

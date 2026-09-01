@@ -1,19 +1,20 @@
-# Ponavljanje prije 3. razreda
+# Ponavljanje gradiva — 2., 5. i 6. razred
 
-Statična stranica sa zadacima iz gradiva 2. razreda (hrvatski kurikulum), za dva predmeta:
-**matematiku** (brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja
-i dijeljenja, geometrija, mjerenje, podaci) i **hrvatski jezik** (veliko početno slovo, č i ć,
-ije i je, glasovi i slova, rečenica, vrste riječi i značenje). Odgovori se upisuju i
-provjeravaju u pregledniku, bez servera. Vidi [Predmeti](#predmeti) niže.
+Statična stranica sa zadacima iz hrvatskog kurikuluma, za dva predmeta — **matematiku** i
+**hrvatski jezik** — i tri razreda: **2., 5. i 6.** Razred se bira pilulama u zaglavlju, uz
+prekidač predmeta. Gradivo 2. razreda pokriva brojeve do 100, zbrajanje i oduzimanje s
+prelaskom desetice, tablicu množenja i dijeljenja, geometriju, mjerenje i podatke (matematika),
+te veliko početno slovo, č i ć, ije i je, glasove i slova, rečenicu, vrste riječi i značenje
+(hrvatski). Odgovori se upisuju i provjeravaju u pregledniku, bez servera. Vidi
+[Razredi i predmeti](#razredi-i-predmeti) niže.
 
-Tri datoteke, sve preko `<script src>`: `index.html`, `zadaci-matematika.js`,
-`zadaci-hrvatski.js` (nema buildanja, nema dependencyja osim Google Fonts CDN-a).
+Sve preko `<script src>`, nema buildanja, nema dependencyja osim Google Fonts CDN-a.
 
 ## Objava na GitHub Pages
 
 1. Napravi novi javni repozitorij na GitHubu, npr. `matematika-3razred`.
-2. Dodaj `index.html`, `zadaci-matematika.js`, `zadaci-hrvatski.js` (i ovaj README) u korijen
-   repozitorija i pushaj na branch `main`:
+2. Dodaj `index.html`, svih šest datoteka `zadaci-<predmet>-<razred>.js` (i ovaj README) u
+   korijen repozitorija i pushaj na branch `main`:
    ```bash
    git init
    git add .
@@ -71,22 +72,42 @@ Mali Jedi je **izvorni lik** u tom duhu, ne prikaz Baby Yode, i rečenice su nap
 stranicu, a ne prepisane iz filmova — stranica je javna na GitHub Pagesu, pa se prepoznatljiv
 lik i doslovni citati ne koriste.
 
-## Predmeti
+## Razredi i predmeti
 
-Stranica ima dva predmeta: **Matematiku** i **Hrvatski jezik**, oba gradivo 2. razreda.
-Predmet se bira pri prvoj prijavi i mijenja prekidačem u zaglavlju. Nadimak i avatar su
-zajednički, a napredak se pamti odvojeno po predmetu. Stranica se otvori na zadnje
-biranom predmetu.
+Stranica ima dva predmeta: **Matematiku** i **Hrvatski jezik**, svaki dostupan za tri razreda:
+**2., 5. i 6.** Razred i predmet se biraju pri prvoj prijavi i mijenjaju dvama prekidačima u
+zaglavlju (pilule razreda, pilule predmeta). Nadimak i avatar su zajednički za sve razrede i
+predmete, a napredak se pamti odvojeno po **paru** razred/predmet. Stranica se otvori na
+zadnje biranom razredu i predmetu.
 
-Zadaci stoje izvan `index.html`:
+Konfiguracija stoji u tri objekta u `index.html`:
+
+- `PREDMETI[predmet]` — `{ naziv, traka, provjera, znakovi }`, jedan zapis po predmetu.
+- `RAZREDI` — popis dostupnih razreda (trenutno `"2"`, `"5"`, `"6"`).
+- `GRADIVO[razred][predmet]` — `{ title, naslov, uvod, zadaci }`, sadržaj za taj par.
+
+Zadaci stoje izvan `index.html`, jedna datoteka po paru razred/predmet:
 
 ```
-index.html             mehanika: razine, avatar, prijava, pamćenje, prekidač predmeta
-zadaci-matematika.js   const ZADACI_MATEMATIKA = [...]
-zadaci-hrvatski.js     const ZADACI_HRVATSKI = [...]
+index.html                     mehanika: razine, avatar, prijava, pamćenje, prekidači
+zadaci-<predmet>-<razred>.js   const ZADACI_<PREDMET>_<RAZRED> = [...]
 ```
 
-Dodavanje predmeta: nova stavka u `PREDMETI` u `index.html` i jedna datoteka sa zadacima.
+Dodavanje razreda: nova stavka u `RAZREDI`, nova grana u `GRADIVO` i po jedna datoteka sa
+zadacima za svaki predmet. Dodavanje predmeta: nova stavka u `PREDMETI` i po jedna datoteka
+sa zadacima za svaki razred.
+
+**Datoteke za 5. i 6. razred su skeleti.** `zadaci-matematika-5.js`, `zadaci-hrvatski-5.js`,
+`zadaci-matematika-6.js` i `zadaci-hrvatski-6.js` sadrže po jednu cjelinu, dovoljnu da stranica
+i provjere rade — pravi sadržaj (sve cjeline propisane kurikulumom) dolazi u zasebnim specovima.
+Kurikulumski izvori:
+
+- Matematika: *Odluka o donošenju kurikuluma za nastavni predmet Matematika za osnovne škole i
+  gimnazije*, NN 7/2019 —
+  <https://narodne-novine.nn.hr/clanci/sluzbeni/2019_01_7_146.html>
+- Hrvatski jezik: *Odluka o donošenju kurikuluma nastavnoga predmeta Hrvatski jezik za osnovne
+  škole i gimnazije*, NN 10/2019 —
+  <https://narodne-novine.nn.hr/clanci/sluzbeni/2019_01_10_215.html>
 
 ### Tipovi zadataka
 
@@ -97,6 +118,18 @@ Dodavanje predmeta: nova stavka u `PREDMETI` u `index.html` i jedna datoteka sa 
   ide u skriveno polje, pa razine, ključevi, kvačice i avatar rade isto kao kod upisa.
 - `note` → zadatak za vježbenicu, bez polja.
 
+Uz `calc` i `izbor`, zadatak može deklarirati polje `oblik`, koje kaže kako se odgovor
+razlaže i uspoređuje, neovisno o predmetu:
+
+| `oblik` | Primjer | Pravilo usporedbe |
+|---|---|---|
+| `broj` | `-5`, `2,5` | ASCII i tipografski minus su isti, `.` i `,` su isti decimalni znak, nule na kraju ne mijenjaju vrijednost |
+| `razlomak` | `3/4`, `1 1/2` | uspoređuje se vrijednost, ne zapis — `6/8` je isto što i `3/4`, mješoviti brojevi su dopušteni |
+| `popis` | `40, 50, 60` | poredak je bitan, razmaci nisu |
+| `tekst` | `cm²`, `jednakokračan` | doslovna usporedba — dijakritika i eksponenti su bitni |
+
+Gradivo 2. razreda **nema** `oblik` — provjerava se starim pravilom po predmetu (tablica niže).
+
 ### Provjera odgovora ovisi o predmetu
 
 | | Matematika | Hrvatski |
@@ -106,9 +139,11 @@ Dodavanje predmeta: nova stavka u `PREDMETI` u `index.html` i jedna datoteka sa 
 | `.` i `,` | isto (3.70 = 3,70) | različito |
 | razmaci | ignorirani | višak se sabija u jedan |
 | završni `. ? !` | — | bitno |
+| deklariran `oblik` | nadjačava pravilo predmeta | nadjačava pravilo predmeta |
 
 U hrvatskom, uz polja za upis stoji red tipki **č ć š ž đ**, jer se ta slova na
-tabletu bez hrvatske tipkovnice ne mogu upisati.
+tabletu bez hrvatske tipkovnice ne mogu upisati. Matematika 5. i 6. razreda dobiva
+vlastitu traku znakova (`- / , ² ³`) za razlomke i stupnjeve.
 
 Odgovori su u HTML-u (`data-answer`), pa su vidljivi u *View source*. Za dijete od 8 godina
 to je u praksi dovoljno, ali ako to smeta, jedina prava opcija je provjera na serveru —

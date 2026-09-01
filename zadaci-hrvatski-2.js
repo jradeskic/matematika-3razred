@@ -6,7 +6,7 @@
    Tocan odgovor mora biti medu ponudenima. Tipke se premjesaju pri
    iscrtavanju, pa poredak u podacima nista ne odaje.                       */
 
-const ZADACI_HRVATSKI = [
+const ZADACI_HRVATSKI_2 = [
 
 {id:"h1", nav:"Veliko slovo", title:"Veliko početno slovo",
  lead:"Imena i prezimena, mjesta, ulice i trgovi, kućni ljubimci, početak rečenice.", tasks:[

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Matematika — ponavljanje prije 3. razreda</title>
-<meta name="description" content="Zadaci za ponavljanje gradiva matematike 2. razreda osnovne škole prije ulaska u 3. razred.">
+<title>Matematika — gradivo 2. razreda</title>
+<meta name="description" content="Zadaci za ponavljanje gradiva matematike i hrvatskog jezika za 2., 5. i 6. razred osnovne škole.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -107,6 +107,8 @@
     color:var(--ink);
   }
   input[type=text]:focus-visible{outline:3px solid var(--sky);outline-offset:1px;border-color:var(--sky)}
+  input.pokvaren{background:#f4f2ec;color:var(--muted)}
+  .napomena{font-size:14px;color:var(--muted);margin-left:8px}
   input.ok{border-color:var(--grass);background:#eefaf1}
   input.no{border-color:var(--berry);background:#fdeeed}
   .mark{width:1.2em;font-weight:800}
@@ -301,6 +303,14 @@
     background:#f1eee2;border:2px solid transparent;color:var(--ink);
   }
   button.predmet.aktivan{background:var(--sky);border-color:var(--sky);color:#fff}
+  .razredi{display:flex;gap:10px;margin:14px 0 0;flex-wrap:wrap}
+  button.razred{
+    min-height:46px;min-width:46px;padding:0 18px;border-radius:999px;
+    font:700 16px/1 "Nunito",sans-serif;
+    background:#f1eee2;border:2px solid transparent;color:var(--ink);
+  }
+  button.razred.aktivan{background:var(--grass);border-color:var(--grass);color:#fff}
+  button.razred:disabled{opacity:.45}
   button.predmet-izbor{
     flex:1;min-height:64px;padding:12px 10px;
     border:2px solid var(--line);border-radius:16px;background:#fff;
@@ -355,7 +365,12 @@
     button.chip{width:auto}
     button.slovo{width:auto}
     button.predmet{width:auto}
+    button.razred{width:auto}
     button.predmet-izbor{width:auto}
+  }
+  @media (max-width:420px){
+    button.razred{padding:0 14px}
+    button.razred .dugo{display:none}
   }
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -364,13 +379,14 @@
 <div class="wrap">
 
 <header class="hero">
-  <h1 id="naslov">Ponavljamo matematiku<br>prije 3. razreda</h1>
+  <h1 id="naslov">Ponavljamo matematiku<br>2. razreda</h1>
   <p id="uvod">Gradivo 2. razreda: brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija, mjerenje i podaci. Upiši odgovor i provjeri se sam.</p>
   <p class="pozdrav" id="pozdrav" hidden>
     <svg class="mini" id="mini" viewBox="0 0 100 122" aria-hidden="true"></svg>
     <span id="pozdravTekst"></span>
     <button type="button" class="link" id="promijeni">promijeni</button>
   </p>
+  <div class="razredi" id="razredi" role="group" aria-label="Razred"></div>
   <div class="predmeti" id="predmeti" role="group" aria-label="Predmet"></div>
   <div class="ladder" id="ladder" aria-hidden="true"></div>
   <div class="ladder-scale"><span>0</span><span>50</span><span>100</span></div>
@@ -550,48 +566,119 @@
 <div id="fx" aria-hidden="true"></div>
 <div id="toasts" role="status" aria-live="polite"></div>
 
-<script src="zadaci-matematika.js"></script>
-<script src="zadaci-hrvatski.js"></script>
+<script src="zadaci-matematika-2.js"></script>
+<script src="zadaci-hrvatski-2.js"></script>
+<script src="zadaci-matematika-5.js"></script>
+<script src="zadaci-hrvatski-5.js"></script>
+<script src="zadaci-matematika-6.js"></script>
+<script src="zadaci-hrvatski-6.js"></script>
 <script>
-/* ---------- predmeti ----------
-   Predmet je podatak: naslovi, koja se traka crta u zaglavlju, koje pravilo
-   usporedbe odgovora vrijedi i koji su zadaci. Dodavanje predmeta je nova
-   stavka ovdje plus jedna datoteka sa zadacima.
+/* ---------- predmeti, razredi i gradivo ----------
+   Predmet nosi ono sto ne ovisi o razredu: pravilo provjere, traku u
+   zaglavlju i znakove za unos. Razred nosi sadrzaj. Dodavanje razreda je
+   jedna nova grana u GRADIVO i jedna datoteka sa zadacima po predmetu.
 ------------------------------------------------------------------------- */
 const PREDMETI = {
   matematika: {
     naziv:    "Matematika",
-    title:    "Matematika — ponavljanje prije 3. razreda",
-    naslov:   "Ponavljamo matematiku<br>prije 3. razreda",
-    uvod:     "Gradivo 2. razreda: brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija, mjerenje i podaci. Upiši odgovor i provjeri se sam.",
     traka:    "brojevi",
     provjera: "broj",
-    zadaci:   ZADACI_MATEMATIKA
+    znakovi:  { "5": ["-", "/", ",", "²", "³"], "6": ["-", "/", ",", "²", "³"] }
   },
   hrvatski: {
     naziv:    "Hrvatski jezik",
-    title:    "Hrvatski jezik — ponavljanje prije 3. razreda",
-    naslov:   "Ponavljamo hrvatski<br>prije 3. razreda",
-    uvod:     "Gradivo 2. razreda: veliko početno slovo, č i ć, ije i je, glasovi i slova, rečenica, vrste riječi i značenje. Odgovori i provjeri se sam.",
     traka:    "abeceda",
     provjera: "rijec",
-    zadaci:   ZADACI_HRVATSKI
+    znakovi:  { "*": ["č", "ć", "š", "ž", "đ"] }
   }
 };
 
-let predmet = "matematika";        // kljuc aktivnog predmeta
+const RAZREDI = {
+  "2": { naziv: "2. razred", kratko: "2" },
+  "5": { naziv: "5. razred", kratko: "5" },
+  "6": { naziv: "6. razred", kratko: "6" }
+};
+
+const GRADIVO = {
+  "2": {
+    matematika: {
+      title:  "Matematika — gradivo 2. razreda",
+      naslov: "Ponavljamo matematiku<br>2. razreda",
+      uvod:   "Gradivo 2. razreda: brojevi do 100, zbrajanje i oduzimanje s prelaskom desetice, tablica množenja i dijeljenja, geometrija, mjerenje i podaci. Upiši odgovor i provjeri se sam.",
+      // typeof cuvar: ako datoteka sa zadacima nije ucitana, GRADIVO ipak
+      // postoji (prazan skup), pa ostatak stranice radi normalno umjesto
+      // da inline skripta pukne na ReferenceError prije ijednog cuvara
+      zadaci: typeof ZADACI_MATEMATIKA_2 !== "undefined" ? ZADACI_MATEMATIKA_2 : []
+    },
+    hrvatski: {
+      title:  "Hrvatski jezik — gradivo 2. razreda",
+      naslov: "Ponavljamo hrvatski<br>2. razreda",
+      uvod:   "Gradivo 2. razreda: veliko početno slovo, č i ć, ije i je, glasovi i slova, rečenica, vrste riječi i značenje. Odgovori i provjeri se sam.",
+      zadaci: typeof ZADACI_HRVATSKI_2 !== "undefined" ? ZADACI_HRVATSKI_2 : []
+    }
+  },
+  "5": {
+    matematika: {
+      title:  "Matematika — gradivo 5. razreda",
+      naslov: "Ponavljamo matematiku<br>5. razreda",
+      uvod:   "Gradivo 5. razreda: prirodni brojevi i djeljivost, razlomci, decimalni brojevi, jednadžbe, likovi i kutovi, mjerenje i podaci.",
+      zadaci: typeof ZADACI_MATEMATIKA_5 !== "undefined" ? ZADACI_MATEMATIKA_5 : []
+    },
+    hrvatski: {
+      title:  "Hrvatski jezik — gradivo 5. razreda",
+      naslov: "Ponavljamo hrvatski<br>5. razreda",
+      uvod:   "Gradivo 5. razreda: promjenjive i nepromjenjive vrste riječi, pravopis i književni pojmovi.",
+      zadaci: typeof ZADACI_HRVATSKI_5 !== "undefined" ? ZADACI_HRVATSKI_5 : []
+    }
+  },
+  "6": {
+    matematika: {
+      title:  "Matematika — gradivo 6. razreda",
+      naslov: "Ponavljamo matematiku<br>6. razreda",
+      uvod:   "Gradivo 6. razreda: racionalni brojevi, cijeli brojevi, postoci, konstrukcije trokuta i četverokuta, koordinatni sustav i podaci.",
+      zadaci: typeof ZADACI_MATEMATIKA_6 !== "undefined" ? ZADACI_MATEMATIKA_6 : []
+    },
+    hrvatski: {
+      title:  "Hrvatski jezik — gradivo 6. razreda",
+      naslov: "Ponavljamo hrvatski<br>6. razreda",
+      uvod:   "Gradivo 6. razreda: promjenjive vrste riječi, glagolska vremena, jezična raznolikost i pravopis.",
+      zadaci: typeof ZADACI_HRVATSKI_6 !== "undefined" ? ZADACI_HRVATSKI_6 : []
+    }
+  }
+};
+
+// ima li ovaj par razred/predmet stvarno ucitane zadatke. Definirano ovdje
+// (a ne uz prekidac razreda nize) jer izgradiPredmet() poziva ovu funkciju,
+// a prvi poziv izgradiPredmet() je odmah nakon bloka "provjera" nize, davno
+// prije nego bi njena stara pozicija bila inicijalizirana -- TDZ bi pukao.
+const imaGradivo = (r, p) =>
+  !!(GRADIVO[r] && GRADIVO[r][p] && GRADIVO[r][p].zadaci && GRADIVO[r][p].zadaci.length);
+
+let razred  = "2";                   // kljuc aktivnog razreda
+let predmet = "matematika";          // kljuc aktivnog predmeta
+
+/* Harness cita konfiguraciju kroz window: top-level const u klasicnoj
+   skripti ne postaje svojstvo windowa, a deklaracija funkcije postaje.
+   Zato se objekti izvoze rucno, a stanje kroz funkciju -- da harness ne
+   drzi referencu na promjenjivu varijablu.                              */
+Object.assign(window, { PREDMETI, RAZREDI, GRADIVO });
+window.stanje = () => ({ razred, predmet });
 
 /* ---------- profil: nadimak, avatar i zapamćen napredak ----------
    Sve stoji u localStorageu ovog preglednika, na ovom uređaju. Nema servera,
    pa nadimak nije prijava nego samo ime kojega se stranica sjeti.
-   Napredak se pamti odvojeno po predmetu.
+   Napredak se pamti odvojeno po paru razred/predmet.
 ------------------------------------------------------------------- */
 const KLJUC_PROFILA = "mat3-profil-v1";
-const profil = { v: 2, ime: "", avatar: "patuljak", predmet: "matematika", napredak: {} };
+const profil = { v: 3, ime: "", avatar: "patuljak", razred: "2", predmet: "matematika", napredak: {} };
 
-// Predmeti koje je ova sesija mijenjala. Za njih je stanje u memoriji
-// mjerodavno i disk ga ne smije prepisati -- ni kad se predmet prebaci prije
-// nego odgodeni upis stigne okinuti.
+// Kljuc pamcenja je par razreda i predmeta. Isti oblik kljuca koristi i
+// Set "promijenjeni", pa zastita od zastarjele kartice radi nepromijenjeno.
+const kljucNapretka = () => razred + "/" + predmet;
+
+// Parovi razred/predmet koje je ova sesija mijenjala. Za njih je stanje u
+// memoriji mjerodavno i disk ga ne smije prepisati -- ni kad se par prebaci
+// prije nego odgodeni upis stigne okinuti.
 const promijenjeni = new Set();
 
 function ucitajProfil() {
@@ -600,14 +687,33 @@ function ucitajProfil() {
     if (!zapis || typeof zapis !== "object") return false;
     profil.ime = typeof zapis.ime === "string" ? zapis.ime.slice(0, 20) : "";
     profil.avatar = zapis.avatar === "jedi" ? "jedi" : "patuljak";
-    if (zapis.v === 2) {
-      profil.predmet = PREDMETI[zapis.predmet] ? zapis.predmet : "matematika";
-      profil.napredak = (zapis.napredak && typeof zapis.napredak === "object") ? zapis.napredak : {};
+    profil.predmet = PREDMETI[zapis.predmet] ? zapis.predmet : "matematika";
+
+    const mapa = (zapis.napredak && typeof zapis.napredak === "object" &&
+                  !Array.isArray(zapis.napredak)) ? zapis.napredak : {};
+
+    // verzija moze doci kao string iz rucno urednenog ili starog zapisa;
+    // "2" >= 3 i "2" === 2 su oboje false, pa bi bez ovoga zapis pao u
+    // v:1 granu i izgubio vec sloen napredak
+    const v = Number(zapis.v);
+
+    if (v >= 3) {
+      // v:3 i noviji: kljucevi su vec slozeni. Nepoznate kljuceve zadrzavamo --
+      // dolaze iz novije verzije stranice i ne smijemo ih izgubiti pri upisu.
+      profil.razred = RAZREDI[zapis.razred] ? zapis.razred : "2";
+      profil.napredak = mapa;
+    } else if (v === 2) {
+      // zapis prije uvodenja razreda: sve je bilo gradivo 2. razreda
+      profil.razred = "2";
+      profil.napredak = {};
+      for (const p of Object.keys(mapa))
+        if (PREDMETI[p]) profil.napredak["2/" + p] = mapa[p];
     } else {
-      // zapis prije uvodenja predmeta: odgovori su bili samo matematicki
+      // v:1, prije uvodenja predmeta: odgovori su bili samo matematicki
+      profil.razred = "2";
       profil.predmet = "matematika";
       profil.napredak = {
-        matematika: (zapis.odgovori && typeof zapis.odgovori === "object") ? zapis.odgovori : {}
+        "2/matematika": (zapis.odgovori && typeof zapis.odgovori === "object") ? zapis.odgovori : {}
       };
     }
     return true;
@@ -622,7 +728,7 @@ function spremiProfil() {
     // upisivanje, inace bi dijete tiho prestalo pamtiti napredak.
     try {
       const naDisku = JSON.parse(localStorage.getItem(KLJUC_PROFILA) || "null");
-      if (naDisku && naDisku.v === 2 && naDisku.napredak &&
+      if (naDisku && naDisku.v >= 3 && naDisku.napredak &&
           typeof naDisku.napredak === "object" && !Array.isArray(naDisku.napredak))
         for (const p of Object.keys(naDisku.napredak))
           if (!promijenjeni.has(p)) profil.napredak[p] = naDisku.napredak[p];
@@ -638,7 +744,7 @@ function spremiProfil() {
 }
 
 const imaProfil = ucitajProfil();
-if (imaProfil) spremiProfil();       // odmah upisi migrirani zapis (v:2)
+if (imaProfil) spremiProfil();       // odmah upisi migrirani zapis (v:3)
 
 /* ---------- traka u zaglavlju ----------
    Matematika ima brojevnu ljestvicu, hrvatski abecedu. Ista mehanika
@@ -684,20 +790,33 @@ function promijesaj(popis) {
   return k;
 }
 
-function izgradiPredmet(kljuc) {
-  predmet = PREDMETI[kljuc] ? kljuc : "matematika";
+function izgradiPredmet(kljucRazreda, kljucPredmeta) {
+  razred  = (GRADIVO[kljucRazreda] && GRADIVO[kljucRazreda][kljucPredmeta]) ? kljucRazreda : "2";
+  predmet = PREDMETI[kljucPredmeta] ? kljucPredmeta : "matematika";
+  // Trazeni par moze postojati u GRADIVU, a opet nemati zadataka (datoteka
+  // s zadacima se nije ucitala -- typeof cuvar gore tada ostavi zadaci:[]).
+  // Ostati na takvom paru bi ostavilo dijete na praznoj stranici s pilulom
+  // koja je istovremeno aktivna i onemogucena. Umjesto toga padamo na prvi
+  // par razred/predmet koji stvarno ima ucitano gradivo.
+  if (!imaGradivo(razred, predmet)) {
+    const zamjena = Object.keys(RAZREDI)
+      .flatMap(r => Object.keys(PREDMETI).map(p => [r, p]))
+      .find(([r, p]) => imaGradivo(r, p));
+    if (zamjena) [razred, predmet] = zamjena;
+  }
   const p = PREDMETI[predmet];
+  const g = GRADIVO[razred][predmet];
 
-  document.title = p.title;
-  document.getElementById("naslov").innerHTML = p.naslov;
-  document.getElementById("uvod").textContent = p.uvod;
+  document.title = g.title;
+  document.getElementById("naslov").innerHTML = g.naslov;
+  document.getElementById("uvod").textContent = g.uvod;
   izgradiTraku(p.traka);
 
   main.innerHTML = "";
   cjelineNav.innerHTML = "";
   inputCount = 0;
 
-  p.zadaci.forEach((sec, si) => {
+  g.zadaci.forEach((sec, si) => {
   const brojacKljuca = {};        // koliko se puta isti prikaz ponavlja u ovoj cjelini
   const el = document.createElement("section");
   el.id = sec.id;
@@ -738,12 +857,18 @@ function izgradiPredmet(kljuc) {
         // rečenice u hrvatskom traže puno šire polje; matematika nema odgovor
         // dulji od 14 znakova, pa ovaj stupanj tamo nikad ne nastupi
         const wide = numeric ? "" : (answer.length > 14 ? " duga" : " wide");
+        const oblik = task.oblik || "";
+        const valjan = !oblik || oblikValjan(oblik, answer);
         html += `<span class="item">
           <label for="${id}">${shown}</label>
-          <input type="text" class="ans${wide}" id="${id}" data-answer="${answer}" data-key="${kljuc2}"
+          <input type="text" class="ans${wide}${valjan ? "" : " pokvaren"}" id="${id}"
+                 ${valjan ? `data-answer="${answer}"` : "disabled"}
+                 ${oblik ? `data-oblik="${oblik}"` : ""}
+                 data-key="${kljuc2}"
                  autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
                  enterkeyhint="next" inputmode="${mode}" aria-label="${shown.replace(/"/g, "")}">
           <span class="mark" data-for="${id}"></span></span>`;
+        if (!valjan) html += `<span class="napomena">zadatak je u pripremi</span>`;
       });
       html += "</div>";
       const sol = task.items.map(([s, a]) => `${s} = ${a}`).join(" · ");
@@ -755,16 +880,25 @@ function izgradiPredmet(kljuc) {
         const osnova = sec.id + "|" + (prikaz || odgovor);
         brojacKljuca[osnova] = (brojacKljuca[osnova] || 0) + 1;
         const kljuc2 = (osnova + "|" + (brojacKljuca[osnova] - 1)).replace(/"/g, "");
+        const oblik = task.oblik || "";
+        const valjan = !oblik || oblikValjan(oblik, odgovor);
+        // pokvaren zadatak: tipke ne smiju izgledati klikabilne (skriveno
+        // polje nema data-answer, disabled ovdje samo sprjecava izgled/fokus,
+        // klik-obradjivac ima svoj cuvar za slucaj da ipak stigne dogadjaj)
         const tipke = promijesaj(ponudeno).map(v =>
-          `<button type="button" class="chip" data-za="${id}" data-vrijednost="${v}">${v}</button>`
+          `<button type="button" class="chip" data-za="${id}" data-vrijednost="${v}"${valjan ? "" : " disabled"}>${v}</button>`
         ).join("");
         // skriveno polje nosi odabranu vrijednost, pa razine, kljucevi,
         // kvacice, pamcenje i avatar rade bez izmjena
         html += `<span class="item izbor-item">
           ${prikaz ? `<span class="izbor-prikaz">${prikaz}</span>` : ""}
           <span class="chips" role="group" aria-label="${(prikaz || task.q).replace(/"/g, "")}">${tipke}</span>
-          <input type="text" class="ans" id="${id}" data-answer="${odgovor}" data-key="${kljuc2}" hidden>
+          <input type="text" class="ans${valjan ? "" : " pokvaren"}" id="${id}"
+                 ${valjan ? `data-answer="${odgovor}"` : "disabled"}
+                 ${oblik ? `data-oblik="${oblik}"` : ""}
+                 data-key="${kljuc2}" hidden>
           <span class="mark" data-for="${id}"></span></span>`;
+        if (!valjan) html += `<span class="napomena">zadatak je u pripremi</span>`;
       });
       html += "</div>";
       const sol = task.items.map(([p, _pon, a]) => `${p ? p + " → " : ""}${a}`).join(" · ");
@@ -779,7 +913,7 @@ function izgradiPredmet(kljuc) {
   });
 
   // razina dobiva traku napretka samo ako u njoj ima polja za upis
-  const total = el.querySelectorAll("input[type=text]").length;
+  const total = el.querySelectorAll("input[data-answer]").length;
   if (total) {
     el.dataset.total = total;
     const bar = document.createElement("div");
@@ -795,8 +929,6 @@ function izgradiPredmet(kljuc) {
   });
 }
 
-izgradiPredmet(predmet);
-
 /* ---------- provjera ---------- */
 const norm = v => v.toString().toLowerCase()
   .replace(/\s+/g, "")
@@ -808,12 +940,105 @@ const norm = v => v.toString().toLowerCase()
    zavrsni recenicni znak su bitni, jer se upravo to uvjezbava.            */
 const ocisti = v => v.toString().trim().replace(/\s+/g, " ");
 
-// koje pravilo vrijedi odlucuje predmet, ne tip zadatka
-function tocno(upis, odgovor) {
+/* ---------- oblici odgovora ----------
+   Oblik se deklarira u podacima poljem "oblik", ne pogada se iz zapisa:
+   "2,5" je decimalni broj, "8,33" je dvoclani popis, a razlikovati ih iz
+   samog niza znakova nije moguce. Gradivo 2. razreda nema "oblik" i ide
+   starim putem, bit po bit.
+------------------------------------------------------------------------- */
+
+// sve varijante minus znaka u ASCII minus, pa decimalni zarez u tocku
+const izravnajZnakove = v => v.toString().trim()
+  .replace(/[−‑–—]/g, "-")
+  .replace(/\s+/g, " ");
+
+/* Razlozi broj u egzaktan razlomak a/b s cjelobrojnim a i b. Bez
+   parseFloat usporedbe: 0,1 + 0,2 mora ostati 3/10, ne 0.30000000000000004.
+   Prima: "-5", "2,5", "3/4", "-3/4", "1 1/2". Vraca null ako ne uspije.   */
+function razloziBroj(v) {
+  const s = izravnajZnakove(v).replace(/,/g, ".");
+  if (s === "") return null;
+
+  const cijeliIliDecimalni = t => {
+    if (!/^-?\d+(\.\d+)?$/.test(t)) return null;
+    const minus = t.startsWith("-") ? -1 : 1;
+    const [c, d = ""] = t.replace("-", "").split(".");
+    const b = Math.pow(10, d.length);
+    return { a: minus * Number(c + d), b };
+  };
+
+  const skrati = ({ a, b }) => {
+    const nzd = (x, y) => y ? nzd(y, x % y) : Math.abs(x);
+    const d = nzd(a, b) || 1;
+    return b < 0 ? { a: -a / d, b: -b / d } : { a: a / d, b: b / d };
+  };
+
+  // mjesoviti broj: "1 1/2"
+  const mjes = s.match(/^(-?\d+)\s+(\d+)\/(\d+)$/);
+  if (mjes) {
+    const c = Number(mjes[1]), n = Number(mjes[2]), d = Number(mjes[3]);
+    if (!d) return null;
+    const znak = c < 0 ? -1 : 1;
+    return skrati({ a: znak * (Math.abs(c) * d + n), b: d });
+  }
+
+  // razlomak: "3/4", "-3/4"
+  const raz = s.match(/^(-?\d+)\/(-?\d+)$/);
+  if (raz) {
+    const d = Number(raz[2]);
+    if (!d) return null;
+    return skrati({ a: Number(raz[1]), b: d });
+  }
+
+  const cd = cijeliIliDecimalni(s);
+  return cd ? skrati(cd) : null;
+}
+
+const istaVrijednost = (x, y) => !!x && !!y && x.a * y.b === y.a * x.b;
+
+/* Popis dopustenih oblika. Bez njega bi tipfeler (oblik:"razlomci") tiho
+   propao na pravilo predmeta: 6/8 bi se usporedilo kao niz znakova s 3/4 i
+   dijete bi dobilo netocno, a harness bi ostao zelen.                     */
+const OBLICI = ["broj", "razlomak", "popis", "tekst"];
+window.OBLICI = OBLICI;              // harness ga cita; const ne dolazi na window
+
+// je li odgovor iz podataka razlozljiv u deklarirani oblik
+function oblikValjan(oblik, odgovor) {
+  if (!oblik) return true;                       // nedeklariran: staro pravilo
+  if (!OBLICI.includes(oblik)) return false;     // nepoznat oblik je greska u podacima
+  if (oblik === "broj" || oblik === "razlomak") return !!razloziBroj(odgovor);
+  if (oblik === "popis")
+    return izravnajZnakove(odgovor).split(",").every(d => !!razloziBroj(d));
+  return ocisti(odgovor) !== "";                 // tekst
+}
+
+function usporedi(oblik, upis, odgovor) {
+  if (oblik === "broj" || oblik === "razlomak")
+    return istaVrijednost(razloziBroj(upis), razloziBroj(odgovor));
+  if (oblik === "popis") {
+    const a = izravnajZnakove(upis).split(",").map(razloziBroj);
+    const b = izravnajZnakove(odgovor).split(",").map(razloziBroj);
+    return a.length === b.length && a.every((x, i) => istaVrijednost(x, b[i]));
+  }
+  if (oblik === "tekst") return ocisti(upis) === ocisti(odgovor);
+  return null;                        // nema deklariranog oblika
+}
+
+// koje pravilo vrijedi odlucuje oblik, a kad ga nema -- predmet
+function tocno(upis, odgovor, oblik) {
+  if (oblik) {
+    const r = usporedi(oblik, upis, odgovor);
+    if (r !== null) return r;
+  }
   return PREDMETI[predmet].provjera === "rijec"
     ? ocisti(upis) === ocisti(odgovor)
     : norm(upis) === norm(odgovor);
 }
+
+// poziv je ovdje, ispod cijelog bloka oblika: izgradiPredmet -> oblikValjan
+// koristi izravnajZnakove i OBLICI, a to su const-ovi koji bi inace bili
+// jos u TDZ-u da je poziv ostao na vrhu skripte (odmah iznad "provjera")
+izgradiPredmet(razred, predmet);
 
 // samo polja u zadacima; polje za nadimak u prijavi ne smije se racunati
 const inputs = () => Array.from(main.querySelectorAll("input[type=text]"));
@@ -996,11 +1221,21 @@ const buddy = (() => {
     rijeci: {
       happy: ["Bravo[, {ime}]!", "To je to[, {ime}]!", "Svaka čast[, {ime}]!",
               "[{ime}, ]pravi si majstor!", "Točnooo!", "Tako se to radi[, {ime}]!",
-              "Ju-hu!", "[{ime}, ]pravi si as!", "Ha, lako!", "Odlično[, {ime}]!"],
+              "Ju-hu!", "[{ime}, ]pravi si as!", "Ha, lako!", "Odlično[, {ime}]!",
+              "Eto ga na[, {ime}]!", "Kao iz topa!", "Šampionski potez!",
+              "Genijalno[, {ime}]!", "Ide ti kao po loju!", "Pravi si mudrijaš!",
+              "Nema ti mane[, {ime}]!", "Bravo, glavo!", "Točnije od sata!",
+              "Ti si mi faca[, {ime}]!"],
       angry: ["Ajme meni!", "Ne, ne, ne[, {ime}]!", "Grrr!", "Promašaj!",
               "Uh, blizu[, {ime}]!", "Ma daj!", "Jooooj!", "Probaj opet[, {ime}]!",
-              "Buuu!", "Hmpf!"],
-      party: ["Razina pala[, {ime}]!", "Juuuhuuu!", "[{ime}, ]ti si šampion!", "Wooohoo!"]
+              "Buuu!", "Hmpf!",
+              "Uh, promašaj[, {ime}]!", "Nije to, nije!", "Opa, pazi malo!",
+              "Fulao si za dlaku[, {ime}]!", "Vrati se i prebroji!", "Joj, joj, joj!",
+              "Nešto nam tu ne štima.", "Još jedan pokušaj[, {ime}]!",
+              "Ovo nije tvoj dan!", "Ne predaj se[, {ime}]!"],
+      party: ["Razina pala[, {ime}]!", "Juuuhuuu!", "[{ime}, ]ti si šampion!", "Wooohoo!",
+              "Razina je tvoja[, {ime}]!", "Pobrali smo sve!",
+              "Ovo je za pohvalu!", "Kapa dolje[, {ime}]!"]
     }
   };
 
@@ -1084,18 +1319,31 @@ const buddy = (() => {
       happy: ["Sila je s tobom[, {ime}]!", "Snažan si u Sili!", "Dobro. Dobro riješio si[, {ime}].",
               "Mudar učenik, ti si.", "Točno, to je!", "Jedi majstor postat ćeš[, {ime}].",
               "Osjećam Silu u ovom broju.", "Uspio si[, {ime}]. Ponosan sam.",
-              "Znanje raste u tebi.", "Sjajno, mladi padawane!"],
+              "Znanje raste u tebi.", "Sjajno, mladi padawane!",
+              "Bistar um imaš[, {ime}].", "Svijetlu stranu odabrao si.",
+              "Mirno je oko ovog broja.", "Naučio si, vidim.",
+              "Snaga tvoja raste[, {ime}].", "Put pravi našao si.",
+              "Jasna je Sila danas.", "Pravi odgovor osjetio si[, {ime}].",
+              "Strpljenje plod je dalo.", "Sjaji znanje u tebi."],
       angry: ["Ne! Pokušaj ponovno[, {ime}].", "Mračnoj strani pripada ovaj odgovor.",
               "Učini ili ne učini. Pokušaja nema.", "Zamućena je Sila oko ovog broja.",
               "Griješiš, mladi padawane.", "Strah vodi u pogrešan odgovor.",
               "Hmmm. Netočno, to je.", "Još učiti moraš[, {ime}].",
-              "Ne osjećam Silu ovdje.", "Opet. Strpljenje imaj."],
+              "Ne osjećam Silu ovdje.", "Opet. Strpljenje imaj.",
+              "Zamućen je put ovaj.", "Ne još[, {ime}]. Ne još.",
+              "Sila drugdje vodi te.", "Pogriješio si, ali učiti smiješ.",
+              "Uzmi zraka[, {ime}], pa pokušaj opet.", "Sjena je nad odgovorom.",
+              "Brzina prijatelj ti nije.", "Slušaj bolje, mladi padawane.",
+              "Drugi put pokušaj.", "Neuspjeh učitelj je najbolji."],
       party: ["Jedi si sada[, {ime}]!", "Sila je snažna u tebi!", "Razinu svladao si!",
-              "Ponosan sam na tebe, padawane."]
+              "Ponosan sam na tebe, padawane.",
+              "Snažan u Sili postao si[, {ime}]!", "Znanje svoje pokazao si[, {ime}]!",
+              "Put Jedija tvoj je.", "Sjaji Sila u tebi[, {ime}]!"]
     }
   };
 
   const LIKOVI = { patuljak: PATULJAK, jedi: JEDI };
+  window.LIKOVI = LIKOVI;            // za harness; nema drugog korisnika
 
   /* --- nadimak u rečenicu: [ … ] ispada kad nadimka nema --- */
   function recenica(predlozak) {
@@ -1317,7 +1565,8 @@ function finale() {
 }
 
 function updateProgress(opt = {}) {
-  const all = inputs();
+  // pokvareno polje (bez data-answer) se ne broji, isto kao ni data-total razine
+  const all = inputs().filter(i => i.hasAttribute("data-answer"));
   const okAll = all.filter(i => i.classList.contains("ok")).length;
   const secs = levels();
   let done = 0;
@@ -1360,7 +1609,8 @@ function updateProgress(opt = {}) {
    nego jednu zajedničku čestitku.
 ------------------------------------------- */
 function check() {
-  const list = inputs();
+  // pokvareno polje (bez data-answer) se ne provjerava, isto kao u updateProgress()
+  const list = inputs().filter(i => i.hasAttribute("data-answer"));
   const fresh = list.filter(i => i.value.trim() !== "" &&
                                  !i.classList.contains("ok") && !i.classList.contains("no"));
   const quiet = fresh.length > 6;
@@ -1368,7 +1618,7 @@ function check() {
 
   list.forEach(inp => {
     if (inp.value.trim() === "") { setState(inp, null, { fx: false }); return; }
-    const good = tocno(inp.value, inp.dataset.answer);
+    const good = tocno(inp.value, inp.dataset.answer, inp.dataset.oblik);
     if (setState(inp, good, { fx: !quiet }) && good) gained++;
   });
 
@@ -1426,8 +1676,8 @@ document.getElementById("clear").addEventListener("click", () => {
   levels().forEach(s => s.classList.remove("won"));
   document.querySelectorAll("nav a.done").forEach(a => a.classList.remove("done"));
   buddy.reset();
-  profil.napredak[predmet] = {};        // inace bi osvjezavanje vratilo stare odgovore
-  promijenjeni.add(predmet);
+  profil.napredak[kljucNapretka()] = {}; // inace bi osvjezavanje vratilo stare odgovore
+  promijenjeni.add(kljucNapretka());
   spremiProfil();
   updateProgress();
 });
@@ -1448,7 +1698,7 @@ main.addEventListener("keydown", e => {
 main.addEventListener("focusout", e => {
   const inp = e.target;
   if (inp.tagName !== "INPUT" || inp.value.trim() === "") return;
-  setState(inp, tocno(inp.value, inp.dataset.answer));
+  setState(inp, tocno(inp.value, inp.dataset.answer, inp.dataset.oblik));
   updateProgress();
   zapamtiOdgovore();
 });
@@ -1466,29 +1716,46 @@ main.addEventListener("click", e => {
   const tipka = e.target.closest(".chip");
   if (!tipka) return;
   const inp = document.getElementById(tipka.dataset.za);
+  // pokvaren izbor zadatak nema data-answer na skrivenom polju; tocno()
+  // bi na undefined odgovoru puknuo na razloziBroj(undefined) i ostavio
+  // skriveno polje s vrijednosti -- sljedeci klik na "Provjeri odgovore"
+  // bi tada puknuo u check() na tom istom polju
+  if (!inp.hasAttribute("data-answer")) return;
   inp.value = tipka.dataset.vrijednost;
   oznaciTipku(inp);
-  setState(inp, tocno(inp.value, inp.dataset.answer), { sidro: tipka });
+  setState(inp, tocno(inp.value, inp.dataset.answer, inp.dataset.oblik), { sidro: tipka });
   updateProgress();
   zapamtiOdgovore();
 });
 
-/* ---------- hrvatska slova ----------
-   Red se pojavi samo u hrvatskom i samo dok je polje za upis u fokusu.
+/* ---------- traka znakova za unos ----------
+   Red se pojavi samo kad predmet i razred imaju znakove i samo dok je polje
+   za upis u fokusu. Hrvatski dobiva č ć š ž đ na svim razredima, matematika
+   - / , ² ³ na 5. i 6. -- na tabletu se bez toga ne mogu upisati.
    mousedown/touchstart se zaustavljaju da polje ne izgubi fokus: inace bi
    focusout provjerio odgovor usred tipkanja i oznacio ga netocnim.
 ------------------------------------------------------------------------- */
-const HRVATSKA_SLOVA = ["č", "ć", "š", "ž", "đ"];
 const slovaTraka = document.getElementById("slova");
-slovaTraka.innerHTML = HRVATSKA_SLOVA.map(z =>
-  `<button type="button" class="slovo" data-slovo="${z}" aria-label="slovo ${z}">${z}</button>`).join("");
+
+function znakoviZaUnos() {
+  const z = PREDMETI[predmet].znakovi || {};
+  return z[razred] || z["*"] || [];
+}
+
+function iscrtajZnakove() {
+  slovaTraka.innerHTML = znakoviZaUnos().map(z =>
+    `<button type="button" class="slovo" data-slovo="${z}" aria-label="znak ${z}">${z}</button>`
+  ).join("");
+}
+
+iscrtajZnakove();
 
 let poljeUFokusu = null;
 
 main.addEventListener("focusin", e => {
   if (e.target.tagName !== "INPUT" || e.target.hidden) return;
   poljeUFokusu = e.target;
-  slovaTraka.hidden = PREDMETI[predmet].provjera !== "rijec";
+  slovaTraka.hidden = znakoviZaUnos().length === 0;
   // ako bi traka slova pokrila polje, pomakni polje iznad nje
   if (!slovaTraka.hidden) {
     const r = e.target.getBoundingClientRect();
@@ -1616,29 +1883,85 @@ poljeIme.addEventListener("keydown", e => {
 --------------------------------------------------------------------------- */
 function zapamtiOdgovore() {
   const zapis = {};
-  inputs().forEach(i => { if (i.value.trim() !== "") zapis[i.dataset.key] = i.value; });
-  profil.napredak[predmet] = zapis;
-  promijenjeni.add(predmet);
+  // isti cuvar kao u vratiNapredak(): pokvareno polje nema data-answer i ne
+  // smije se pamtiti kao odgovor -- inace bismo na disk upisali vrijednost
+  // koju vratiNapredak() ionako nikad ne bi vratio na ekran
+  inputs().filter(i => i.hasAttribute("data-answer"))
+    .forEach(i => { if (i.value.trim() !== "") zapis[i.dataset.key] = i.value; });
+  const kljuc = kljucNapretka();
+  profil.napredak[kljuc] = zapis;
+  promijenjeni.add(kljuc);
+  profil.razred = razred;
   profil.predmet = predmet;
   spremiProfil();
 }
 
 function vratiNapredak() {
-  const zapis = profil.napredak[predmet];
+  const zapis = profil.napredak[kljucNapretka()];
   if (!zapis || !Object.keys(zapis).length) return 0;
   let vraceno = 0;
   inputs().forEach(inp => {
+    // pokvareno polje nema data-answer; tocno() bi na njemu puknuo na
+    // razloziBroj(undefined) i prekinuo vracanje svih preostalih polja
+    if (!inp.hasAttribute("data-answer")) return;
     const v = zapis[inp.dataset.key];
     if (typeof v !== "string" || v.trim() === "") return;
     inp.value = v;
     oznaciTipku(inp);                  // kod izbora vrati i odabranu tipku
-    setState(inp, tocno(v, inp.dataset.answer), { fx: false });
+    setState(inp, tocno(v, inp.dataset.answer, inp.dataset.oblik), { fx: false });
     vraceno++;
   });
   streak = 0;                          // niz se ne prenosi kroz posjete
   updateProgress({ silent: true });    // bez konfeta za razine svladane prošli put
   return vraceno;
 }
+
+/* ---------- prekidac razreda ----------
+   Isti mehanizam kao prekidac predmeta. Razred bez ucitanih zadataka dobiva
+   onemogucenu pilulu: bolje jedan nedostupan razred nego bijela stranica.
+------------------------------------------------------------------------- */
+const razrediTraka = document.getElementById("razredi");
+
+// imaGradivo je definirana uz GRADIVO, gore -- izgradiPredmet() je treba
+// vec pri prvom pozivu, davno prije ovog dijela skripte.
+
+function iscrtajRazrede() {
+  razrediTraka.innerHTML = Object.entries(RAZREDI).map(([k, r]) => {
+    const dostupan = imaGradivo(k, predmet);
+    return `<button type="button" class="razred" data-razred="${k}"` +
+           ` aria-pressed="false" aria-label="${r.naziv}"` +
+           (dostupan ? "" : ` disabled title="zadaci za ovaj razred nisu učitani"`) +
+           `>${r.kratko}<span class="dugo">. razred</span></button>`;
+  }).join("");
+}
+
+function oznaciRazred() {
+  razrediTraka.querySelectorAll(".razred").forEach(b => {
+    const je = b.dataset.razred === razred;
+    b.classList.toggle("aktivan", je);
+    b.setAttribute("aria-pressed", je ? "true" : "false");
+  });
+}
+
+function prebaciRazred(kljuc) {
+  if (kljuc === razred || !imaGradivo(kljuc, predmet)) return;
+  zapamtiOdgovore();                 // zapamti ono sto ostaje za sobom
+  streak = 0;
+  finaleShown = false;
+  buddy.reset();
+  izgradiPredmet(kljuc, predmet);
+  profil.razred = razred;
+  spremiProfil();
+  oznaciRazred();
+  iscrtajZnakove();
+  vratiNapredak();
+  updateProgress();
+}
+
+razrediTraka.addEventListener("click", e => {
+  const b = e.target.closest(".razred");
+  if (b && !b.disabled) prebaciRazred(b.dataset.razred);
+});
 
 /* ---------- prekidac predmeta ---------- */
 const predmetiTraka = document.getElementById("predmeti");
@@ -1660,10 +1983,13 @@ function prebaciPredmet(kljuc) {
   streak = 0;
   finaleShown = false;
   buddy.reset();
-  izgradiPredmet(kljuc);
+  izgradiPredmet(razred, kljuc);
+  iscrtajRazrede();                  // dostupnost razreda ovisi o predmetu
+  oznaciRazred();
   profil.predmet = predmet;
   spremiProfil();
   oznaciPredmet();
+  iscrtajZnakove();
   vratiNapredak();                   // tiho, bez konfeta za prosle razine
   updateProgress();
 }
@@ -1674,8 +2000,11 @@ predmetiTraka.addEventListener("click", e => {
 });
 
 /* ---------- pokretanje ---------- */
-izgradiPredmet(profil.predmet);      // otvori se na zadnje biranom predmetu
+izgradiPredmet(profil.razred, profil.predmet);   // otvori se na zadnjem paru
+iscrtajRazrede();
+oznaciRazred();
 oznaciPredmet();
+iscrtajZnakove();                    // traka je do sada iscrtana za zadane vrijednosti razred/predmet
 nacrtajPreglede();
 buddy.postaviLik(profil.avatar);
 osvjeziPozdrav();
