@@ -1394,7 +1394,7 @@ iz filmova:
       ],
       party: [
         /* … postojeće ostaje … */
-        "Snažan u Sili postao si[, {ime}]!", "Iskušenje svladao si[, {ime}]!",
+        "Snažan u Sili postao si[, {ime}]!", "Znanje svoje pokazao si[, {ime}]!",
         "Put Jedija tvoj je.", "Sjaji Sila u tebi[, {ime}]!"
       ]
 ```
