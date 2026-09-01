@@ -18,6 +18,12 @@
 <p id="zbroj">pokrećem…</p>
 <ul id="ispis"></ul>
 <iframe id="okvir" title="stranica koja se provjerava"></iframe>
-<script src="provjere.js"></script>
+<script>
+  // Bez cache-bustera preglednik vrti staru provjere.js i prijavljuje lazne
+  // rezultate. Isti razlog kao kod ucitaj() nize u provjere.js.
+  const s = document.createElement("script");
+  s.src = "provjere.js?nc=" + Date.now();
+  document.body.appendChild(s);
+</script>
 </body>
 </html>
