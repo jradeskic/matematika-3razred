@@ -47,10 +47,16 @@ function upisi(W, inp, vrijednost) {
 const OCEKIVANJA = {
   "2/matematika": { cjelina: 7, polja: 85 },
   "2/hrvatski":   { cjelina: 7, polja: 85 },
+  "4/matematika": { cjelina: 9, polja: 150 },
+  "4/hrvatski":   { cjelina: 9, polja: 131 },
   "5/matematika": { cjelina: 8, polja: 134 },
   "5/hrvatski":   { cjelina: 8, polja: 106 },
   "6/matematika": { cjelina: 9, polja: 132 },
-  "6/hrvatski":   { cjelina: 8, polja: 87 }
+  "6/hrvatski":   { cjelina: 8, polja: 87 },
+  "7/matematika": { cjelina: 10, polja: 188 },
+  // 7/hrvatski ima 8 cjelina, ali h8 su sami "note" zadaci, pa ta cjelina nema
+  // data-total i ne ulazi u brojku ispod
+  "7/hrvatski":   { cjelina: 7, polja: 116 }
 };
 
 provjera("svaki skup ima ocekivani broj cjelina i polja", async ucitaj => {
@@ -700,12 +706,12 @@ provjera("GRADIVO ima 2. razred za oba predmeta", async ucitaj => {
   jednako(W.stanje().razred, "2", "aktivni razred");
 });
 
-provjera("RAZREDI ima 2., 5. i 6. razred", async ucitaj => {
+provjera("RAZREDI ima 2., 4., 5., 6. i 7. razred", async ucitaj => {
   const W = await ucitaj();
-  jednako(Object.keys(W.RAZREDI), ["2", "5", "6"], "kljucevi razreda");
+  jednako(Object.keys(W.RAZREDI), ["2", "4", "5", "6", "7"], "kljucevi razreda");
 });
 
-provjera("GRADIVO ima sva sest skupova i ni jedan nije prazan", async ucitaj => {
+provjera("GRADIVO ima svih deset skupova i ni jedan nije prazan", async ucitaj => {
   const W = await ucitaj();
   const parovi = [];
   for (const r of Object.keys(W.RAZREDI))
@@ -774,7 +780,7 @@ provjera("napredak se pamti po paru razred/predmet", async ucitaj => {
 provjera("prekidac razreda ima pilulu za svaki razred", async ucitaj => {
   const W = await ucitaj();
   const pilule = [...W.document.querySelectorAll("#razredi .razred")];
-  jednako(pilule.map(p => p.dataset.razred), ["2", "5", "6"], "pilule");
+  jednako(pilule.map(p => p.dataset.razred), ["2", "4", "5", "6", "7"], "pilule");
   jednako(pilule.filter(p => p.classList.contains("aktivan")).length, 1, "jedna je aktivna");
   jednako(pilule.filter(p => p.disabled).length, 0, "ni jedna nije onemogucena");
 });

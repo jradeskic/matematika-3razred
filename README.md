@@ -75,8 +75,8 @@ lik i doslovni citati ne koriste.
 
 ## Razredi i predmeti
 
-Stranica ima dva predmeta: **Matematiku** i **Hrvatski jezik**, svaki dostupan za tri razreda:
-**2., 5. i 6.** Predmet se bira pri prvoj prijavi, a razred **ne** — počinje na 2. razredu.
+Stranica ima dva predmeta: **Matematiku** i **Hrvatski jezik**, svaki dostupan za pet razreda:
+**2., 4., 5., 6. i 7.** Predmet se bira pri prvoj prijavi, a razred **ne** — počinje na 2. razredu.
 Oba se mijenjaju prekidačima u zaglavlju: gornji red su pilule razreda, donji pilule predmeta.
 Nadimak i avatar su zajednički za sve razrede i
 predmete, a napredak se pamti odvojeno po **paru** razred/predmet. Stranica se otvori na
@@ -85,7 +85,7 @@ zadnje biranom razredu i predmetu.
 Konfiguracija stoji u tri objekta u `index.html`:
 
 - `PREDMETI[predmet]` — `{ naziv, traka, provjera, znakovi }`, jedan zapis po predmetu.
-- `RAZREDI[razred]` — `{ naziv, kratko }`, jedan zapis po razredu (trenutno `"2"`, `"5"`, `"6"`).
+- `RAZREDI[razred]` — `{ naziv, kratko }`, jedan zapis po razredu (trenutno `"2"`, `"4"`, `"5"`, `"6"`, `"7"`).
 - `GRADIVO[razred][predmet]` — `{ title, naslov, uvod, zadaci }`, sadržaj za taj par.
 
 Zadaci stoje izvan `index.html`, jedna datoteka po paru razred/predmet:
@@ -106,10 +106,17 @@ iz kurikuluma na koji se odnosi:
 |---|---|---|---|
 | Matematika 2. | 7 | 85 | gradivo 2. razreda |
 | Hrvatski 2. | 7 | 85 | gradivo 2. razreda |
+| Matematika 4. | 9 | 150 | `MAT OŠ A.4.1–4`, `B.4.1`, `C.4.1–5`, `D.4.1–2`, `E.4.1–2` — svi ishodi 4. razreda |
+| Hrvatski 4. | 9 | 131 | jezgra `OŠ HJ A.4.5`; `A.4.6`; `B.4.2`; `A.4.1–4` kao „note" |
 | Matematika 5. | 8 | 134 | `MAT OŠ A.5.1–6`, `B.5.1–2`, `C.5.1–3`, `D.5.1–5`, `E.5.1` |
 | Hrvatski 5. | 8 | 106 | jezgra `OŠ HJ A.5.5`, `A.5.6`; `B.5.2`; `A.5.1–4` kao „note" |
 | Matematika 6. | 9 | 132 | `MAT OŠ A.6.1–9`, `B.6.1`, `C.6.1–3`, `D.6.1–5`, `E.6.1` — svi ishodi 6. razreda |
 | Hrvatski 6. | 8 | 87 | jezgra `OŠ HJ A.6.5`, `A.6.6`; `B.6.2`; `A.6.1–4` kao „note" |
+| Matematika 7. | 10 | 188 | `MAT OŠ A.7.1–5`, `B.7.1–4`, `C.7.1–3`, `D.7.1–6`, `E.7.1` — svi ishodi 7. razreda |
+| Hrvatski 7. | 7 | 116 | jezgra `OŠ HJ A.7.5`; `A.7.6`; `B.7.2`; `A.7.1–4` kao „note" |
+
+Hrvatski 7. ima osam cjelina, ali `h8` sadrži same `note` zadatke, pa nema polja ni
+`data-total` — zato u stupcu *Cjelina* stoji 7.
 
 Što **nije** pokriveno automatskom provjerom, i zašto:
 
@@ -165,8 +172,9 @@ Gradivo 2. razreda **nema** `oblik` — provjerava se starim pravilom po predmet
 | deklariran `oblik` | nadjačava pravilo predmeta | nadjačava pravilo predmeta |
 
 U hrvatskom, uz polja za upis stoji red tipki **č ć š ž đ**, jer se ta slova na
-tabletu bez hrvatske tipkovnice ne mogu upisati. Matematika 5. i 6. razreda dobiva
-vlastitu traku znakova (`- / , ² ³`) za razlomke i stupnjeve.
+tabletu bez hrvatske tipkovnice ne mogu upisati. Matematika 5., 6. i 7. razreda dobiva
+vlastitu traku znakova (`- / , ² ³`) za razlomke i stupnjeve, a matematika 4. razreda
+užu traku (`, ²`) — ondje nema ni negativnih brojeva ni razlomaka.
 
 Odgovori su u HTML-u (`data-answer`), pa su vidljivi u *View source*. Za dijete od 8 godina
 to je u praksi dovoljno, ali ako to smeta, jedina prava opcija je provjera na serveru —

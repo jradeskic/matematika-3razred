@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Matematika — gradivo 2. razreda</title>
-<meta name="description" content="Zadaci za ponavljanje gradiva matematike i hrvatskog jezika za 2., 5. i 6. razred osnovne škole.">
+<meta name="description" content="Zadaci za ponavljanje gradiva matematike i hrvatskog jezika za 2., 4., 5., 6. i 7. razred osnovne škole.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -567,11 +567,15 @@
 <div id="toasts" role="status" aria-live="polite"></div>
 
 <script src="zadaci-matematika-2.js"></script>
+<script src="zadaci-matematika-4.js"></script>
 <script src="zadaci-hrvatski-2.js"></script>
+<script src="zadaci-hrvatski-4.js"></script>
 <script src="zadaci-matematika-5.js"></script>
 <script src="zadaci-hrvatski-5.js"></script>
 <script src="zadaci-matematika-6.js"></script>
+<script src="zadaci-matematika-7.js"></script>
 <script src="zadaci-hrvatski-6.js"></script>
+<script src="zadaci-hrvatski-7.js"></script>
 <script>
 /* ---------- predmeti, razredi i gradivo ----------
    Predmet nosi ono sto ne ovisi o razredu: pravilo provjere, traku u
@@ -583,7 +587,10 @@ const PREDMETI = {
     naziv:    "Matematika",
     traka:    "brojevi",
     provjera: "broj",
-    znakovi:  { "5": ["-", "/", ",", "²", "³"], "6": ["-", "/", ",", "²", "³"] }
+    znakovi:  { "4": [",", "²"],
+                "5": ["-", "/", ",", "²", "³"],
+                "6": ["-", "/", ",", "²", "³"],
+                "7": ["-", "/", ",", "²", "³"] }
   },
   hrvatski: {
     naziv:    "Hrvatski jezik",
@@ -595,8 +602,10 @@ const PREDMETI = {
 
 const RAZREDI = {
   "2": { naziv: "2. razred", kratko: "2" },
+  "4": { naziv: "4. razred", kratko: "4" },
   "5": { naziv: "5. razred", kratko: "5" },
-  "6": { naziv: "6. razred", kratko: "6" }
+  "6": { naziv: "6. razred", kratko: "6" },
+  "7": { naziv: "7. razred", kratko: "7" }
 };
 
 const GRADIVO = {
@@ -615,6 +624,20 @@ const GRADIVO = {
       naslov: "Ponavljamo hrvatski<br>2. razreda",
       uvod:   "Gradivo 2. razreda: veliko početno slovo, č i ć, ije i je, glasovi i slova, rečenica, vrste riječi i značenje. Odgovori i provjeri se sam.",
       zadaci: typeof ZADACI_HRVATSKI_2 !== "undefined" ? ZADACI_HRVATSKI_2 : []
+    }
+  },
+  "4": {
+    matematika: {
+      title:  "Matematika — gradivo 4. razreda",
+      naslov: "Ponavljamo matematiku<br>4. razreda",
+      uvod:   "Gradivo 4. razreda: prirodni brojevi do milijun, pisano računanje, jednakosti, kut i trokut, krug, volumen tekućine i površina, podaci i vjerojatnost.",
+      zadaci: typeof ZADACI_MATEMATIKA_4 !== "undefined" ? ZADACI_MATEMATIKA_4 : []
+    },
+    hrvatski: {
+      title:  "Hrvatski jezik — gradivo 4. razreda",
+      naslov: "Ponavljamo hrvatski<br>4. razreda",
+      uvod:   "Gradivo 4. razreda: imenice, glagoli i pridjevi, rečenica i sročnost, pravopis, zavičajni govor i književni pojmovi.",
+      zadaci: typeof ZADACI_HRVATSKI_4 !== "undefined" ? ZADACI_HRVATSKI_4 : []
     }
   },
   "5": {
@@ -643,6 +666,20 @@ const GRADIVO = {
       naslov: "Ponavljamo hrvatski<br>6. razreda",
       uvod:   "Gradivo 6. razreda: promjenjive vrste riječi, glagolska vremena, jezična raznolikost i pravopis.",
       zadaci: typeof ZADACI_HRVATSKI_6 !== "undefined" ? ZADACI_HRVATSKI_6 : []
+    }
+  },
+  "7": {
+    matematika: {
+      title:  "Matematika — gradivo 7. razreda",
+      naslov: "Ponavljamo matematiku<br>7. razreda",
+      uvod:   "Gradivo 7. razreda: racionalni brojevi, postotni račun, znanstveni zapis, algebarski izrazi i jednadžbe, proporcionalnost, mnogokuti, vektori i translacija, opseg i površina, relativne frekvencije.",
+      zadaci: typeof ZADACI_MATEMATIKA_7 !== "undefined" ? ZADACI_MATEMATIKA_7 : []
+    },
+    hrvatski: {
+      title:  "Hrvatski jezik — gradivo 7. razreda",
+      naslov: "Ponavljamo hrvatski<br>7. razreda",
+      uvod:   "Gradivo 7. razreda: zamjenice, glasovne promjene, ustrojstvo rečenice, padeži, red riječi i naglasci, povijest hrvatskoga jezika i književnost.",
+      zadaci: typeof ZADACI_HRVATSKI_7 !== "undefined" ? ZADACI_HRVATSKI_7 : []
     }
   }
 };
