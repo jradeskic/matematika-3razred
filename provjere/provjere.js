@@ -62,7 +62,7 @@ const OCEKIVANJA = {
   // data-total i ne ulazi u brojku ispod
   "7/hrvatski":   { cjelina: 7, polja: 116 },
   // p8 su sami "note" zadaci, kao h8 u hrvatskom
-  "7/povijest":   { cjelina: 7, polja: 131 }
+  "7/povijest":   { cjelina: 7, polja: 137 }
 };
 
 provjera("svaki skup ima ocekivani broj cjelina i polja", async ucitaj => {

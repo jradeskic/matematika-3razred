@@ -29,7 +29,8 @@ const ZADACI_POVIJEST_7 = [
   {t:"izbor", q:"Na kojega se prosvjetitelja odnosi opis?", items:[
     ["predložio diobu vlasti na zakonodavnu, izvršnu i sudsku", ["Montesquieu","Voltaire"],   "Montesquieu"],
     ["uređivao Enciklopediju",                                   ["Diderot","Rousseau"],       "Diderot"],
-    ["pisao o prirodnim pravima na život, slobodu i vlasništvo",  ["John Locke","Adam Smith"],  "John Locke"]]},
+    ["pisao o prirodnim pravima na život, slobodu i vlasništvo",  ["John Locke","Adam Smith"],  "John Locke"],
+    ["autor misli Mislim, dakle jesam",                           ["Descartes","Montesquieu"],  "Descartes"]]},
   {t:"izbor", q:"Je li tvrdnja točna?", items:[
     ["Prosvjetitelji su vjerovali da je razum najvažniji izvor spoznaje.", ["točno","netočno"], "točno"],
     ["Prosvjetiteljstvo je vrhunac doživjelo u 18. stoljeću.",            ["točno","netočno"], "točno"],
@@ -37,7 +38,8 @@ const ZADACI_POVIJEST_7 = [
     ["Prosvjetitelji su podržavali neograničenu vlast vladara.",          ["netočno","točno"], "netočno"]]},
   {t:"izbor", q:"Koji je vladar proveo reformu?", items:[
     ["uvela obvezno osnovno školovanje (1774.)",   ["Marija Terezija","Katarina II."], "Marija Terezija"],
-    ["izdao Patent o vjerskoj toleranciji (1781.)", ["Josip II.","Fridrik II."],        "Josip II."],
+    ["izdao Patent o vjerskoj toleranciji (1781.)", ["Josip II.","Friedrich II."],      "Josip II."],
+    ["pruski kralj, govorio da je prvi sluga svoje države", ["Friedrich II.","Josip II."], "Friedrich II."],
     ["uveo njemački kao službeni jezik Monarhije",  ["Josip II.","Marija Terezija"],    "Josip II."]]},
   {t:"izbor", q:"Kako se zove pojam?", items:[
     ["vladar provodi reforme u duhu prosvjetiteljstva, ali zadržava svu vlast", ["prosvijećeni apsolutizam","parlamentarna monarhija"], "prosvijećeni apsolutizam"],
@@ -52,14 +54,14 @@ const ZADACI_POVIJEST_7 = [
 
 /* doba gradanskih revolucija: americki rat za nezavisnost */
 {id:"p2", nav:"Američka revolucija", title:"Američki rat za nezavisnost",
- lead:"Trinaest kolonija, Deklaracija nezavisnosti i Ustav SAD-a.", tasks:[
+ lead:"Trinaest kolonija, Deklaracija neovisnosti i Ustav SAD-a.", tasks:[
   {t:"izbor", q:"Koje se godine dogodilo?", items:[
     ["Bostonska čajanka",                         ["1773.","1776."], "1773."],
-    ["Deklaracija nezavisnosti",                  ["1776.","1789."], "1776."],
+    ["Deklaracija neovisnosti",                  ["1776.","1789."], "1776."],
     ["mir u Parizu i priznanje nezavisnosti SAD-a",["1783.","1776."], "1783."],
     ["donesen Ustav SAD-a",                       ["1787.","1773."], "1787."]]},
   {t:"izbor", q:"Na koga se odnosi opis?", items:[
-    ["glavni autor Deklaracije nezavisnosti",       ["Thomas Jefferson","George Washington"],  "Thomas Jefferson"],
+    ["glavni autor Deklaracije neovisnosti",       ["Thomas Jefferson","George Washington"],  "Thomas Jefferson"],
     ["zapovjednik vojske i prvi predsjednik SAD-a", ["George Washington","Benjamin Franklin"], "George Washington"],
     ["diplomat u Francuskoj i izumitelj gromobrana",["Benjamin Franklin","Thomas Jefferson"],  "Benjamin Franklin"]]},
   {t:"izbor", q:"Odaberi točan odgovor.", items:[
@@ -74,10 +76,10 @@ const ZADACI_POVIJEST_7 = [
   {t:"izbor", q:"Je li tvrdnja točna?", items:[
     ["SAD su postale republika.",                                  ["točno","netočno"], "točno"],
     ["Ustav SAD-a ostvaruje Montesquieuovu diobu vlasti.",         ["točno","netočno"], "točno"],
-    ["Deklaracija nezavisnosti odmah je ukinula ropstvo.",        ["netočno","točno"], "netočno"]]},
+    ["Deklaracija neovisnosti odmah je ukinula ropstvo.",        ["netočno","točno"], "netočno"]]},
   {t:"calc", q:"Dopuni rečenicu jednom riječju.", items:[
     ["Prvi predsjednik SAD-a bio je George ____.", "Washington"],
-    ["Deklaraciju nezavisnosti napisao je Thomas ____.", "Jefferson"]]},
+    ["Deklaraciju neovisnosti napisao je Thomas ____.", "Jefferson"]]},
   {t:"note", q:"Navedi dva uzroka i dvije posljedice američkoga rata za nezavisnost.",
    solution:"uzroci: novi porezi i carine, kolonije nemaju zastupnike u britanskom parlamentu; posljedice: nastanak SAD-a, prvi pisani ustav i poticaj revolucijama u Europi"}
 ]},
@@ -97,8 +99,8 @@ const ZADACI_POVIJEST_7 = [
   {t:"izbor", q:"Na koga ili na što se odnosi opis?", items:[
     ["francuski kralj na početku revolucije",       ["Luj XVI.","Luj XIV."],              "Luj XVI."],
     ["vođa jakobinaca u doba terora",               ["Robespierre","Napoleon Bonaparte"], "Robespierre"],
-    ["sprava za izvršenje smrtne kazne",            ["giljotina","Bastilja"],             "giljotina"],
-    ["skupština koju je kralj sazvao 1789.",        ["Generalni staleži","Kongres"],      "Generalni staleži"]]},
+    ["sprava za izvršenje smrtne kazne",            ["giljotina","Bastille"],             "giljotina"],
+    ["skupština koju je kralj sazvao 1789.",        ["Državni staleži","Kongres"],        "Državni staleži"]]},
   {t:"izbor", q:"Je li tvrdnja točna?", items:[
     ["Treći stalež plaćao je gotovo sve poreze.",                ["točno","netočno"], "točno"],
     ["Plemstvo i svećenstvo plaćali su najviše poreza.",          ["netočno","točno"], "netočno"],
@@ -106,8 +108,13 @@ const ZADACI_POVIJEST_7 = [
     ["Za vrijeme terora pogubljeno je samo nekoliko ljudi.",      ["netočno","točno"], "netočno"]]},
   {t:"calc", q:"Dopuni jednom riječju.", items:[
     ["Geslo revolucije: Sloboda, jednakost, ____.", "bratstvo"],
-    ["Pariški zatvor koji je narod zauzeo 14. srpnja 1789.", "Bastilja"],
+    ["Skupština predstavnika svih staleža zvala se Državni ____.", "staleži"],
     ["Žena Luja XVI., kraljica Marija ____.", "Antoaneta"]]},
+  {t:"izbor", q:"Kako se zove?", items:[
+    ["ime koje su si zastupnici dali 17. lipnja 1789.",          ["Narodna skupština","Direktorij"], "Narodna skupština"],
+    ["skupina koja je pravo glasa ostavila samo bogatijima",     ["žirondinci","jakobinci"],         "žirondinci"],
+    ["peteročlano tijelo koje je vladalo nakon jakobinaca",      ["Direktorij","Narodna skupština"], "Direktorij"],
+    ["autorica Povelje o pravima žene i građanke",               ["Olympe de Gouges","Marija Antoaneta"], "Olympe de Gouges"]]},
   {t:"izbor", q:"Poredaj: što je bilo prije?", items:[
     ["pad Bastilje ili proglašenje republike",        ["pad Bastilje","proglašenje republike"], "pad Bastilje"],
     ["jakobinski teror ili Direktorij",               ["jakobinski teror","Direktorij"],        "jakobinski teror"]]},
@@ -127,7 +134,7 @@ const ZADACI_POVIJEST_7 = [
     ["Na kojem je otoku Napoleon rođen?",               ["Korzika","Elba"],              "Korzika"],
     ["Kamo je prvi put prognan 1814.?",                 ["Elba","Sveta Helena"],         "Elba"],
     ["Gdje je umro u progonstvu?",                      ["Sveta Helena","Korzika"],      "Sveta Helena"],
-    ["Kojim je zakonikom uredio pravo u Francuskoj?",   ["Građanskim zakonikom","Deklaracijom nezavisnosti"], "Građanskim zakonikom"]]},
+    ["Kojim je zakonikom uredio pravo u Francuskoj?",   ["Građanskim zakonikom","Deklaracijom neovisnosti"], "Građanskim zakonikom"]]},
   {t:"izbor", q:"Kako se zove?", items:[
     ["zabrana trgovine s Velikom Britanijom na kontinentu", ["kontinentalna blokada","Sveta alijansa"], "kontinentalna blokada"],
     ["savez vladara Rusije, Austrije i Pruske nakon 1815.", ["Sveta alijansa","kontinentalna blokada"], "Sveta alijansa"],
@@ -240,7 +247,7 @@ const ZADACI_POVIJEST_7 = [
 /* rad s izvorima, vremenska crta i usporedba -- bez ocjenjivanja */
 {id:"p8", nav:"Vježbanje", title:"Zadaci za vježbenicu",
  lead:"Vremenska crta, rad s povijesnim izvorima i usporedba — bez ocjenjivanja.", tasks:[
-  {t:"note", q:"Nacrtaj vremensku crtu od 1750. do 1850. i upiši: Deklaraciju nezavisnosti, pad Bastilje, Napoleonovu krunidbu, Waterloo i revolucije 1848.",
+  {t:"note", q:"Nacrtaj vremensku crtu od 1750. do 1850. i upiši: Deklaraciju neovisnosti, pad Bastilje, Napoleonovu krunidbu, Waterloo i revolucije 1848.",
    solution:"1776., 1789., 1804., 1815., 1848."},
   {t:"note", q:"Usporedi američku i francusku revoluciju: što im je zajedničko, a po čemu se razlikuju?",
    solution:"zajedničko: ideje prosvjetiteljstva, prava čovjeka, ustav; razlika: američka je rat za odvajanje od Britanije, francuska ruši staleško društvo i kralja"},
