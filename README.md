@@ -1,7 +1,7 @@
-# Ponavljanje gradiva — 2., 5. i 6. razred
+# Ponavljanje gradiva — 2., 4., 5., 6. i 7. razred
 
-Statična stranica sa zadacima iz hrvatskog kurikuluma, za dva predmeta — **matematiku** i
-**hrvatski jezik** — i tri razreda: **2., 5. i 6.** Razred se bira pilulama u zaglavlju, uz
+Statična stranica sa zadacima iz hrvatskog kurikuluma, za **matematiku** i **hrvatski jezik**
+(razredi **2., 4., 5., 6. i 7.**) te **povijest** (7. razred). Razred se bira pilulama u zaglavlju, uz
 prekidač predmeta. Gradivo 2. razreda pokriva brojeve do 100, zbrajanje i oduzimanje s
 prelaskom desetice, tablicu množenja i dijeljenja, geometriju, mjerenje i podatke (matematika),
 te veliko početno slovo, č i ć, ije i je, glasove i slova, rečenicu, vrste riječi i značenje
@@ -13,7 +13,7 @@ Sve preko `<script src>`, nema buildanja, nema dependencyja osim Google Fonts CD
 ## Objava na GitHub Pages
 
 1. Napravi novi javni repozitorij na GitHubu, npr. `matematika-3razred`.
-2. Dodaj `index.html`, svih šest datoteka `zadaci-<predmet>-<razred>.js` (i ovaj README) u
+2. Dodaj `index.html`, sve datoteke `zadaci-<predmet>-<razred>.js` (i ovaj README) u
    korijen repozitorija i pushaj na branch `main`:
    ```bash
    git init
@@ -75,8 +75,9 @@ lik i doslovni citati ne koriste.
 
 ## Razredi i predmeti
 
-Stranica ima dva predmeta: **Matematiku** i **Hrvatski jezik**, svaki dostupan za pet razreda:
-**2., 4., 5., 6. i 7.** Predmet se bira pri prvoj prijavi, a razred **ne** — počinje na 2. razredu.
+Stranica ima tri predmeta: **Matematiku** i **Hrvatski jezik**, svaki dostupan za pet razreda
+(**2., 4., 5., 6. i 7.**), te **Povijest**, zasad samo za **7. razred**. Na povijesti su pilule
+ostalih razreda onemogućene, a pilula Povijest s nekog drugog razreda vodi ravno u 7. Predmet se bira pri prvoj prijavi, a razred **ne** — počinje na 2. razredu.
 Oba se mijenjaju prekidačima u zaglavlju: gornji red su pilule razreda, donji pilule predmeta.
 Nadimak i avatar su zajednički za sve razrede i
 predmete, a napredak se pamti odvojeno po **paru** razred/predmet. Stranica se otvori na
@@ -96,8 +97,9 @@ zadaci-<predmet>-<razred>.js   const ZADACI_<PREDMET>_<RAZRED> = [...]
 ```
 
 Dodavanje razreda: nova stavka u `RAZREDI`, nova grana u `GRADIVO` i po jedna datoteka sa
-zadacima za svaki predmet. Dodavanje predmeta: nova stavka u `PREDMETI` i po jedna datoteka
-sa zadacima za svaki razred.
+zadacima za svaki predmet. Dodavanje predmeta: nova stavka u `PREDMETI`, kartica u prijavi
+(`.predmet-izbor`) i po jedna datoteka sa zadacima za svaki razred koji ga ima — predmet ne
+mora postojati u svim razredima (vidi povijest).
 
 **Sadržaj po razredu.** Svaka cjelina u datotekama sa zadacima nosi u komentaru oznaku ishoda
 iz kurikuluma na koji se odnosi:
@@ -114,9 +116,13 @@ iz kurikuluma na koji se odnosi:
 | Hrvatski 6. | 8 | 87 | jezgra `OŠ HJ A.6.5`, `A.6.6`; `B.6.2`; `A.6.1–4` kao „note" |
 | Matematika 7. | 10 | 188 | `MAT OŠ A.7.1–5`, `B.7.1–4`, `C.7.1–3`, `D.7.1–6`, `E.7.1` — svi ishodi 7. razreda |
 | Hrvatski 7. | 7 | 116 | jezgra `OŠ HJ A.7.5`; `A.7.6`; `B.7.2`; `A.7.1–4` kao „note" |
+| Povijest 7. | 7 | 131 | teme 7. razreda: prosvjetiteljstvo, američki rat za nezavisnost, Francuska revolucija, Napoleon, industrijske revolucije, razvoj gradova, ideologije 19. st. |
 
 Hrvatski 7. ima osam cjelina, ali `h8` sadrži same `note` zadatke, pa nema polja ni
-`data-total` — zato u stupcu *Cjelina* stoji 7.
+`data-total` — zato u stupcu *Cjelina* stoji 7. Isto vrijedi za povijest 7. i cjelinu `p8`.
+
+Povijest se provjerava pravilom hrvatskoga (veliko slovo i dijakritika su bitni). Godine se
+pitaju samo kao `izbor`, jer se u hrvatskom pišu s točkom (`1789.`) i upis bi bio dvojben.
 
 Što **nije** pokriveno automatskom provjerom, i zašto:
 
@@ -162,7 +168,7 @@ Gradivo 2. razreda **nema** `oblik` — provjerava se starim pravilom po predmet
 
 ### Provjera odgovora ovisi o predmetu
 
-| | Matematika | Hrvatski |
+| | Matematika | Hrvatski i povijest |
 |---|---|---|
 | veliko/malo slovo | nevažno | bitno (`Ana` ≠ `ana`) |
 | č ć š ž đ | — | bitno (`kuca` ≠ `kuća`) |
@@ -171,7 +177,7 @@ Gradivo 2. razreda **nema** `oblik` — provjerava se starim pravilom po predmet
 | završni `. ? !` | — | bitno |
 | deklariran `oblik` | nadjačava pravilo predmeta | nadjačava pravilo predmeta |
 
-U hrvatskom, uz polja za upis stoji red tipki **č ć š ž đ**, jer se ta slova na
+U hrvatskom i povijesti, uz polja za upis stoji red tipki **č ć š ž đ**, jer se ta slova na
 tabletu bez hrvatske tipkovnice ne mogu upisati. Matematika 5., 6. i 7. razreda dobiva
 vlastitu traku znakova (`- / , ² ³`) za razlomke i stupnjeve, a matematika 4. razreda
 užu traku (`, ²`) — ondje nema ni negativnih brojeva ni razlomaka.

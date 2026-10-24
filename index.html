@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Matematika — gradivo 2. razreda</title>
-<meta name="description" content="Zadaci za ponavljanje gradiva matematike i hrvatskog jezika za 2., 4., 5., 6. i 7. razred osnovne škole.">
+<meta name="description" content="Zadaci za ponavljanje gradiva matematike i hrvatskog jezika za 2., 4., 5., 6. i 7. razred te povijesti za 7. razred osnovne škole.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -545,6 +545,9 @@
       <button type="button" class="predmet-izbor" data-predmet="hrvatski" aria-pressed="false">
         <span class="lik-ime">Hrvatski jezik</span>
       </button>
+      <button type="button" class="predmet-izbor" data-predmet="povijest" aria-pressed="false">
+        <span class="lik-ime">Povijest</span>
+      </button>
     </div>
     <p style="margin-top:16px">Koga želiš da te prati kroz zadatke?</p>
     <div class="izbor">
@@ -576,6 +579,7 @@
 <script src="zadaci-matematika-7.js"></script>
 <script src="zadaci-hrvatski-6.js"></script>
 <script src="zadaci-hrvatski-7.js"></script>
+<script src="zadaci-povijest-7.js"></script>
 <script>
 /* ---------- predmeti, razredi i gradivo ----------
    Predmet nosi ono sto ne ovisi o razredu: pravilo provjere, traku u
@@ -594,6 +598,13 @@ const PREDMETI = {
   },
   hrvatski: {
     naziv:    "Hrvatski jezik",
+    traka:    "abeceda",
+    provjera: "rijec",
+    znakovi:  { "*": ["č", "ć", "š", "ž", "đ"] }
+  },
+  // povijest postoji samo za 7. razred; ostale pilule razreda su onemogucene
+  povijest: {
+    naziv:    "Povijest",
     traka:    "abeceda",
     provjera: "rijec",
     znakovi:  { "*": ["č", "ć", "š", "ž", "đ"] }
@@ -680,6 +691,12 @@ const GRADIVO = {
       naslov: "Ponavljamo hrvatski<br>7. razreda",
       uvod:   "Gradivo 7. razreda: zamjenice, glasovne promjene, ustrojstvo rečenice, padeži, red riječi i naglasci, povijest hrvatskoga jezika i književnost.",
       zadaci: typeof ZADACI_HRVATSKI_7 !== "undefined" ? ZADACI_HRVATSKI_7 : []
+    },
+    povijest: {
+      title:  "Povijest — gradivo 7. razreda",
+      naslov: "Ponavljamo povijest<br>7. razreda",
+      uvod:   "Gradivo 7. razreda: prosvjetiteljstvo, američki rat za nezavisnost, Francuska revolucija, Napoleon, industrijske revolucije, razvoj gradova i ideologije 19. stoljeća.",
+      zadaci: typeof ZADACI_POVIJEST_7 !== "undefined" ? ZADACI_POVIJEST_7 : []
     }
   }
 };
@@ -834,11 +851,14 @@ function izgradiPredmet(kljucRazreda, kljucPredmeta) {
   // s zadacima se nije ucitala -- typeof cuvar gore tada ostavi zadaci:[]).
   // Ostati na takvom paru bi ostavilo dijete na praznoj stranici s pilulom
   // koja je istovremeno aktivna i onemogucena. Umjesto toga padamo na prvi
-  // par razred/predmet koji stvarno ima ucitano gradivo.
+  // razred s gradivom istoga predmeta (povijest postoji samo u 7. razredu,
+  // pa njezina pilula s 2. razreda vodi u 7.), a tek onda na bilo koji par.
   if (!imaGradivo(razred, predmet)) {
-    const zamjena = Object.keys(RAZREDI)
-      .flatMap(r => Object.keys(PREDMETI).map(p => [r, p]))
-      .find(([r, p]) => imaGradivo(r, p));
+    const zamjena =
+      Object.keys(RAZREDI).filter(r => imaGradivo(r, predmet)).map(r => [r, predmet])[0] ||
+      Object.keys(RAZREDI)
+        .flatMap(r => Object.keys(PREDMETI).map(p => [r, p]))
+        .find(([r, p]) => imaGradivo(r, p));
     if (zamjena) [razred, predmet] = zamjena;
   }
   const p = PREDMETI[predmet];

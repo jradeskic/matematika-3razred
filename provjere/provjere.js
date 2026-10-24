@@ -35,6 +35,10 @@ function istina(uvjet, opis) {
 // pomocnici nad stranicom u iframeu
 const polja = W => [...W.document.querySelectorAll("#main input[type=text]")];
 const vidljivaPolja = W => polja(W).filter(i => !i.hidden);
+// parovi razred/predmet koji postoje u GRADIVU -- povijest je samo u 7. razredu
+const parovi = W => Object.keys(W.RAZREDI)
+  .flatMap(r => Object.keys(W.PREDMETI).map(p => [r, p]))
+  .filter(([r, p]) => W.GRADIVO[r] && W.GRADIVO[r][p]);
 function upisi(W, inp, vrijednost) {
   inp.value = vrijednost;
   inp.dispatchEvent(new W.FocusEvent("focusout", { bubbles: true }));
@@ -56,20 +60,20 @@ const OCEKIVANJA = {
   "7/matematika": { cjelina: 10, polja: 188 },
   // 7/hrvatski ima 8 cjelina, ali h8 su sami "note" zadaci, pa ta cjelina nema
   // data-total i ne ulazi u brojku ispod
-  "7/hrvatski":   { cjelina: 7, polja: 116 }
+  "7/hrvatski":   { cjelina: 7, polja: 116 },
+  // p8 su sami "note" zadaci, kao h8 u hrvatskom
+  "7/povijest":   { cjelina: 7, polja: 131 }
 };
 
 provjera("svaki skup ima ocekivani broj cjelina i polja", async ucitaj => {
   const W = await ucitaj();
   const dobiveno = {};
-  for (const r of Object.keys(W.RAZREDI)) {
-    for (const p of Object.keys(W.PREDMETI)) {
-      W.izgradiPredmet(r, p);
-      dobiveno[r + "/" + p] = {
-        cjelina: W.document.querySelectorAll("section[data-total]").length,
-        polja:   W.document.querySelectorAll("#main input[data-answer]").length
-      };
-    }
+  for (const [r, p] of parovi(W)) {
+    W.izgradiPredmet(r, p);
+    dobiveno[r + "/" + p] = {
+      cjelina: W.document.querySelectorAll("section[data-total]").length,
+      polja:   W.document.querySelectorAll("#main input[data-answer]").length
+    };
   }
   jednako(dobiveno, OCEKIVANJA, "cjeline i polja po skupu");
 });
@@ -77,8 +81,7 @@ provjera("svaki skup ima ocekivani broj cjelina i polja", async ucitaj => {
 provjera("svaki izbor zadatak ima tocan odgovor medju ponudenima", async ucitaj => {
   const W = await ucitaj();
   const greske = [];
-  for (const r of Object.keys(W.RAZREDI))
-    for (const p of Object.keys(W.PREDMETI))
+  for (const [r, p] of parovi(W))
       for (const sec of W.GRADIVO[r][p].zadaci)
         for (const task of sec.tasks)
           if (task.t === "izbor")
@@ -91,8 +94,7 @@ provjera("svaki izbor zadatak ima tocan odgovor medju ponudenima", async ucitaj 
 provjera("svaki odgovor s oblikom je razlozljiv u taj oblik", async ucitaj => {
   const W = await ucitaj();
   const greske = [];
-  for (const r of Object.keys(W.RAZREDI))
-    for (const p of Object.keys(W.PREDMETI))
+  for (const [r, p] of parovi(W))
       for (const sec of W.GRADIVO[r][p].zadaci)
         for (const task of sec.tasks) {
           if (!task.oblik || !task.items) continue;
@@ -108,8 +110,7 @@ provjera("svaki odgovor s oblikom je razlozljiv u taj oblik", async ucitaj => {
 provjera("svaki deklariran oblik je s popisa OBLICI", async ucitaj => {
   const W = await ucitaj();
   const greske = [];
-  for (const r of Object.keys(W.RAZREDI))
-    for (const p of Object.keys(W.PREDMETI))
+  for (const [r, p] of parovi(W))
       for (const sec of W.GRADIVO[r][p].zadaci)
         for (const task of sec.tasks)
           if (task.oblik && !W.OBLICI.includes(task.oblik))
@@ -120,11 +121,10 @@ provjera("svaki deklariran oblik je s popisa OBLICI", async ucitaj => {
 provjera("oznake cjelina su jedinstvene unutar svakog skupa", async ucitaj => {
   const W = await ucitaj();
   const greske = [];
-  for (const r of Object.keys(W.RAZREDI))
-    for (const p of Object.keys(W.PREDMETI)) {
-      const id = W.GRADIVO[r][p].zadaci.map(s => s.id);
-      if (new Set(id).size !== id.length) greske.push(r + "/" + p);
-    }
+  for (const [r, p] of parovi(W)) {
+    const id = W.GRADIVO[r][p].zadaci.map(s => s.id);
+    if (new Set(id).size !== id.length) greske.push(r + "/" + p);
+  }
   jednako(greske, [], "skupovi s ponovljenom oznakom cjeline");
 });
 
@@ -446,7 +446,7 @@ provjera("stari zapis se prevodi u v:3 i cuva matematicki napredak", async ucita
 provjera("prekidac predmeta ima pilulu za svaki predmet", async ucitaj => {
   const W = await ucitaj();
   const pilule = [...W.document.querySelectorAll("#predmeti .predmet")];
-  jednako(pilule.map(p => p.dataset.predmet), ["matematika", "hrvatski"], "pilule");
+  jednako(pilule.map(p => p.dataset.predmet), ["matematika", "hrvatski", "povijest"], "pilule");
   jednako(pilule.filter(p => p.classList.contains("aktivan")).length, 1, "jedna je aktivna");
 });
 
@@ -576,7 +576,7 @@ provjera("prijava nudi odabir predmeta", async ucitaj => {
   await cekaj(150);
   istina(!W.document.getElementById("prijava").hidden, "prijava je otvorena");
   jednako([...W.document.querySelectorAll(".predmet-izbor")].map(b => b.dataset.predmet),
-          ["matematika", "hrvatski"], "kartice predmeta");
+          ["matematika", "hrvatski", "povijest"], "kartice predmeta");
 });
 
 provjera("odabir hrvatskoga u prijavi otvara hrvatski", async ucitaj => {
@@ -711,14 +711,49 @@ provjera("RAZREDI ima 2., 4., 5., 6. i 7. razred", async ucitaj => {
   jednako(Object.keys(W.RAZREDI), ["2", "4", "5", "6", "7"], "kljucevi razreda");
 });
 
-provjera("GRADIVO ima svih deset skupova i ni jedan nije prazan", async ucitaj => {
+provjera("GRADIVO ima svih jedanaest skupova i ni jedan nije prazan", async ucitaj => {
   const W = await ucitaj();
-  const parovi = [];
-  for (const r of Object.keys(W.RAZREDI))
-    for (const p of Object.keys(W.PREDMETI))
-      parovi.push([r + "/" + p, (W.GRADIVO[r] && W.GRADIVO[r][p] || {}).zadaci]);
-  const prazni = parovi.filter(([, z]) => !z || !z.length).map(([k]) => k);
+  // matematika i hrvatski za svaki razred, povijest samo za 7.
+  const ocekivani = Object.keys(W.RAZREDI)
+    .flatMap(r => ["matematika", "hrvatski"].map(p => r + "/" + p)).concat("7/povijest");
+  jednako(parovi(W).map(([r, p]) => r + "/" + p).sort(), ocekivani.sort(), "postojeci skupovi");
+  const prazni = parovi(W).filter(([r, p]) => !W.GRADIVO[r][p].zadaci.length).map(([r, p]) => r + "/" + p);
   jednako(prazni, [], "skupovi bez zadataka");
+});
+
+provjera("povijest: pilula s 2. razreda vodi u 7. razred, ostali razredi su onemoguceni", async ucitaj => {
+  const W = await ucitaj();
+  jednako(W.stanje().razred, "2", "pocetni razred");
+  W.document.querySelector("#predmeti .predmet[data-predmet='povijest']").click();
+  await cekaj(200);
+  jednako(W.stanje(), { razred: "7", predmet: "povijest" }, "aktivni par");
+  jednako(W.document.title, "Povijest — gradivo 7. razreda", "naslov");
+  jednako([...W.document.querySelectorAll("#razredi .razred:not(:disabled)")].map(b => b.dataset.razred),
+          ["7"], "dostupni razredi");
+  // natrag na matematiku: ostaje u 7. razredu
+  W.document.querySelector("#predmeti .predmet[data-predmet='matematika']").click();
+  await cekaj(200);
+  jednako(W.stanje(), { razred: "7", predmet: "matematika" }, "matematika 7. razreda");
+});
+
+provjera("povijest: svi tocni odgovori prolaze provjeru i tocan je odgovor medu tipkama", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("7", "povijest");
+  const lose = [];
+  [...W.document.querySelectorAll(".izbor-item")].forEach(s => {
+    const inp = s.querySelector("input[type=text]");
+    const vrijednosti = [...s.querySelectorAll(".chip")].map(t => t.dataset.vrijednost);
+    if (!vrijednosti.includes(inp.dataset.answer)) lose.push(inp.dataset.key);
+  });
+  jednako(lose, [], "stavke kojima tocan odgovor nije medu tipkama");
+  const kljucevi = polja(W).map(i => i.dataset.key);
+  jednako(new Set(kljucevi).size, kljucevi.length, "jedinstveni kljucevi");
+  polja(W).forEach(i => { i.value = i.dataset.answer; });
+  W.document.getElementById("check").click();
+  await cekaj(200);
+  jednako(polja(W).filter(i => i.classList.contains("no")).map(i => i.dataset.key), [], "odbijeni odgovori");
+  jednako(W.document.querySelectorAll("section.won").length, 7, "svladanih razina");
+  jednako(W.document.querySelectorAll("#main .paper-task").length, 11, "zadataka za vjezbenicu");
 });
 
 /* ---------- migracija profila na v:3 ---------- */
