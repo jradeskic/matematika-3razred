@@ -51,6 +51,8 @@ function upisi(W, inp, vrijednost) {
 const OCEKIVANJA = {
   "2/matematika": { cjelina: 7, polja: 85 },
   "2/hrvatski":   { cjelina: 7, polja: 85 },
+  // 3. razred ima samo hrvatski; svaka recenica tipa "glagol" nosi dva polja
+  "3/hrvatski":   { cjelina: 3, polja: 64 },
   "4/matematika": { cjelina: 9, polja: 150 },
   "4/hrvatski":   { cjelina: 9, polja: 131 },
   "5/matematika": { cjelina: 8, polja: 134 },
@@ -697,6 +699,80 @@ provjera("prebacivanje predmeta ne ostavlja polja drugog predmeta", async ucitaj
           ["c1", "c2", "c3", "c4", "c5", "c6", "c7"], "cjeline su matematicke");
 });
 
+/* ---------- tip zadatka glagol (3. razred) ---------- */
+
+provjera("glagol: podaci su jednoznacni", async ucitaj => {
+  const W = await ucitaj();
+  const greske = [];
+  for (const [r, p] of parovi(W))
+    for (const sec of W.GRADIVO[r][p].zadaci)
+      for (const task of sec.tasks) {
+        if (task.t !== "glagol") continue;
+        for (const [recenica, glagol, vrsta] of task.items) {
+          const rijeci = recenica.split(/\s+/).map(W.cistaRijec);
+          if (rijeci.filter(x => x === glagol).length !== 1)
+            greske.push(`${sec.id} "${recenica}": glagol "${glagol}" nije tocno jedna rijec`);
+          if (new Set(rijeci.map(x => x.toLowerCase())).size !== rijeci.length)
+            greske.push(`${sec.id} "${recenica}": ponovljena rijec`);
+          if (!W.VRSTE_GLAGOLA.includes(vrsta))
+            greske.push(`${sec.id} "${recenica}": nepoznata vrsta "${vrsta}"`);
+        }
+      }
+  jednako(greske, [], "neispravne recenice");
+});
+
+provjera("glagol: vrsta se pita tek kad je glagol naden", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("3", "hrvatski");
+  const stavka = W.document.querySelector(".glagol-item");
+  const rijec = stavka.querySelector("input.g-rijec");
+  const vrsta = stavka.querySelector("input.g-vrsta");
+  const korak = stavka.querySelector(".korak-vrsta");
+  const vidljiv = () => W.getComputedStyle(korak).display !== "none";
+  const tipkaRijeci = v => [...stavka.querySelectorAll(".rijec")].find(t => (t.dataset.vrijednost === rijec.dataset.answer) === v);
+  const tipkaVrste = v => [...korak.querySelectorAll(".chip")].find(t => (t.dataset.vrijednost === vrsta.dataset.answer) === v);
+
+  istina(!vidljiv(), "prije tapa vrsta nije ponudena");
+  tipkaRijeci(false).click();
+  istina(rijec.classList.contains("no"), "kriva rijec daje kriz");
+  istina(!vidljiv(), "nakon krive rijeci vrsta nije ponudena");
+
+  tipkaRijeci(true).click();
+  istina(rijec.classList.contains("ok"), "glagol daje kvacicu");
+  istina(vidljiv(), "nakon glagola vrsta je ponudena");
+  jednako(stavka.querySelectorAll(".rijec.odabrana").length, 1, "jedna oznacena rijec");
+
+  tipkaVrste(false).click();
+  istina(vrsta.classList.contains("no"), "kriva vrsta daje kriz");
+  tipkaVrste(true).click();
+  istina(vrsta.classList.contains("ok"), "tocna vrsta daje kvacicu");
+  jednako(W.document.querySelector("#g1 .lvlcount").textContent, "2 / 20", "oba koraka pune razinu");
+
+  // predomisljanje na krivu rijec brise i vec odabranu vrstu
+  tipkaRijeci(false).click();
+  jednako(vrsta.value, "", "vrsta je obrisana");
+  istina(!vrsta.classList.contains("ok"), "vrsta vise nije tocna");
+  jednako(W.document.querySelector("#g1 .lvlcount").textContent, "0 / 20", "razina se vratila");
+});
+
+provjera("glagol: napredak se pamti i vraca za oba koraka", async ucitaj => {
+  let W = await ucitaj();
+  W.document.querySelector('#predmeti .predmet[data-predmet="hrvatski"]').click();
+  W.document.querySelector("#razredi .razred[data-razred='3']").click();
+  jednako(W.stanje(), { razred: "3", predmet: "hrvatski" }, "aktivni par");
+  const stavka = W.document.querySelector(".glagol-item");
+  const rijec = stavka.querySelector("input.g-rijec"), vrsta = stavka.querySelector("input.g-vrsta");
+  stavka.querySelector(`.rijec[data-vrijednost="${rijec.dataset.answer}"]`).click();
+  stavka.querySelector(`.korak-vrsta .chip[data-vrijednost="${vrsta.dataset.answer}"]`).click();
+  await cekaj(300);
+  W = await ucitaj();
+  jednako(W.stanje(), { razred: "3", predmet: "hrvatski" }, "otvara se na 3. razredu hrvatskog");
+  const s2 = W.document.querySelector(".glagol-item");
+  istina(s2.querySelector("input.g-rijec").classList.contains("ok"), "glagol vracen");
+  istina(s2.querySelector("input.g-vrsta").classList.contains("ok"), "vrsta vracena");
+  jednako(s2.querySelectorAll(".chip.odabrana").length, 2, "obje tipke oznacene");
+});
+
 /* ---------- razredi i gradivo ---------- */
 
 provjera("GRADIVO ima 2. razred za oba predmeta", async ucitaj => {
@@ -706,16 +782,17 @@ provjera("GRADIVO ima 2. razred za oba predmeta", async ucitaj => {
   jednako(W.stanje().razred, "2", "aktivni razred");
 });
 
-provjera("RAZREDI ima 2., 4., 5., 6. i 7. razred", async ucitaj => {
+provjera("RAZREDI ima 2., 3., 4., 5., 6. i 7. razred", async ucitaj => {
   const W = await ucitaj();
-  jednako(Object.keys(W.RAZREDI), ["2", "4", "5", "6", "7"], "kljucevi razreda");
+  jednako(Object.keys(W.RAZREDI), ["2", "3", "4", "5", "6", "7"], "kljucevi razreda");
 });
 
-provjera("GRADIVO ima svih jedanaest skupova i ni jedan nije prazan", async ucitaj => {
+provjera("GRADIVO ima svih dvanaest skupova i ni jedan nije prazan", async ucitaj => {
   const W = await ucitaj();
-  // matematika i hrvatski za svaki razred, povijest samo za 7.
+  // matematika i hrvatski za svaki razred osim 3. (samo hrvatski), povijest samo za 7.
   const ocekivani = Object.keys(W.RAZREDI)
-    .flatMap(r => ["matematika", "hrvatski"].map(p => r + "/" + p)).concat("7/povijest");
+    .flatMap(r => ["matematika", "hrvatski"].map(p => r + "/" + p))
+    .filter(k => k !== "3/matematika").concat("7/povijest");
   jednako(parovi(W).map(([r, p]) => r + "/" + p).sort(), ocekivani.sort(), "postojeci skupovi");
   const prazni = parovi(W).filter(([r, p]) => !W.GRADIVO[r][p].zadaci.length).map(([r, p]) => r + "/" + p);
   jednako(prazni, [], "skupovi bez zadataka");
@@ -815,9 +892,10 @@ provjera("napredak se pamti po paru razred/predmet", async ucitaj => {
 provjera("prekidac razreda ima pilulu za svaki razred", async ucitaj => {
   const W = await ucitaj();
   const pilule = [...W.document.querySelectorAll("#razredi .razred")];
-  jednako(pilule.map(p => p.dataset.razred), ["2", "4", "5", "6", "7"], "pilule");
+  jednako(pilule.map(p => p.dataset.razred), ["2", "3", "4", "5", "6", "7"], "pilule");
   jednako(pilule.filter(p => p.classList.contains("aktivan")).length, 1, "jedna je aktivna");
-  jednako(pilule.filter(p => p.disabled).length, 0, "ni jedna nije onemogucena");
+  // stranica se otvara na matematici, a 3. razred ima samo hrvatski
+  jednako(pilule.filter(p => p.disabled).map(p => p.dataset.razred), ["3"], "onemogucene pilule");
 });
 
 provjera("prebacivanje razreda mijenja naslov i cjeline", async ucitaj => {

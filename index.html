@@ -295,6 +295,23 @@
     border:2px solid var(--line);border-radius:12px;background:#fff;
   }
   button.chip.odabrana{border-color:var(--sky);background:#e8f0fc}
+  /* ---------- pronadi glagol u recenici ---------- */
+  .glagol-items{flex-direction:column;gap:22px}
+  .glagol-item{flex-direction:column;align-items:flex-start;gap:10px;width:100%}
+  .korak{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .chips.recenica{flex-wrap:wrap;gap:6px}
+  button.chip.rijec{min-width:0;padding:0 12px;border-style:dashed;font-weight:600}
+  .korak-rijec:has(input.ok) button.chip.rijec.odabrana{
+    border-style:solid;border-color:var(--grass);background:#eefaf1;font-weight:800}
+  .korak-rijec:has(input.no) button.chip.rijec.odabrana{
+    border-style:solid;border-color:var(--berry);background:#fdeeed}
+  /* vrsta se pita tek kad je glagol naden */
+  .korak-vrsta{display:none;padding-left:14px;border-left:4px solid var(--grass)}
+  .korak-rijec:has(input.ok) + .korak-vrsta{display:flex}
+  .korak-vrsta .chips{flex-wrap:wrap}
+  .korak-pitanje{font-weight:700;color:var(--muted)}
+  .korak-vrsta:has(input.ok) button.chip.odabrana{border-color:var(--grass);background:#eefaf1}
+  .korak-vrsta:has(input.no) button.chip.odabrana{border-color:var(--berry);background:#fdeeed}
   /* ---------- prekidac predmeta ---------- */
   .predmeti{display:flex;gap:10px;margin:14px 0 0;flex-wrap:wrap}
   button.predmet{
@@ -572,6 +589,7 @@
 <script src="zadaci-matematika-2.js"></script>
 <script src="zadaci-matematika-4.js"></script>
 <script src="zadaci-hrvatski-2.js"></script>
+<script src="zadaci-hrvatski-3.js"></script>
 <script src="zadaci-hrvatski-4.js"></script>
 <script src="zadaci-matematika-5.js"></script>
 <script src="zadaci-hrvatski-5.js"></script>
@@ -613,6 +631,7 @@ const PREDMETI = {
 
 const RAZREDI = {
   "2": { naziv: "2. razred", kratko: "2" },
+  "3": { naziv: "3. razred", kratko: "3" },
   "4": { naziv: "4. razred", kratko: "4" },
   "5": { naziv: "5. razred", kratko: "5" },
   "6": { naziv: "6. razred", kratko: "6" },
@@ -635,6 +654,16 @@ const GRADIVO = {
       naslov: "Ponavljamo hrvatski<br>2. razreda",
       uvod:   "Gradivo 2. razreda: veliko početno slovo, č i ć, ije i je, glasovi i slova, rečenica, vrste riječi i značenje. Odgovori i provjeri se sam.",
       zadaci: typeof ZADACI_HRVATSKI_2 !== "undefined" ? ZADACI_HRVATSKI_2 : []
+    }
+  },
+  // 3. razred zasad ima samo hrvatski (glagoli); pilula 3. razreda je na
+  // ostalim predmetima onemogucena, isto kao razredi bez povijesti
+  "3": {
+    hrvatski: {
+      title:  "Hrvatski jezik — gradivo 3. razreda",
+      naslov: "Ponavljamo hrvatski<br>3. razreda",
+      uvod:   "Gradivo 3. razreda: glagoli. Pronađi glagol u rečenici i odredi izriče li radnju, stanje ili zbivanje.",
+      zadaci: typeof ZADACI_HRVATSKI_3 !== "undefined" ? ZADACI_HRVATSKI_3 : []
     }
   },
   "4": {
@@ -844,6 +873,14 @@ function promijesaj(popis) {
   return k;
 }
 
+// tip "glagol": sto glagol izrice. Poredak je stalan (ne mijesa se) jer su
+// iste tri tipke uz svaku recenicu, a tocna se mijenja od recenice do recenice.
+const VRSTE_GLAGOLA = ["radnje", "stanja", "zbivanja"];
+window.VRSTE_GLAGOLA = VRSTE_GLAGOLA;   // harness ga cita; const ne dolazi na window
+// rijec bez recenicnog znaka: tipka prikazuje "cvijet.", a vrijedi "cvijet"
+const cistaRijec = r => r.replace(/[.,!?;:"„”]/g, "");
+window.cistaRijec = cistaRijec;
+
 function izgradiPredmet(kljucRazreda, kljucPredmeta) {
   razred  = (GRADIVO[kljucRazreda] && GRADIVO[kljucRazreda][kljucPredmeta]) ? kljucRazreda : "2";
   predmet = PREDMETI[kljucPredmeta] ? kljucPredmeta : "matematika";
@@ -959,6 +996,38 @@ function izgradiPredmet(kljucRazreda, kljucPredmeta) {
       });
       html += "</div>";
       const sol = task.items.map(([p, _pon, a]) => `${p ? p + " → " : ""}${a}`).join(" · ");
+      html += `<p class="solution">Rješenje: ${sol}</p>`;
+    } else if (task.t === "glagol") {
+      // dva koraka po recenici: tap na glagol, pa (tek kad je naden) vrsta.
+      // Svaki korak ima svoje skriveno polje, pa se broji i pamti zasebno.
+      html += '<div class="items glagol-items">';
+      task.items.forEach(([recenica, glagol, vrsta]) => {
+        const idR = "i" + (inputCount++), idV = "i" + (inputCount++);
+        const osnova = sec.id + "|" + recenica;
+        brojacKljuca[osnova] = (brojacKljuca[osnova] || 0) + 1;
+        const kljuc2 = (osnova + "|" + (brojacKljuca[osnova] - 1)).replace(/"/g, "");
+        const rijeci = recenica.split(/\s+/).map(r =>
+          `<button type="button" class="chip rijec" data-za="${idR}" data-vrijednost="${cistaRijec(r)}">${r}</button>`
+        ).join("");
+        const vrste = VRSTE_GLAGOLA.map(v =>
+          `<button type="button" class="chip" data-za="${idV}" data-vrijednost="${v}">${v}</button>`
+        ).join("");
+        html += `<div class="item glagol-item">
+          <span class="korak korak-rijec">
+            <span class="chips recenica" role="group" aria-label="${recenica.replace(/"/g, "")}">${rijeci}</span>
+            <input type="text" class="ans g-rijec" id="${idR}" data-answer="${glagol}"
+                   data-key="${kljuc2}" hidden>
+            <span class="mark" data-for="${idR}"></span></span>
+          <span class="korak korak-vrsta">
+            <span class="korak-pitanje">To je glagol</span>
+            <span class="chips" role="group" aria-label="vrsta glagola ${glagol}">${vrste}</span>
+            <input type="text" class="ans g-vrsta" id="${idV}" data-answer="${vrsta}"
+                   data-key="${kljuc2}|vrsta" hidden>
+            <span class="mark" data-for="${idV}"></span></span>
+        </div>`;
+      });
+      html += "</div>";
+      const sol = task.items.map(([r, g, v]) => `${r} → ${g} (glagol ${v})`).join(" · ");
       html += `<p class="solution">Rješenje: ${sol}</p>`;
     } else {
       html += `<div class="paper-task"><p>Riješi u vježbenici.</p></div>`;
@@ -1781,6 +1850,14 @@ main.addEventListener("click", e => {
   inp.value = tipka.dataset.vrijednost;
   oznaciTipku(inp);
   setState(inp, tocno(inp.value, inp.dataset.answer, inp.dataset.oblik), { sidro: tipka });
+  // tip "glagol": dok glagol nije tocno naden, vrsta nije ni ponudena -- pa
+  // ne smije ostati ni zapamcena od ranije (inace bi se brojila nevidljiva)
+  if (inp.classList.contains("g-rijec") && !inp.classList.contains("ok")) {
+    const vrsta = inp.closest(".glagol-item").querySelector("input.g-vrsta");
+    vrsta.value = "";
+    oznaciTipku(vrsta);
+    setState(vrsta, null, { fx: false });
+  }
   updateProgress();
   zapamtiOdgovore();
 });
