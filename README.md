@@ -1,8 +1,9 @@
 # Ponavljanje gradiva — 2., 3., 4., 5., 6. i 7. razred
 
 Statična stranica sa zadacima iz hrvatskog kurikuluma, za **matematiku** i **hrvatski jezik**
-(razredi **2., 4., 5., 6. i 7.**) te **povijest** (7. razred). **3. razred** zasad ima samo
-hrvatski jezik, temu **glagoli** (radnja, stanje, zbivanje). Razred se bira pilulama u zaglavlju, uz
+(razredi **2., 4., 5., 6. i 7.**) te **povijest** (7. razred). **3. razred** zasad ima
+hrvatski jezik, temu **glagoli** (radnja, stanje, zbivanje), i **engleski jezik**, temu
+**odjeća** (odabir ispravno napisane riječi). Razred se bira pilulama u zaglavlju, uz
 prekidač predmeta. Gradivo 2. razreda pokriva brojeve do 100, zbrajanje i oduzimanje s
 prelaskom desetice, tablicu množenja i dijeljenja, geometriju, mjerenje i podatke (matematika),
 te veliko početno slovo, č i ć, ije i je, glasove i slova, rečenicu, vrste riječi i značenje
@@ -76,10 +77,11 @@ lik i doslovni citati ne koriste.
 
 ## Razredi i predmeti
 
-Stranica ima tri predmeta: **Matematiku** i **Hrvatski jezik**, svaki dostupan za pet razreda
-(**2., 4., 5., 6. i 7.**), te **Povijest**, zasad samo za **7. razred**. **3. razred** ima
-samo Hrvatski jezik, pa je njegova pilula na matematici i povijesti onemogućena. Na povijesti su pilule
-ostalih razreda onemogućene, a pilula Povijest s nekog drugog razreda vodi ravno u 7. Predmet se bira pri prvoj prijavi, a razred **ne** — počinje na 2. razredu.
+Stranica ima četiri predmeta: **Matematiku** i **Hrvatski jezik**, svaki dostupan za pet razreda
+(**2., 4., 5., 6. i 7.**), **Povijest**, zasad samo za **7. razred**, i **Engleski jezik**, zasad
+samo za **3. razred**. **3. razred** ima Hrvatski i Engleski jezik, pa je njegova pilula na
+matematici i povijesti onemogućena. Na povijesti i engleskom su pilule ostalih razreda
+onemogućene, a pilula Povijest (Engleski) s nekog drugog razreda vodi ravno u 7. (3.) razred. Predmet se bira pri prvoj prijavi, a razred **ne** — počinje na 2. razredu.
 Oba se mijenjaju prekidačima u zaglavlju: gornji red su pilule razreda, donji pilule predmeta.
 Nadimak i avatar su zajednički za sve razrede i
 predmete, a napredak se pamti odvojeno po **paru** razred/predmet. Stranica se otvori na
@@ -111,6 +113,7 @@ iz kurikuluma na koji se odnosi:
 | Matematika 2. | 7 | 85 | gradivo 2. razreda |
 | Hrvatski 2. | 7 | 85 | gradivo 2. razreda |
 | Hrvatski 3. | 3 | 64 | glagoli: radnja, stanje i zbivanje (32 rečenice, po dva polja) |
+| Engleski 3. | 3 | 20 | odjeća (clothes): odabir ispravno napisane riječi od četiri verzije |
 | Matematika 4. | 9 | 150 | `MAT OŠ A.4.1–4`, `B.4.1`, `C.4.1–5`, `D.4.1–2`, `E.4.1–2` — svi ishodi 4. razreda |
 | Hrvatski 4. | 9 | 131 | jezgra `OŠ HJ A.4.5`; `A.4.6`; `B.4.2`; `A.4.1–4` kao „note" |
 | Matematika 5. | 8 | 134 | `MAT OŠ A.5.1–6`, `B.5.1–2`, `C.5.1–3`, `D.5.1–5`, `E.5.1` |
@@ -123,6 +126,14 @@ iz kurikuluma na koji se odnosi:
 
 Hrvatski 7. ima osam cjelina, ali `h8` sadrži same `note` zadatke, pa nema polja ni
 `data-total` — zato u stupcu *Cjelina* stoji 7. Isto vrijedi za povijest 7. i cjelinu `p8`.
+
+**Engleski 3.** ima samo `izbor` zadatke: uz hrvatsku riječ (i emoji, gdje postoji prikladan
+i podržan na starijim tabletima) stoje četiri verzije engleske riječi, od kojih je samo jedna
+ispravno napisana. Netočne verzije su tipične dječje greške (pisanje po izgovoru, udvojeno ili
+ispušteno slovo) i nikad nisu stvarna engleska ili hrvatska riječ ni valjan drugi oblik
+(`wooly`, `t-shirt`, `sox`) — pravila stoje u komentaru `zadaci-engleski-3.js`. Predmet nema
+polja za upis, pa nema ni trake znakova (`znakovi: {}`); zaglavlje je engleska abeceda A–Z
+(`traka: "alphabet"`).
 
 Povijest se provjerava pravilom hrvatskoga (veliko slovo i dijakritika su bitni). Godine se
 pitaju samo kao `izbor`, jer se u hrvatskom pišu s točkom (`1789.`) i upis bi bio dvojben.
@@ -177,7 +188,7 @@ Gradivo 2. razreda **nema** `oblik` — provjerava se starim pravilom po predmet
 
 ### Provjera odgovora ovisi o predmetu
 
-| | Matematika | Hrvatski i povijest |
+| | Matematika | Hrvatski, povijest i engleski |
 |---|---|---|
 | veliko/malo slovo | nevažno | bitno (`Ana` ≠ `ana`) |
 | č ć š ž đ | — | bitno (`kuca` ≠ `kuća`) |

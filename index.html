@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Matematika — gradivo 2. razreda</title>
-<meta name="description" content="Zadaci za ponavljanje gradiva matematike i hrvatskog jezika za 2., 4., 5., 6. i 7. razred te povijesti za 7. razred osnovne škole.">
+<meta name="description" content="Zadaci za ponavljanje gradiva matematike i hrvatskog jezika za 2., 4., 5., 6. i 7. razred, povijesti za 7. razred te engleskog jezika za 3. razred osnovne škole.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -288,7 +288,7 @@
   /* ---------- zadatak s tapkanjem ---------- */
   .izbor-item{gap:10px;flex-wrap:wrap}
   .izbor-prikaz{font-weight:700;font-size:20px}
-  .chips{display:flex;gap:8px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
   button.chip{
     min-height:54px;min-width:54px;padding:0 16px;
     font:700 20px/1 "Nunito",sans-serif;
@@ -565,6 +565,9 @@
       <button type="button" class="predmet-izbor" data-predmet="povijest" aria-pressed="false">
         <span class="lik-ime">Povijest</span>
       </button>
+      <button type="button" class="predmet-izbor" data-predmet="engleski" aria-pressed="false">
+        <span class="lik-ime">Engleski jezik</span>
+      </button>
     </div>
     <p style="margin-top:16px">Koga želiš da te prati kroz zadatke?</p>
     <div class="izbor">
@@ -598,6 +601,7 @@
 <script src="zadaci-hrvatski-6.js"></script>
 <script src="zadaci-hrvatski-7.js"></script>
 <script src="zadaci-povijest-7.js"></script>
+<script src="zadaci-engleski-3.js"></script>
 <script>
 /* ---------- predmeti, razredi i gradivo ----------
    Predmet nosi ono sto ne ovisi o razredu: pravilo provjere, traku u
@@ -626,6 +630,14 @@ const PREDMETI = {
     traka:    "abeceda",
     provjera: "rijec",
     znakovi:  { "*": ["č", "ć", "š", "ž", "đ"] }
+  },
+  // engleski postoji samo za 3. razred; zadaci su samo tipke (izbor), pa
+  // nema polja za upis ni trake znakova. Zaglavlje je engleska abeceda.
+  engleski: {
+    naziv:    "Engleski jezik",
+    traka:    "alphabet",
+    provjera: "rijec",
+    znakovi:  {}
   }
 };
 
@@ -656,14 +668,20 @@ const GRADIVO = {
       zadaci: typeof ZADACI_HRVATSKI_2 !== "undefined" ? ZADACI_HRVATSKI_2 : []
     }
   },
-  // 3. razred zasad ima samo hrvatski (glagoli); pilula 3. razreda je na
-  // ostalim predmetima onemogucena, isto kao razredi bez povijesti
+  // 3. razred zasad ima hrvatski (glagoli) i engleski (odjeca); pilula 3.
+  // razreda je na matematici i povijesti onemogucena
   "3": {
     hrvatski: {
       title:  "Hrvatski jezik — gradivo 3. razreda",
       naslov: "Ponavljamo hrvatski<br>3. razreda",
       uvod:   "Gradivo 3. razreda: glagoli. Pronađi glagol u rečenici i odredi izriče li radnju, stanje ili zbivanje.",
       zadaci: typeof ZADACI_HRVATSKI_3 !== "undefined" ? ZADACI_HRVATSKI_3 : []
+    },
+    engleski: {
+      title:  "Engleski jezik — gradivo 3. razreda",
+      naslov: "Ponavljamo engleski<br>3. razreda",
+      uvod:   "Gradivo 3. razreda: odjeća (clothes). Pogledaj hrvatsku riječ i dotakni englesku riječ koja je ispravno napisana.",
+      zadaci: typeof ZADACI_ENGLESKI_3 !== "undefined" ? ZADACI_ENGLESKI_3 : []
     }
   },
   "4": {
@@ -830,7 +848,7 @@ const imaProfil = ucitajProfil();
 if (imaProfil) spremiProfil();       // odmah upisi migrirani zapis (v:3)
 
 /* ---------- traka u zaglavlju ----------
-   Matematika ima brojevnu ljestvicu, hrvatski abecedu. Ista mehanika
+   Matematika ima brojevnu ljestvicu, hrvatski abecedu, engleski A-Z. Ista mehanika
    iskustva: updateProgress() pali kucice po broju tocnih odgovora i broji
    ih iz ladder.children.length, pa se prilagodava sam.
 ------------------------------------------------------------------------- */
@@ -839,19 +857,22 @@ const ljestvicaOznake = document.querySelector(".ladder-scale");
 
 const ABECEDA = ["A","B","C","Č","Ć","D","DŽ","Đ","E","F","G","H","I","J","K","L",
                  "LJ","M","N","NJ","O","P","R","S","Š","T","U","V","Z","Ž"];
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
+// "abeceda" je hrvatska abeceda, "alphabet" engleska (A-Z), sve ostalo brojevi
 function izgradiTraku(vrsta) {
-  const abeceda = vrsta === "abeceda";
+  const slova = vrsta === "abeceda" ? ABECEDA : vrsta === "alphabet" ? ALPHABET : null;
+  const abeceda = !!slova;
   ladder.innerHTML = "";
   ladder.classList.toggle("abeceda", abeceda);
-  const n = abeceda ? ABECEDA.length : 20;
+  const n = abeceda ? slova.length : 20;
   for (let i = 0; i < n; i++) {
     const s = document.createElement("span");
-    if (abeceda) { s.style.height = "100%"; s.textContent = ABECEDA[i]; }
+    if (abeceda) { s.style.height = "100%"; s.textContent = slova[i]; }
     else s.style.height = (18 + (i + 1) * 2.6) + "%";
     ladder.appendChild(s);
   }
-  ljestvicaOznake.innerHTML = (abeceda ? ["A", "", "Ž"] : ["0", "50", "100"])
+  ljestvicaOznake.innerHTML = (abeceda ? [slova[0], "", slova[slova.length - 1]] : ["0", "50", "100"])
     .map(o => `<span>${o}</span>`).join("");
 }
 
@@ -2120,6 +2141,9 @@ function prebaciPredmet(kljuc) {
   izgradiPredmet(razred, kljuc);
   iscrtajRazrede();                  // dostupnost razreda ovisi o predmetu
   oznaciRazred();
+  // izgradiPredmet je mozda pao na drugi razred (engleski postoji samo u 3.,
+  // povijest samo u 7.) -- zapamti i razred, ne samo predmet
+  profil.razred = razred;
   profil.predmet = predmet;
   spremiProfil();
   oznaciPredmet();

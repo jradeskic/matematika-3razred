@@ -53,6 +53,8 @@ const OCEKIVANJA = {
   "2/hrvatski":   { cjelina: 7, polja: 85 },
   // 3. razred ima samo hrvatski; svaka recenica tipa "glagol" nosi dva polja
   "3/hrvatski":   { cjelina: 3, polja: 64 },
+  // engleski je samo u 3. razredu: 20 rijeci iz odjece, svaka jedno polje
+  "3/engleski":   { cjelina: 3, polja: 20 },
   "4/matematika": { cjelina: 9, polja: 150 },
   "4/hrvatski":   { cjelina: 9, polja: 131 },
   "5/matematika": { cjelina: 8, polja: 134 },
@@ -152,10 +154,11 @@ provjera("odsutan skup zadataka onemogucuje pilulu, stranica radi", async ucitaj
    provjeravamo da izvorni kod stvarno nosi typeof cuvar na svih sest mjesta
    -- to je upravo mehanizam koji sprjecava ReferenceError kad datoteka sa
    zadacima ne stigne. */
-provjera("svih sest zadaci izraza u GRADIVU ima typeof cuvar", async ucitaj => {
+provjera("svi navedeni zadaci izrazi u GRADIVU imaju typeof cuvar", async ucitaj => {
   const izvor = await fetch("../index.html?nc=" + Date.now()).then(r => r.text());
   const imena = ["ZADACI_MATEMATIKA_2", "ZADACI_HRVATSKI_2", "ZADACI_MATEMATIKA_5",
-                 "ZADACI_HRVATSKI_5", "ZADACI_MATEMATIKA_6", "ZADACI_HRVATSKI_6"];
+                 "ZADACI_HRVATSKI_5", "ZADACI_MATEMATIKA_6", "ZADACI_HRVATSKI_6",
+                 "ZADACI_ENGLESKI_3"];
   const nedostaje = imena.filter(ime =>
     !new RegExp(`zadaci:\\s*typeof ${ime} !== "undefined" \\? ${ime} : \\[\\]`).test(izvor));
   jednako(nedostaje, [], "zadaci izrazi bez typeof cuvara");
@@ -448,7 +451,7 @@ provjera("stari zapis se prevodi u v:3 i cuva matematicki napredak", async ucita
 provjera("prekidac predmeta ima pilulu za svaki predmet", async ucitaj => {
   const W = await ucitaj();
   const pilule = [...W.document.querySelectorAll("#predmeti .predmet")];
-  jednako(pilule.map(p => p.dataset.predmet), ["matematika", "hrvatski", "povijest"], "pilule");
+  jednako(pilule.map(p => p.dataset.predmet), ["matematika", "hrvatski", "povijest", "engleski"], "pilule");
   jednako(pilule.filter(p => p.classList.contains("aktivan")).length, 1, "jedna je aktivna");
 });
 
@@ -578,7 +581,7 @@ provjera("prijava nudi odabir predmeta", async ucitaj => {
   await cekaj(150);
   istina(!W.document.getElementById("prijava").hidden, "prijava je otvorena");
   jednako([...W.document.querySelectorAll(".predmet-izbor")].map(b => b.dataset.predmet),
-          ["matematika", "hrvatski", "povijest"], "kartice predmeta");
+          ["matematika", "hrvatski", "povijest", "engleski"], "kartice predmeta");
 });
 
 provjera("odabir hrvatskoga u prijavi otvara hrvatski", async ucitaj => {
@@ -787,12 +790,13 @@ provjera("RAZREDI ima 2., 3., 4., 5., 6. i 7. razred", async ucitaj => {
   jednako(Object.keys(W.RAZREDI), ["2", "3", "4", "5", "6", "7"], "kljucevi razreda");
 });
 
-provjera("GRADIVO ima svih dvanaest skupova i ni jedan nije prazan", async ucitaj => {
+provjera("GRADIVO ima svih trinaest skupova i ni jedan nije prazan", async ucitaj => {
   const W = await ucitaj();
-  // matematika i hrvatski za svaki razred osim 3. (samo hrvatski), povijest samo za 7.
+  // matematika i hrvatski za svaki razred osim 3. (bez matematike), povijest
+  // samo za 7., engleski samo za 3.
   const ocekivani = Object.keys(W.RAZREDI)
     .flatMap(r => ["matematika", "hrvatski"].map(p => r + "/" + p))
-    .filter(k => k !== "3/matematika").concat("7/povijest");
+    .filter(k => k !== "3/matematika").concat("7/povijest", "3/engleski");
   jednako(parovi(W).map(([r, p]) => r + "/" + p).sort(), ocekivani.sort(), "postojeci skupovi");
   const prazni = parovi(W).filter(([r, p]) => !W.GRADIVO[r][p].zadaci.length).map(([r, p]) => r + "/" + p);
   jednako(prazni, [], "skupovi bez zadataka");
@@ -831,6 +835,79 @@ provjera("povijest: svi tocni odgovori prolaze provjeru i tocan je odgovor medu 
   jednako(polja(W).filter(i => i.classList.contains("no")).map(i => i.dataset.key), [], "odbijeni odgovori");
   jednako(W.document.querySelectorAll("section.won").length, 7, "svladanih razina");
   jednako(W.document.querySelectorAll("#main .paper-task").length, 11, "zadataka za vjezbenicu");
+});
+
+/* ---------- engleski, 3. razred ---------- */
+
+provjera("engleski: pilula s 2. razreda vodi u 3. razred, ostali razredi su onemoguceni", async ucitaj => {
+  const W = await ucitaj();
+  jednako(W.stanje().razred, "2", "pocetni razred");
+  W.document.querySelector("#predmeti .predmet[data-predmet='engleski']").click();
+  await cekaj(200);
+  jednako(W.stanje(), { razred: "3", predmet: "engleski" }, "aktivni par");
+  jednako(W.document.title, "Engleski jezik — gradivo 3. razreda", "naslov");
+  jednako([...W.document.querySelectorAll("#razredi .razred:not(:disabled)")].map(b => b.dataset.razred),
+          ["3"], "dostupni razredi");
+  // zaglavlje je engleska abeceda, a traka slova za upis je skrivena
+  jednako([...W.document.querySelectorAll("#ladder span")].map(s => s.textContent).join(""),
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "engleska abeceda");
+  jednako([...W.document.querySelectorAll(".ladder-scale span")].map(s => s.textContent),
+          ["A", "", "Z"], "oznake abecede");
+  istina(W.document.getElementById("slova").hidden, "traka slova je skrivena");
+  // natrag na matematiku: 3. razred je nema, pa pada na 2.
+  W.document.querySelector("#predmeti .predmet[data-predmet='matematika']").click();
+  await cekaj(200);
+  jednako(W.stanje(), { razred: "2", predmet: "matematika" }, "matematika 2. razreda");
+});
+
+provjera("engleski: svaka rijec ima cetiri razlicite verzije i tocno jedna je odgovor", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("3", "engleski");
+  const lose = [];
+  const stavke = [...W.document.querySelectorAll(".izbor-item")];
+  jednako(stavke.length, 20, "broj rijeci");
+  stavke.forEach(s => {
+    const inp = s.querySelector("input[type=text]");
+    const vrijednosti = [...s.querySelectorAll(".chip")].map(t => t.dataset.vrijednost);
+    if (vrijednosti.length !== 4 || new Set(vrijednosti).size !== 4 ||
+        vrijednosti.filter(v => v === inp.dataset.answer).length !== 1) lose.push(inp.dataset.key);
+  });
+  jednako(lose, [], "stavke bez cetiri razlicite verzije s tocnim odgovorom");
+  const kljucevi = polja(W).map(i => i.dataset.key);
+  jednako(new Set(kljucevi).size, kljucevi.length, "jedinstveni kljucevi");
+});
+
+provjera("engleski: tap na tocnu i netocnu verziju, svi tocni odgovori svladaju razine", async ucitaj => {
+  const W = await ucitaj();
+  W.izgradiPredmet("3", "engleski");
+  const stavka = W.document.querySelector(".izbor-item");
+  const inp = stavka.querySelector("input[type=text]");
+  const kriva = [...stavka.querySelectorAll(".chip")].find(t => t.dataset.vrijednost !== inp.dataset.answer);
+  kriva.click();
+  await cekaj(100);
+  istina(inp.classList.contains("no"), "netocna verzija je oznacena kao netocna");
+  stavka.querySelector(`.chip[data-vrijednost="${inp.dataset.answer}"]`).click();
+  await cekaj(100);
+  istina(inp.classList.contains("ok"), "tocna verzija je oznacena kao tocna");
+  polja(W).forEach(i => { i.value = i.dataset.answer; });
+  W.document.getElementById("check").click();
+  await cekaj(200);
+  jednako(polja(W).filter(i => i.classList.contains("no")).map(i => i.dataset.key), [], "odbijeni odgovori");
+  jednako(W.document.querySelectorAll("section.won").length, 3, "svladanih razina");
+});
+
+provjera("odabir engleskoga u prijavi otvara 3. razred engleskog", async ucitaj => {
+  const W = await ucitaj();
+  await cekaj(150);
+  W.document.getElementById("nick").value = "Ana";
+  W.document.querySelector('.predmet-izbor[data-predmet="engleski"]').click();
+  W.document.getElementById("kreni").click();
+  await cekaj(350);
+  jednako(W.stanje(), { razred: "3", predmet: "engleski" }, "aktivni par");
+  jednako(W.document.querySelector("#main section").id, "e1", "otvorena cjelina");
+  const zapis = JSON.parse(localStorage.getItem("mat3-profil-v1"));
+  jednako(zapis.predmet, "engleski", "predmet je zapamcen");
+  jednako(zapis.razred, "3", "razred je zapamcen");
 });
 
 /* ---------- migracija profila na v:3 ---------- */
